@@ -17,12 +17,11 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
 
         guard let button = statusItem?.button else { return }
 
-        // Configure Menu Bar Icon
         let icon = NSImage(systemSymbolName: "camera.viewfinder", accessibilityDescription: "Screenie")
             ?? NSImage(systemSymbolName: "crop", accessibilityDescription: "Screenie")
         icon?.isTemplate = true
         button.image = icon
-        button.toolTip = "Screenie: Bereich aufnehmen mit ⌘⇧1"
+        button.toolTip = "Screenie: ⌘⇧1 (Kopieren) / ⌘⇧2 (Bearbeiten)"
 
         rebuildMenu()
     }
@@ -31,15 +30,25 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
         let menu = NSMenu()
         menu.delegate = self
 
-        // Primary Action
-        let captureItem = NSMenuItem(
-            title: "Bereich aufnehmen",
-            action: #selector(captureAreaAction),
+        // Action 1: Direct Capture
+        let directItem = NSMenuItem(
+            title: "Bereich aufnehmen (Direkt)",
+            action: #selector(captureDirectAction),
             keyEquivalent: "1"
         )
-        captureItem.keyEquivalentModifierMask = [.command, .shift]
-        captureItem.target = self
-        menu.addItem(captureItem)
+        directItem.keyEquivalentModifierMask = [.command, .shift]
+        directItem.target = self
+        menu.addItem(directItem)
+
+        // Action 2: Capture & Edit
+        let editItem = NSMenuItem(
+            title: "Bereich aufnehmen & bearbeiten",
+            action: #selector(captureEditAction),
+            keyEquivalent: "2"
+        )
+        editItem.keyEquivalentModifierMask = [.command, .shift]
+        editItem.target = self
+        menu.addItem(editItem)
 
         menu.addItem(NSMenuItem.separator())
 
@@ -64,7 +73,7 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
 
         menu.addItem(NSMenuItem.separator())
 
-        // Settings
+        // Settings & About
         let settingsItem = NSMenuItem(
             title: "Einstellungen...",
             action: #selector(openSettingsAction),
@@ -102,8 +111,12 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
     }
 
     // MARK: - Actions
-    @objc private func captureAreaAction() {
-        CaptureService.shared.captureArea()
+    @objc private func captureDirectAction() {
+        CaptureService.shared.captureDirect()
+    }
+
+    @objc private func captureEditAction() {
+        CaptureService.shared.captureForEdit()
     }
 
     @objc private func toggleSoundAction() {
@@ -137,8 +150,8 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
 
     @objc private func openAboutAction() {
         let alert = NSAlert()
-        alert.messageText = "Screenie v1.0"
-        alert.informativeText = "Die minimalistische Greenshot-Alternative für macOS.\n\nDrücke ⌘⇧1, markiere den gewünschten Bereich und füge ihn direkt aus der Zwischenablage ein – ohne unnötige Dateien auf der Festplatte."
+        alert.messageText = "Screenie v1.1"
+        alert.informativeText = "Die ultimative Greenshot-Alternative für macOS.\n\n• ⌘⇧1: Bereich markieren → Direkt in Zwischenablage (0 Klicks)\n• ⌘⇧2: Bereich markieren → Im Editor öffnen (Einkreisen, Pfeile, Text, Blur)\n\nKeine Dateien auf der Festplatte."
         alert.alertStyle = .informational
         alert.addButton(withTitle: "OK")
         alert.runModal()

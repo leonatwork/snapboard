@@ -40,11 +40,15 @@ final class HotKeyManager {
     static let shared = HotKeyManager()
 
     private var eventHandler: EventHandlerRef?
-    private var hotKeyRef: EventHotKeyRef?
-    private let screenieHotKeyID: UInt32 = 1
+    private var hotKeyRef1: EventHotKeyRef?
+    private var hotKeyRef2: EventHotKeyRef?
+
+    private let directHotKeyID: UInt32 = 1
+    private let editHotKeyID: UInt32 = 2
     private let signature: OSType = 0x5343524E // "SCRN"
 
-    var onTrigger: (@MainActor () -> Void)?
+    var onTriggerDirect: (@MainActor () -> Void)?
+    var onTriggerEdit: (@MainActor () -> Void)?
 
     private init() {
         setupEventHandler()
@@ -70,50 +74,58 @@ final class HotKeyManager {
         }
     }
 
-    func registerDefaultHotKey() {
-        unregisterHotKey()
+    func registerHotKeys() {
+        unregisterHotKeys()
 
-        // Carbon modifiers:
-        // cmdKey: 0x0100 (256)
-        // shiftKey: 0x0200 (512)
         let modifiers: UInt32 = UInt32(cmdKey | shiftKey)
 
-        // Key code for '1' is 18 (kVK_ANSI_1)
-        let keyCode: UInt32 = 18
-
-        let hotKeyID = EventHotKeyID(signature: signature, id: screenieHotKeyID)
-
-        let status = RegisterEventHotKey(
-            keyCode,
+        // Key code for '1' is 18 (Cmd + Shift + 1 -> Direct to clipboard)
+        let hotKeyID1 = EventHotKeyID(signature: signature, id: directHotKeyID)
+        let status1 = RegisterEventHotKey(
+            18,
             modifiers,
-            hotKeyID,
+            hotKeyID1,
             GetApplicationEventTarget(),
             0,
-            &hotKeyRef
+            &hotKeyRef1
         )
 
-        if status == noErr {
-            logger.info("Successfully registered global shortcut: Cmd + Shift + 1")
+        // Key code for '2' is 19 (Cmd + Shift + 2 -> Capture and Open in Editor)
+        let hotKeyID2 = EventHotKeyID(signature: signature, id: editHotKeyID)
+        let status2 = RegisterEventHotKey(
+            19,
+            modifiers,
+            hotKeyID2,
+            GetApplicationEventTarget(),
+            0,
+            &hotKeyRef2
+        )
+
+        if status1 == noErr && status2 == noErr {
+            logger.info("Successfully registered global shortcuts: ⌘⇧1 (Direct) & ⌘⇧2 (Edit)")
         } else {
-            logger.error("Failed to register hotkey with status: \(status)")
+            logger.error("Error registering hotkeys: status1=\(status1), status2=\(status2)")
         }
     }
 
-    func unregisterHotKey() {
-        if let hotKeyRef = hotKeyRef {
-            UnregisterEventHotKey(hotKeyRef)
-            self.hotKeyRef = nil
+    func unregisterHotKeys() {
+        if let ref1 = hotKeyRef1 {
+            UnregisterEventHotKey(ref1)
+            self.hotKeyRef1 = nil
+        }
+        if let ref2 = hotKeyRef2 {
+            UnregisterEventHotKey(ref2)
+            self.hotKeyRef2 = nil
         }
     }
 
     func handleHotKeyTriggered(id: UInt32) {
-        if id == screenieHotKeyID {
-            logger.info("Cmd + Shift + 1 shortcut triggered!")
-            onTrigger?()
+        if id == directHotKeyID {
+            logger.info("Cmd + Shift + 1 (Direct) triggered")
+            onTriggerDirect?()
+        } else if id == editHotKeyID {
+            logger.info("Cmd + Shift + 2 (Edit) triggered")
+            onTriggerEdit?()
         }
-    }
-
-    deinit {
-        // Cleanup event handler and hotkey if needed
     }
 }

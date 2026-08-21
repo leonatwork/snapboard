@@ -29,7 +29,13 @@ struct SettingsView: View {
             Form {
                 Section {
                     HStack {
-                        Text("Globaler Shortcut:")
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Direkt in Zwischenablage:")
+                                .fontWeight(.medium)
+                            Text("Bereich wählen → 0 Klicks sofort im Clipboard")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                         Spacer()
                         Text("⌘ ⇧ 1")
                             .font(.system(.body, design: .monospaced))
@@ -41,24 +47,28 @@ struct SettingsView: View {
                     }
 
                     HStack {
-                        Text("Aktion:")
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Aufnehmen & Bearbeiten:")
+                                .fontWeight(.medium)
+                            Text("Bereich wählen → Öffnet den Editor (Pfeile, Blur, etc.)")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
                         Spacer()
-                        Text("Bereich auswählen → Zwischenablage")
-                            .foregroundColor(.secondary)
-                    }
-
-                    HStack {
-                        Text("Speicherort:")
-                        Spacer()
-                        Text("Keine (nur Zwischenablage)")
-                            .foregroundColor(.secondary)
+                        Text("⌘ ⇧ 2")
+                            .font(.system(.body, design: .monospaced))
+                            .fontWeight(.semibold)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color(NSColor.quaternaryLabelColor))
+                            .cornerRadius(6)
                     }
                 } header: {
-                    Text("Tastaturkürzel & Verhalten")
+                    Text("Globale Tastaturkürzel")
                 }
 
                 Section {
-                    Toggle("Ton bei erfolgreicher Aufnahme abspielen", isOn: $appState.playSound)
+                    Toggle("Ton bei Aufnahme abspielen", isOn: $appState.playSound)
 
                     Toggle("Mitteilung nach Aufnahme anzeigen", isOn: $appState.showNotification)
 
@@ -74,8 +84,12 @@ struct SettingsView: View {
 
             // Footer actions
             HStack {
-                Button("Screenshot jetzt testen") {
-                    CaptureService.shared.captureArea()
+                Button("Direkt testen (⌘⇧1)") {
+                    CaptureService.shared.captureDirect()
+                }
+
+                Button("Editor testen (⌘⇧2)") {
+                    CaptureService.shared.captureForEdit()
                 }
                 .buttonStyle(.borderedProminent)
 
@@ -89,7 +103,7 @@ struct SettingsView: View {
             .padding(16)
             .background(Color(NSColor.windowBackgroundColor))
         }
-        .frame(width: 440, height: 420)
+        .frame(width: 490, height: 460)
         .onAppear {
             appState.checkLaunchAtLoginStatus()
         }

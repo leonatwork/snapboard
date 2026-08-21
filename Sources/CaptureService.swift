@@ -13,17 +13,14 @@ final class CaptureService {
 
     private init() {}
 
-    func captureArea() {
-        // If a capture process is already running, bring it to front or ignore
+    func captureDirect() {
         if let process = activeProcess, process.isRunning {
-            logger.info("Screenshot process is already active.")
+            logger.info("Capture process is already active.")
             return
         }
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
-        // -i: interactive (selection rectangle)
-        // -c: copy to clipboard directly (no file saved to disk)
         process.arguments = ["-i", "-c"]
 
         let initialChangeCount = NSPasteboard.general.changeCount
@@ -33,12 +30,9 @@ final class CaptureService {
                 self?.activeProcess = nil
                 let newChangeCount = NSPasteboard.general.changeCount
 
-                // Check if screenshot was actually copied (proc.terminationStatus == 0 and clipboard changed)
                 if proc.terminationStatus == 0 && newChangeCount != initialChangeCount {
-                    logger.info("Screenshot copied to clipboard successfully.")
+                    logger.info("Screenshot copied directly to clipboard.")
                     self?.handleCaptureSuccess()
-                } else {
-                    logger.info("Screenshot cancelled or no image copied.")
                 }
             }
         }
@@ -47,13 +41,54 @@ final class CaptureService {
             try process.run()
             self.activeProcess = process
         } catch {
-            logger.error("Failed to start screencapture process: \(error.localizedDescription)")
+            logger.error("Failed to start screencapture: \(error.localizedDescription)")
         }
+    }
+
+    func captureForEdit() {
+        if let process = activeProcess, process.isRunning {
+            logger.info("Capture process is already active.")
+            return
+        }
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
+        process.arguments = ["-i", "-c"]
+
+        let initialChangeCount = NSPasteboard.general.changeCount
+
+        process.terminationHandler = { [weak self] proc in
+            Task { @MainActor [weak self] in
+                self?.activeProcess = nil
+                let newChangeCount = NSPasteboard.general.changeCount
+
+                if proc.terminationStatus == 0 && newChangeCount != initialChangeCount {
+                    logger.info("Screenshot captured, opening in Editor...")
+                    self?.openInEditor()
+                }
+            }
+        }
+
+        do {
+            try process.run()
+            self.activeProcess = process
+        } catch {
+            logger.error("Failed to start screencapture: \(error.localizedDescription)")
+        }
+    }
+
+    private func openInEditor() {
+        guard let images = NSPasteboard.general.readObjects(forClasses: [NSImage.self], options: nil) as? [NSImage],
+              let image = images.first else {
+            logger.error("No image found on clipboard to edit.")
+            return
+        }
+
+        EditorWindowController.shared.show(image: image)
     }
 
     private func handleCaptureSuccess() {
         if AppState.shared.playSound {
-            // Play camera shutter sound or default system sound
             if let sound = NSSound(named: "Tink") ?? NSSound(named: "Hero") {
                 sound.play()
             } else {
