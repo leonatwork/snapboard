@@ -17,11 +17,11 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
 
         guard let button = statusItem?.button else { return }
 
-        let icon = NSImage(systemSymbolName: "camera.viewfinder", accessibilityDescription: "Screenie")
-            ?? NSImage(systemSymbolName: "crop", accessibilityDescription: "Screenie")
+        let icon = NSImage(systemSymbolName: "camera.viewfinder", accessibilityDescription: "Snapboard")
+            ?? NSImage(systemSymbolName: "crop", accessibilityDescription: "Snapboard")
         icon?.isTemplate = true
         button.image = icon
-        button.toolTip = "Screenie: ⌘⇧1 (Kopieren) / ⌘⇧2 (Bearbeiten)"
+        button.toolTip = "Snapboard: ⌘⇧1 (Direkt) / ⌘⇧2 (Bearbeiten)"
 
         rebuildMenu()
     }
@@ -30,7 +30,7 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
         let menu = NSMenu()
         menu.delegate = self
 
-        // Action 1: Direct Capture
+        // Action 1: Direct
         let directItem = NSMenuItem(
             title: "Bereich aufnehmen (Direkt)",
             action: #selector(captureDirectAction),
@@ -40,7 +40,7 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
         directItem.target = self
         menu.addItem(directItem)
 
-        // Action 2: Capture & Edit
+        // Action 2: Edit
         let editItem = NSMenuItem(
             title: "Bereich aufnehmen & bearbeiten",
             action: #selector(captureEditAction),
@@ -52,7 +52,7 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
 
         menu.addItem(NSMenuItem.separator())
 
-        // Quick Toggles
+        // Toggles
         let soundItem = NSMenuItem(
             title: "Ton bei Aufnahme",
             action: #selector(toggleSoundAction),
@@ -83,7 +83,7 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
         menu.addItem(settingsItem)
 
         let aboutItem = NSMenuItem(
-            title: "Über Screenie",
+            title: "Über Snapboard",
             action: #selector(openAboutAction),
             keyEquivalent: ""
         )
@@ -94,7 +94,7 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
 
         // Quit
         let quitItem = NSMenuItem(
-            title: "Screenie beenden",
+            title: "Snapboard beenden",
             action: #selector(quitAction),
             keyEquivalent: "q"
         )
@@ -138,7 +138,7 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
 
         let hostingController = NSHostingController(rootView: SettingsView())
         let window = NSWindow(contentViewController: hostingController)
-        window.title = "Screenie Einstellungen"
+        window.title = "Snapboard Einstellungen"
         window.styleMask = [.titled, .closable]
         window.center()
         window.isReleasedWhenClosed = false
@@ -150,8 +150,8 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
 
     @objc private func openAboutAction() {
         let alert = NSAlert()
-        alert.messageText = "Screenie v1.1"
-        alert.informativeText = "Die ultimative Greenshot-Alternative für macOS.\n\n• ⌘⇧1: Bereich markieren → Direkt in Zwischenablage (0 Klicks)\n• ⌘⇧2: Bereich markieren → Im Editor öffnen (Einkreisen, Pfeile, Text, Blur)\n\nKeine Dateien auf der Festplatte."
+        alert.messageText = "Snapboard v1.0"
+        alert.informativeText = "Die moderne Greenshot-Alternative für macOS.\n\n• ⌘⇧1: Direkt in die Zwischenablage (0 Klicks)\n• ⌘⇧2: Bereich aufnehmen & im Editor bearbeiten (Blur, Pfeile, Text, Badges)\n\nKeine Dateien auf der Festplatte."
         alert.alertStyle = .informational
         alert.addButton(withTitle: "OK")
         alert.runModal()

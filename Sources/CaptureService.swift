@@ -3,7 +3,7 @@ import Foundation
 import UserNotifications
 import os.log
 
-private let logger = Logger(subsystem: "com.leon.screenie", category: "CaptureService")
+private let logger = Logger(subsystem: "com.leon.snapboard", category: "CaptureService")
 
 @MainActor
 final class CaptureService {
@@ -15,7 +15,7 @@ final class CaptureService {
 
     func captureDirect() {
         if let process = activeProcess, process.isRunning {
-            logger.info("Capture process is already active.")
+            logger.info("Capture process is already running.")
             return
         }
 
@@ -31,7 +31,7 @@ final class CaptureService {
                 let newChangeCount = NSPasteboard.general.changeCount
 
                 if proc.terminationStatus == 0 && newChangeCount != initialChangeCount {
-                    logger.info("Screenshot copied directly to clipboard.")
+                    logger.info("Direct capture successful.")
                     self?.handleCaptureSuccess()
                 }
             }
@@ -41,30 +41,44 @@ final class CaptureService {
             try process.run()
             self.activeProcess = process
         } catch {
-            logger.error("Failed to start screencapture: \(error.localizedDescription)")
+            logger.error("Failed to run screencapture: \(error.localizedDescription)")
         }
     }
 
     func captureForEdit() {
         if let process = activeProcess, process.isRunning {
-            logger.info("Capture process is already active.")
+            logger.info("Capture process is already running.")
             return
         }
 
+        let tempFileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("snapboard_capture_\(UUID().uuidString).png")
+
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
-        process.arguments = ["-i", "-c"]
-
-        let initialChangeCount = NSPasteboard.general.changeCount
+        // -i: interactive selection
+        // Write to temp file path, which we immediately read into memory and delete
+        process.arguments = ["-i", tempFileURL.path]
 
         process.terminationHandler = { [weak self] proc in
             Task { @MainActor [weak self] in
                 self?.activeProcess = nil
-                let newChangeCount = NSPasteboard.general.changeCount
 
-                if proc.terminationStatus == 0 && newChangeCount != initialChangeCount {
-                    logger.info("Screenshot captured, opening in Editor...")
-                    self?.openInEditor()
+                guard proc.terminationStatus == 0, FileManager.default.fileExists(atPath: tempFileURL.path) else {
+                    try? FileManager.default.removeItem(at: tempFileURL)
+                    logger.info("Capture cancelled or aborted.")
+                    return
+                }
+
+                // Load image into RAM
+                if let imageData = try? Data(contentsOf: tempFileURL),
+                   let image = NSImage(data: imageData) {
+                    // Clean up temp file immediately (0 files on disk)
+                    try? FileManager.default.removeItem(at: tempFileURL)
+                    logger.info("Capture loaded into memory. Opening Editor...")
+                    EditorWindowController.shared.show(image: image)
+                } else {
+                    try? FileManager.default.removeItem(at: tempFileURL)
+                    logger.error("Failed to load captured image from memory.")
                 }
             }
         }
@@ -73,18 +87,8 @@ final class CaptureService {
             try process.run()
             self.activeProcess = process
         } catch {
-            logger.error("Failed to start screencapture: \(error.localizedDescription)")
+            logger.error("Failed to start screencapture for edit: \(error.localizedDescription)")
         }
-    }
-
-    private func openInEditor() {
-        guard let images = NSPasteboard.general.readObjects(forClasses: [NSImage.self], options: nil) as? [NSImage],
-              let image = images.first else {
-            logger.error("No image found on clipboard to edit.")
-            return
-        }
-
-        EditorWindowController.shared.show(image: image)
     }
 
     private func handleCaptureSuccess() {
@@ -103,7 +107,7 @@ final class CaptureService {
 
     private func sendNotification() {
         let content = UNMutableNotificationContent()
-        content.title = "Screenie"
+        content.title = "Snapboard"
         content.body = "Screenshot in die Zwischenablage kopiert."
         content.sound = nil
 

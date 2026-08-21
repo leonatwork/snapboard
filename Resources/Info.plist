@@ -5,17 +5,17 @@
     <key>CFBundleDevelopmentRegion</key>
     <string>de</string>
     <key>CFBundleExecutable</key>
-    <string>Screenie</string>
+    <string>Snapboard</string>
     <key>CFBundleIconFile</key>
     <string>AppIcon</string>
     <key>CFBundleIdentifier</key>
-    <string>com.leon.screenie</string>
+    <string>com.leon.snapboard</string>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
-    <string>Screenie</string>
+    <string>Snapboard</string>
     <key>CFBundleDisplayName</key>
-    <string>Screenie</string>
+    <string>Snapboard</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
     <key>CFBundleShortVersionString</key>

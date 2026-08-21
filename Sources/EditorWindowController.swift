@@ -13,12 +13,15 @@ final class EditorWindowController: NSObject, NSWindowDelegate {
     }
 
     func show(image: NSImage) {
-        // Calculate appropriate window size based on image and screen size
+        if let existing = window, existing.isVisible {
+            existing.close()
+        }
+
         let screenSize = NSScreen.main?.visibleFrame.size ?? CGSize(width: 1440, height: 900)
-        let maxW = min(image.size.width + 80, screenSize.width * 0.85)
-        let maxH = min(image.size.height + 120, screenSize.height * 0.85)
-        let windowWidth = max(750, maxW)
-        let windowHeight = max(550, maxH)
+        let fitW = min(image.size.width + 60, screenSize.width * 0.9)
+        let fitH = min(image.size.height + 140, screenSize.height * 0.9)
+        let windowWidth = max(800, fitW)
+        let windowHeight = max(600, fitH)
 
         let vm = EditorViewModel(image: image)
         self.viewModel = vm
@@ -31,7 +34,7 @@ final class EditorWindowController: NSObject, NSWindowDelegate {
         let hostingController = NSHostingController(rootView: editorView)
 
         let win = NSWindow(contentViewController: hostingController)
-        win.title = "Screenie Editor"
+        win.title = "Snapboard Editor"
         win.styleMask = [.titled, .closable, .miniaturizable, .resizable]
         win.setContentSize(NSSize(width: windowWidth, height: windowHeight))
         win.center()

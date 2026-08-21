@@ -1,0 +1,30 @@
+name: Build Snapboard
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-macos:
+    name: Build macOS (Swift)
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build macOS App
+        run: |
+          ./scripts/build_app.sh
+
+  build-windows:
+    name: Build Windows (.NET 8)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+      - name: Build Windows App
+        run: |
+          dotnet build windows/Snapboard.Windows/Snapboard.Windows.csproj -c Release

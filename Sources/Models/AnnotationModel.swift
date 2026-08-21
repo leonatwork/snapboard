@@ -3,8 +3,8 @@ import CoreImage
 import CoreImage.CIFilterBuiltins
 
 enum AnnotationTool: String, CaseIterable, Identifiable {
-    case circle
     case rectangle
+    case circle
     case arrow
     case pen
     case highlighter
@@ -16,21 +16,21 @@ enum AnnotationTool: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .circle: return "Kreis"
         case .rectangle: return "Rechteck"
+        case .circle: return "Kreis / Ellipse"
         case .arrow: return "Pfeil"
-        case .pen: return "Stift"
-        case .highlighter: return "Marker"
+        case .pen: return "Freihand-Stift"
+        case .highlighter: return "Textmarker"
         case .blur: return "Zensieren / Blur"
-        case .text: return "Text"
-        case .stepNumber: return "Schritt"
+        case .text: return "Textfeld"
+        case .stepNumber: return "Schritt-Zähler"
         }
     }
 
     var iconName: String {
         switch self {
-        case .circle: return "circle"
         case .rectangle: return "rectangle"
+        case .circle: return "circle"
         case .arrow: return "arrow.up.right"
         case .pen: return "pencil.tip"
         case .highlighter: return "highlighter"
@@ -62,16 +62,20 @@ enum AnnotationColor: String, CaseIterable, Identifiable {
     }
 }
 
-struct AnnotationItem: Identifiable {
+struct AnnotationItem: Identifiable, Equatable {
     let id: UUID = UUID()
     var tool: AnnotationTool
-    var startPoint: CGPoint
-    var endPoint: CGPoint
-    var points: [CGPoint] = []
+    var startPoint: CGPoint // Normalized (0...1, 0...1 with 0,0 at top-left)
+    var endPoint: CGPoint   // Normalized (0...1, 0...1 with 0,0 at top-left)
+    var points: [CGPoint] = [] // For pen / highlighter
     var color: AnnotationColor
     var lineWidth: CGFloat
     var text: String = ""
     var stepNumber: Int = 1
+
+    static func == (lhs: AnnotationItem, rhs: AnnotationItem) -> Bool {
+        lhs.id == rhs.id
+    }
 }
 
 extension Color {
@@ -106,7 +110,6 @@ extension NSColor {
     }
 }
 
-// Renderer to export the final image at full original resolution
 @MainActor
 final class ImageRendererService {
     static let shared = ImageRendererService()
@@ -134,23 +137,26 @@ final class ImageRendererService {
             return nil
         }
 
-        // Draw original base image
         let fullRect = CGRect(x: 0, y: 0, width: pixelWidth, height: pixelHeight)
         context.draw(cgImage, in: fullRect)
 
-        // Apply Blur / Pixellate annotations directly to base image in CGContext
+        // Apply Blur / Pixellate
         let blurItems = annotations.filter { $0.tool == .blur }
         for item in blurItems {
-            applyBlur(to: context, rect: item.rectInPixelSpace(canvasSize: CGSize(width: pixelWidth, height: pixelHeight)), originalCGImage: cgImage)
+            applyBlur(
+                to: context,
+                rect: item.cgRectInPixelSpace(width: pixelWidth, height: pixelHeight),
+                originalCGImage: cgImage
+            )
         }
 
-        // Setup NSGraphicsContext for drawing vector annotations over the image
+        // Draw Vector Annotations in NSGraphicsContext
         NSGraphicsContext.saveGraphicsState()
         let nsContext = NSGraphicsContext(cgContext: context, flipped: false)
         NSGraphicsContext.current = nsContext
 
         for item in annotations where item.tool != .blur {
-            drawAnnotation(item, context: context, pixelSize: CGSize(width: pixelWidth, height: pixelHeight))
+            drawAnnotation(item, pixelWidth: pixelWidth, pixelHeight: pixelHeight)
         }
 
         NSGraphicsContext.restoreGraphicsState()
@@ -163,17 +169,13 @@ final class ImageRendererService {
         guard rect.width > 2 && rect.height > 2 else { return }
 
         let ciImage = CIImage(cgImage: originalCGImage)
-        
-        // Pixelate filter for clean redaction / blur
         let pixellate = CIFilter.pixellate()
         pixellate.inputImage = ciImage
-        pixellate.scale = Float(max(10.0, min(rect.width, rect.height) / 8.0))
+        pixellate.scale = Float(max(8.0, min(rect.width, rect.height) / 8.0))
 
         guard let outputCI = pixellate.outputImage else { return }
-        
-        // Crop pixelated image to the target rect
         let croppedCI = outputCI.cropped(to: rect)
-        
+
         if let blurredCG = ciContext.createCGImage(croppedCI, from: rect) {
             context.saveGState()
             context.draw(blurredCG, in: rect)
@@ -181,39 +183,33 @@ final class ImageRendererService {
         }
     }
 
-    private func drawAnnotation(_ item: AnnotationItem, context: CGContext, pixelSize: CGSize) {
-        let scaleX = pixelSize.width
-        let scaleY = pixelSize.height
+    private func drawAnnotation(_ item: AnnotationItem, pixelWidth: Int, pixelHeight: Int) {
+        let pW = CGFloat(pixelWidth)
+        let pH = CGFloat(pixelHeight)
 
-        let start = CGPoint(x: item.startPoint.x * scaleX, y: item.startPoint.y * scaleY)
-        let end = CGPoint(x: item.endPoint.x * scaleX, y: item.endPoint.y * scaleY)
+        // Convert normalized top-down coordinates to CoreGraphics bottom-up coordinates
+        let start = CGPoint(x: item.startPoint.x * pW, y: (1.0 - item.startPoint.y) * pH)
+        let end = CGPoint(x: item.endPoint.x * pW, y: (1.0 - item.endPoint.y) * pH)
         let color = item.color.nsColor
-        let lineWidth = max(2.0, item.lineWidth * (pixelSize.width / 800.0))
+        let lineWidth = max(2.0, item.lineWidth * (pW / 800.0))
 
-        context.saveGState()
+        let rect = CGRect(
+            x: min(start.x, end.x),
+            y: min(start.y, end.y),
+            width: abs(end.x - start.x),
+            height: abs(end.y - start.y)
+        )
 
         switch item.tool {
-        case .circle:
-            let rect = CGRect(
-                x: min(start.x, end.x),
-                y: min(start.y, end.y),
-                width: abs(end.x - start.x),
-                height: abs(end.y - start.y)
-            )
+        case .rectangle:
             color.setStroke()
-            let path = NSBezierPath(ovalIn: rect)
+            let path = NSBezierPath(roundedRect: rect, xRadius: lineWidth, yRadius: lineWidth)
             path.lineWidth = lineWidth
             path.stroke()
 
-        case .rectangle:
-            let rect = CGRect(
-                x: min(start.x, end.x),
-                y: min(start.y, end.y),
-                width: abs(end.x - start.x),
-                height: abs(end.y - start.y)
-            )
+        case .circle:
             color.setStroke()
-            let path = NSBezierPath(roundedRect: rect, xRadius: lineWidth, yRadius: lineWidth)
+            let path = NSBezierPath(ovalIn: rect)
             path.lineWidth = lineWidth
             path.stroke()
 
@@ -228,28 +224,28 @@ final class ImageRendererService {
             path.lineCapStyle = .round
             path.lineJoinStyle = .round
 
-            let firstPt = CGPoint(x: item.points[0].x * scaleX, y: item.points[0].y * scaleY)
-            path.move(to: firstPt)
+            let first = CGPoint(x: item.points[0].x * pW, y: (1.0 - item.points[0].y) * pH)
+            path.move(to: first)
             for pt in item.points.dropFirst() {
-                let scaledPt = CGPoint(x: pt.x * scaleX, y: pt.y * scaleY)
-                path.line(to: scaledPt)
+                let current = CGPoint(x: pt.x * pW, y: (1.0 - pt.y) * pH)
+                path.line(to: current)
             }
             path.stroke()
 
         case .highlighter:
             guard item.points.count > 1 else { break }
-            let highlightColor = color.withAlphaComponent(0.4)
-            highlightColor.setStroke()
+            let hlColor = color.withAlphaComponent(0.4)
+            hlColor.setStroke()
             let path = NSBezierPath()
-            path.lineWidth = lineWidth * 3.0
+            path.lineWidth = lineWidth * 3.5
             path.lineCapStyle = .square
             path.lineJoinStyle = .miter
 
-            let firstPt = CGPoint(x: item.points[0].x * scaleX, y: item.points[0].y * scaleY)
-            path.move(to: firstPt)
+            let first = CGPoint(x: item.points[0].x * pW, y: (1.0 - item.points[0].y) * pH)
+            path.move(to: first)
             for pt in item.points.dropFirst() {
-                let scaledPt = CGPoint(x: pt.x * scaleX, y: pt.y * scaleY)
-                path.line(to: scaledPt)
+                let current = CGPoint(x: pt.x * pW, y: (1.0 - pt.y) * pH)
+                path.line(to: current)
             }
             path.stroke()
 
@@ -261,19 +257,18 @@ final class ImageRendererService {
                 .font: font,
                 .foregroundColor: color
             ]
-            let attributedString = NSAttributedString(string: item.text, attributes: attributes)
-            let textSize = attributedString.size()
-            let textRect = CGRect(x: start.x, y: start.y - textSize.height, width: textSize.width + 10, height: textSize.height)
+            let attrStr = NSAttributedString(string: item.text, attributes: attributes)
+            let strSize = attrStr.size()
+            let bgRect = CGRect(x: start.x - 4, y: start.y - 2, width: strSize.width + 8, height: strSize.height + 4)
 
-            // Optional background bubble for high contrast readability
-            NSColor.black.withAlphaComponent(0.6).setFill()
-            let bgPath = NSBezierPath(roundedRect: textRect.insetBy(dx: -4, dy: -2), xRadius: 4, yRadius: 4)
+            NSColor.black.withAlphaComponent(0.65).setFill()
+            let bgPath = NSBezierPath(roundedRect: bgRect, xRadius: 4, yRadius: 4)
             bgPath.fill()
 
-            attributedString.draw(at: CGPoint(x: start.x, y: start.y - textSize.height))
+            attrStr.draw(at: start)
 
         case .stepNumber:
-            let radius = max(12.0, lineWidth * 3.5)
+            let radius = max(14.0, lineWidth * 3.5)
             let badgeRect = CGRect(x: start.x - radius, y: start.y - radius, width: radius * 2, height: radius * 2)
 
             color.setFill()
@@ -301,8 +296,6 @@ final class ImageRendererService {
         case .blur:
             break
         }
-
-        context.restoreGState()
     }
 
     private func drawArrow(from start: CGPoint, to end: CGPoint, color: NSColor, lineWidth: CGFloat) {
@@ -312,40 +305,41 @@ final class ImageRendererService {
         let path = NSBezierPath()
         path.lineWidth = lineWidth
         path.lineCapStyle = .round
-
         path.move(to: start)
         path.line(to: end)
         path.stroke()
 
-        // Arrow head
-        let headLength = max(12.0, lineWidth * 3.5)
-        let headAngle = CGFloat.pi / 6.0 // 30 degrees
+        let headLength = max(14.0, lineWidth * 3.5)
+        let headAngle = CGFloat.pi / 6.0 // 30 deg
         let angle = atan2(end.y - start.y, end.x - start.x)
 
-        let arrowPoint1 = CGPoint(
+        let pt1 = CGPoint(
             x: end.x - headLength * cos(angle - headAngle),
             y: end.y - headLength * sin(angle - headAngle)
         )
-        let arrowPoint2 = CGPoint(
+        let pt2 = CGPoint(
             x: end.x - headLength * cos(angle + headAngle),
             y: end.y - headLength * sin(angle + headAngle)
         )
 
         let headPath = NSBezierPath()
         headPath.move(to: end)
-        headPath.line(to: arrowPoint1)
-        headPath.line(to: arrowPoint2)
+        headPath.line(to: pt1)
+        headPath.line(to: pt2)
         headPath.close()
         headPath.fill()
     }
 }
 
 extension AnnotationItem {
-    func rectInPixelSpace(canvasSize: CGSize) -> CGRect {
-        let x1 = startPoint.x * canvasSize.width
-        let y1 = startPoint.y * canvasSize.height
-        let x2 = endPoint.x * canvasSize.width
-        let y2 = endPoint.y * canvasSize.height
+    func cgRectInPixelSpace(width: Int, height: Int) -> CGRect {
+        let pW = CGFloat(width)
+        let pH = CGFloat(height)
+
+        let y1 = (1.0 - startPoint.y) * pH
+        let y2 = (1.0 - endPoint.y) * pH
+        let x1 = startPoint.x * pW
+        let x2 = endPoint.x * pW
 
         return CGRect(
             x: min(x1, x2),

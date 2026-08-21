@@ -13,7 +13,7 @@ final class EditorViewModel: ObservableObject {
     @Published var lineWidth: CGFloat = 4.0
 
     @Published var currentDraft: AnnotationItem?
-    @Published var currentText: String = "Text"
+    @Published var currentText: String = "Hinweis"
     @Published var nextStepNumber: Int = 1
 
     var onClose: (() -> Void)?
@@ -23,10 +23,13 @@ final class EditorViewModel: ObservableObject {
     }
 
     func startDrawing(at point: CGPoint, in size: CGSize) {
-        let normalized = CGPoint(x: point.x / size.width, y: point.y / size.height)
+        guard size.width > 0 && size.height > 0 else { return }
+        let nx = max(0, min(1, point.x / size.width))
+        let ny = max(0, min(1, point.y / size.height))
+        let normalized = CGPoint(x: nx, y: ny)
 
         switch selectedTool {
-        case .circle, .rectangle, .arrow, .blur:
+        case .rectangle, .circle, .arrow, .blur:
             currentDraft = AnnotationItem(
                 tool: selectedTool,
                 startPoint: normalized,
@@ -44,7 +47,6 @@ final class EditorViewModel: ObservableObject {
                 lineWidth: lineWidth
             )
         case .text:
-            // Text is placed directly on tap
             saveForUndo()
             let item = AnnotationItem(
                 tool: .text,
@@ -56,7 +58,6 @@ final class EditorViewModel: ObservableObject {
             )
             annotations.append(item)
         case .stepNumber:
-            // Step badge placed directly on tap
             saveForUndo()
             let item = AnnotationItem(
                 tool: .stepNumber,
@@ -72,11 +73,10 @@ final class EditorViewModel: ObservableObject {
     }
 
     func updateDrawing(to point: CGPoint, in size: CGSize) {
-        guard var draft = currentDraft else { return }
-        let normalized = CGPoint(
-            x: max(0, min(1, point.x / size.width)),
-            y: max(0, min(1, point.y / size.height))
-        )
+        guard var draft = currentDraft, size.width > 0 && size.height > 0 else { return }
+        let nx = max(0, min(1, point.x / size.width))
+        let ny = max(0, min(1, point.y / size.height))
+        let normalized = CGPoint(x: nx, y: ny)
 
         draft.endPoint = normalized
         if draft.tool == .pen || draft.tool == .highlighter {
@@ -116,7 +116,6 @@ final class EditorViewModel: ObservableObject {
     }
 
     func copyToClipboardAndClose() {
-        // Convert to full-res NSImage with annotations
         if let renderedImage = ImageRendererService.shared.render(image: image, annotations: annotations) {
             NSPasteboard.general.clearContents()
             NSPasteboard.general.writeObjects([renderedImage])
@@ -138,7 +137,7 @@ final class EditorViewModel: ObservableObject {
 
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.png]
-        panel.nameFieldStringValue = "Screenshot_\(Int(Date().timeIntervalSince1970)).png"
+        panel.nameFieldStringValue = "Snapboard_\(Int(Date().timeIntervalSince1970)).png"
 
         if panel.runModal() == .OK, let url = panel.url {
             try? pngData.write(to: url)
@@ -154,9 +153,9 @@ struct EditorView: View {
     var body: some View {
         VStack(spacing: 0) {
             // Toolbar
-            HStack(spacing: 14) {
-                // Tools
-                HStack(spacing: 4) {
+            HStack(spacing: 12) {
+                // Tool Selector
+                HStack(spacing: 3) {
                     ForEach(AnnotationTool.allCases) { tool in
                         Button {
                             viewModel.selectedTool = tool
@@ -167,7 +166,7 @@ struct EditorView: View {
                         } label: {
                             Image(systemName: tool.iconName)
                                 .font(.system(size: 14, weight: .semibold))
-                                .frame(width: 30, height: 26)
+                                .frame(width: 32, height: 28)
                         }
                         .buttonStyle(.plain)
                         .background(viewModel.selectedTool == tool ? Color.accentColor : Color.clear)
@@ -182,19 +181,19 @@ struct EditorView: View {
 
                 Divider().frame(height: 24)
 
-                // Colors
+                // Color Selector
                 HStack(spacing: 6) {
                     ForEach(AnnotationColor.allCases) { ac in
                         Circle()
                             .fill(ac.color)
-                            .frame(width: 18, height: 18)
+                            .frame(width: 20, height: 20)
                             .overlay(
                                 Circle()
                                     .stroke(Color.white, lineWidth: viewModel.selectedColor == ac ? 2.5 : 0)
                             )
                             .overlay(
                                 Circle()
-                                    .stroke(Color.gray.opacity(0.4), lineWidth: 1)
+                                    .stroke(Color.black.opacity(0.3), lineWidth: 1)
                             )
                             .onTapGesture {
                                 viewModel.selectedColor = ac
@@ -204,7 +203,7 @@ struct EditorView: View {
 
                 Divider().frame(height: 24)
 
-                // Stroke Width
+                // Line Width Selector
                 HStack(spacing: 4) {
                     ForEach([2.0, 4.0, 7.0], id: \.self) { width in
                         Button {
@@ -213,10 +212,10 @@ struct EditorView: View {
                             Circle()
                                 .fill(Color.primary)
                                 .frame(width: CGFloat(width * 1.8), height: CGFloat(width * 1.8))
-                                .frame(width: 24, height: 24)
+                                .frame(width: 26, height: 26)
                         }
                         .buttonStyle(.plain)
-                        .background(viewModel.lineWidth == CGFloat(width) ? Color.accentColor.opacity(0.2) : Color.clear)
+                        .background(viewModel.lineWidth == CGFloat(width) ? Color.accentColor.opacity(0.25) : Color.clear)
                         .cornerRadius(6)
                     }
                 }
@@ -229,6 +228,7 @@ struct EditorView: View {
                         viewModel.undo()
                     } label: {
                         Image(systemName: "arrow.uturn.backward")
+                            .font(.system(size: 13))
                     }
                     .disabled(viewModel.undoStack.isEmpty)
                     .help("Rückgängig (⌘Z)")
@@ -237,6 +237,7 @@ struct EditorView: View {
                         viewModel.redo()
                     } label: {
                         Image(systemName: "arrow.uturn.forward")
+                            .font(.system(size: 13))
                     }
                     .disabled(viewModel.redoStack.isEmpty)
                     .help("Wiederholen (⌘⇧Z)")
@@ -245,6 +246,7 @@ struct EditorView: View {
                         viewModel.clearAll()
                     } label: {
                         Image(systemName: "trash")
+                            .font(.system(size: 13))
                     }
                     .disabled(viewModel.annotations.isEmpty)
                     .help("Alle Annotationen löschen")
@@ -256,27 +258,26 @@ struct EditorView: View {
 
             Divider()
 
-            // Screenshot Drawing Canvas
-            ZStack {
-                Color.black.opacity(0.85)
+            // Canvas Area
+            GeometryReader { geo in
+                let canvasSize = calculateFittedSize(imageSize: viewModel.image.size, in: geo.size)
 
-                GeometryReader { geo in
-                    let canvasSize = calculateFittedSize(imageSize: viewModel.image.size, in: geo.size)
+                ZStack {
+                    Color.black.opacity(0.9)
 
+                    // Canvas Container with exact fitted dimensions
                     ZStack {
-                        // Base Screenshot Image
+                        // Original Screenshot
                         Image(nsImage: viewModel.image)
                             .resizable()
                             .interpolation(.high)
                             .frame(width: canvasSize.width, height: canvasSize.height)
 
-                        // Rendered Vector Annotation Overlays
+                        // Vector Drawing Canvas
                         Canvas { context, size in
-                            // Draw completed annotations
                             for item in viewModel.annotations {
                                 draw(item: item, in: &context, size: size)
                             }
-                            // Draw live drag draft
                             if let draft = viewModel.currentDraft {
                                 draw(item: draft, in: &context, size: size)
                             }
@@ -284,18 +285,14 @@ struct EditorView: View {
                         .frame(width: canvasSize.width, height: canvasSize.height)
                     }
                     .frame(width: canvasSize.width, height: canvasSize.height)
-                    .position(x: geo.size.width / 2, y: geo.size.height / 2)
+                    .clipShape(Rectangle())
                     .gesture(
                         DragGesture(minimumDistance: 0)
                             .onChanged { value in
-                                let localPt = CGPoint(
-                                    x: value.location.x - (geo.size.width - canvasSize.width) / 2,
-                                    y: value.location.y - (geo.size.height - canvasSize.height) / 2
-                                )
                                 if viewModel.currentDraft == nil {
-                                    viewModel.startDrawing(at: localPt, in: canvasSize)
+                                    viewModel.startDrawing(at: value.location, in: canvasSize)
                                 } else {
-                                    viewModel.updateDrawing(to: localPt, in: canvasSize)
+                                    viewModel.updateDrawing(to: value.location, in: canvasSize)
                                 }
                             }
                             .onEnded { _ in
@@ -303,12 +300,12 @@ struct EditorView: View {
                             }
                     )
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             Divider()
 
-            // Bottom Actions Bar
+            // Bottom Bar
             HStack {
                 Button("Abbrechen (ESC)") {
                     viewModel.onClose?()
@@ -318,7 +315,7 @@ struct EditorView: View {
                 Spacer()
 
                 if viewModel.selectedTool == .text {
-                    Button("Text bearbeiten: \"\(viewModel.currentText)\"") {
+                    Button("Text: \"\(viewModel.currentText)\" ändern") {
                         tempInputText = viewModel.currentText
                         showingTextPrompt = true
                     }
@@ -341,14 +338,14 @@ struct EditorView: View {
             .padding(.vertical, 10)
             .background(Color(NSColor.windowBackgroundColor))
         }
-        .frame(minWidth: 700, minHeight: 520)
+        .frame(minWidth: 780, minHeight: 560)
         .sheet(isPresented: $showingTextPrompt) {
             VStack(spacing: 16) {
-                Text("Text eingeben")
+                Text("Hinweistext festlegen")
                     .font(.headline)
-                TextField("Hinweistext...", text: $tempInputText)
+                TextField("Text eingeben...", text: $tempInputText)
                     .textFieldStyle(.roundedBorder)
-                    .frame(width: 260)
+                    .frame(width: 280)
                 HStack {
                     Button("Abbrechen") {
                         showingTextPrompt = false
@@ -360,20 +357,27 @@ struct EditorView: View {
                     .buttonStyle(.borderedProminent)
                 }
             }
-            .padding(20)
+            .padding(24)
         }
     }
 
     private func calculateFittedSize(imageSize: CGSize, in containerSize: CGSize) -> CGSize {
-        guard imageSize.width > 0 && imageSize.height > 0 else { return containerSize }
+        guard imageSize.width > 0 && imageSize.height > 0 && containerSize.width > 0 && containerSize.height > 0 else {
+            return CGSize(width: 400, height: 300)
+        }
+
+        let padding: CGFloat = 24
+        let maxW = max(100, containerSize.width - padding)
+        let maxH = max(100, containerSize.height - padding)
+
         let aspect = imageSize.width / imageSize.height
-        let containerAspect = containerSize.width / containerSize.height
+        let containerAspect = maxW / maxH
 
         if containerAspect > aspect {
-            let h = min(imageSize.height, containerSize.height - 20)
+            let h = min(imageSize.height, maxH)
             return CGSize(width: h * aspect, height: h)
         } else {
-            let w = min(imageSize.width, containerSize.width - 20)
+            let w = min(imageSize.width, maxW)
             return CGSize(width: w, height: w / aspect)
         }
     }
@@ -384,24 +388,19 @@ struct EditorView: View {
         let color = item.color.color
         let strokeStyle = StrokeStyle(lineWidth: item.lineWidth, lineCap: .round, lineJoin: .round)
 
-        switch item.tool {
-        case .circle:
-            let rect = CGRect(
-                x: min(start.x, end.x),
-                y: min(start.y, end.y),
-                width: abs(end.x - start.x),
-                height: abs(end.y - start.y)
-            )
-            context.stroke(Path(ellipseIn: rect), with: .color(color), style: strokeStyle)
+        let rect = CGRect(
+            x: min(start.x, end.x),
+            y: min(start.y, end.y),
+            width: abs(end.x - start.x),
+            height: abs(end.y - start.y)
+        )
 
+        switch item.tool {
         case .rectangle:
-            let rect = CGRect(
-                x: min(start.x, end.x),
-                y: min(start.y, end.y),
-                width: abs(end.x - start.x),
-                height: abs(end.y - start.y)
-            )
             context.stroke(Path(roundedRect: rect, cornerRadius: item.lineWidth), with: .color(color), style: strokeStyle)
+
+        case .circle:
+            context.stroke(Path(ellipseIn: rect), with: .color(color), style: strokeStyle)
 
         case .arrow:
             var path = Path()
@@ -409,17 +408,17 @@ struct EditorView: View {
             path.addLine(to: end)
             context.stroke(path, with: .color(color), style: strokeStyle)
 
-            let headLength = max(10.0, item.lineWidth * 3.0)
+            let headLength = max(12.0, item.lineWidth * 3.5)
             let angle = atan2(end.y - start.y, end.x - start.x)
-            let arrowAngle = CGFloat.pi / 6.0
+            let headAngle = CGFloat.pi / 6.0
 
             let pt1 = CGPoint(
-                x: end.x - headLength * cos(angle - arrowAngle),
-                y: end.y - headLength * sin(angle - arrowAngle)
+                x: end.x - headLength * cos(angle - headAngle),
+                y: end.y - headLength * sin(angle - headAngle)
             )
             let pt2 = CGPoint(
-                x: end.x - headLength * cos(angle + arrowAngle),
-                y: end.y - headLength * sin(angle + arrowAngle)
+                x: end.x - headLength * cos(angle + headAngle),
+                y: end.y - headLength * sin(angle + headAngle)
             )
 
             var headPath = Path()
@@ -450,30 +449,27 @@ struct EditorView: View {
             context.stroke(
                 path,
                 with: .color(color.opacity(0.4)),
-                style: StrokeStyle(lineWidth: item.lineWidth * 3.0, lineCap: .square, lineJoin: .miter)
+                style: StrokeStyle(lineWidth: item.lineWidth * 3.5, lineCap: .square, lineJoin: .miter)
             )
 
         case .blur:
-            let rect = CGRect(
-                x: min(start.x, end.x),
-                y: min(start.y, end.y),
-                width: abs(end.x - start.x),
-                height: abs(end.y - start.y)
-            )
-            // Live overlay for blur box
-            context.fill(Path(rect), with: .color(Color.gray.opacity(0.55)))
-            context.stroke(Path(rect), with: .color(Color.white.opacity(0.8)), style: StrokeStyle(lineWidth: 1, dash: [4, 4]))
+            // High contrast frosted overlay representation in SwiftUI canvas
+            context.fill(Path(rect), with: .color(Color.gray.opacity(0.7)))
+            context.stroke(Path(rect), with: .color(Color.white.opacity(0.9)), style: StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
 
         case .text:
             guard !item.text.isEmpty else { break }
+            let bgRect = CGRect(x: start.x - 4, y: start.y - 2, width: CGFloat(item.text.count * 10) + 16, height: max(16, item.lineWidth * 4) + 6)
+            context.fill(Path(roundedRect: bgRect, cornerRadius: 4), with: .color(Color.black.opacity(0.7)))
+
             let text = Text(item.text)
-                .font(.system(size: max(13, item.lineWidth * 3.5), weight: .bold))
+                .font(.system(size: max(14, item.lineWidth * 4), weight: .bold))
                 .foregroundColor(color)
             let resolved = context.resolve(text)
             context.draw(resolved, at: start)
 
         case .stepNumber:
-            let radius = max(11.0, item.lineWidth * 2.8)
+            let radius = max(13.0, item.lineWidth * 3.2)
             let badgeRect = CGRect(x: start.x - radius, y: start.y - radius, width: radius * 2, height: radius * 2)
 
             context.fill(Path(ellipseIn: badgeRect), with: .color(color))

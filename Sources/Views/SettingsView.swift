@@ -12,9 +12,9 @@ struct SettingsView: View {
                     .font(.system(size: 32))
                     .foregroundColor(.accentColor)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Screenie")
+                    Text("Snapboard")
                         .font(.title2.bold())
-                    Text("Greenshot-Alternative für macOS")
+                    Text("Greenshot-Alternative für macOS & Windows")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -50,7 +50,7 @@ struct SettingsView: View {
                         VStack(alignment: .leading, spacing: 2) {
                             Text("Aufnehmen & Bearbeiten:")
                                 .fontWeight(.medium)
-                            Text("Bereich wählen → Öffnet den Editor (Pfeile, Blur, etc.)")
+                            Text("Bereich wählen → Öffnet Editor (Pfeile, Blur, Badges)")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -82,7 +82,7 @@ struct SettingsView: View {
 
             Divider()
 
-            // Footer actions
+            // Footer
             HStack {
                 Button("Direkt testen (⌘⇧1)") {
                     CaptureService.shared.captureDirect()

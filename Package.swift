@@ -2,16 +2,16 @@
 import PackageDescription
 
 let package = Package(
-    name: "Screenie",
+    name: "Snapboard",
     platforms: [
         .macOS(.v14)
     ],
     products: [
-        .executable(name: "Screenie", targets: ["Screenie"])
+        .executable(name: "Snapboard", targets: ["Snapboard"])
     ],
     targets: [
         .executableTarget(
-            name: "Screenie",
+            name: "Snapboard",
             path: "Sources"
         )
     ]

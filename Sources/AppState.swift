@@ -2,14 +2,14 @@ import SwiftUI
 import ServiceManagement
 import os.log
 
-private let logger = Logger(subsystem: "com.leon.screenie", category: "AppState")
+private let logger = Logger(subsystem: "com.leon.snapboard", category: "AppState")
 
 @MainActor
 final class AppState: ObservableObject {
     static let shared = AppState()
 
-    private let playSoundKey = "Screenie_PlaySound"
-    private let showNotificationKey = "Screenie_ShowNotification"
+    private let playSoundKey = "Snapboard_PlaySound"
+    private let showNotificationKey = "Snapboard_ShowNotification"
 
     @Published var playSound: Bool {
         didSet {
@@ -30,7 +30,6 @@ final class AppState: ObservableObject {
     }
 
     private init() {
-        // Register default values
         UserDefaults.standard.register(defaults: [
             playSoundKey: true,
             showNotificationKey: false
@@ -38,7 +37,7 @@ final class AppState: ObservableObject {
 
         self.playSound = UserDefaults.standard.bool(forKey: playSoundKey)
         self.showNotification = UserDefaults.standard.bool(forKey: showNotificationKey)
-        self.launchAtLogin = SMAppService.mainApp.status == .enabled
+        self.launchAtLogin = (SMAppService.mainApp.status == .enabled)
     }
 
     func checkLaunchAtLoginStatus() {
