@@ -2,7 +2,7 @@ import AppKit
 import Carbon
 import os.log
 
-private let logger = Logger(subsystem: "com.leon.screenie", category: "HotKeyManager")
+private let logger = Logger(subsystem: "com.leon.snapboard", category: "HotKeyManager")
 
 // Global C callback function for Carbon Event Handler
 private func hotKeyHandler(
@@ -24,9 +24,10 @@ private func hotKeyHandler(
     )
 
     if status == noErr {
+        let triggerID = hotKeyID.id
         DispatchQueue.main.async {
             Task { @MainActor in
-                HotKeyManager.shared.handleHotKeyTriggered(id: hotKeyID.id)
+                HotKeyManager.shared.handleHotKeyTriggered(id: triggerID)
             }
         }
         return noErr
@@ -79,7 +80,7 @@ final class HotKeyManager {
 
         let modifiers: UInt32 = UInt32(cmdKey | shiftKey)
 
-        // Key code for '1' is 18 (Cmd + Shift + 1 -> Direct to clipboard)
+        // Key code 18 = '1' (Cmd + Shift + 1 -> Direct)
         let hotKeyID1 = EventHotKeyID(signature: signature, id: directHotKeyID)
         let status1 = RegisterEventHotKey(
             18,
@@ -90,7 +91,7 @@ final class HotKeyManager {
             &hotKeyRef1
         )
 
-        // Key code for '2' is 19 (Cmd + Shift + 2 -> Capture and Open in Editor)
+        // Key code 19 = '2' (Cmd + Shift + 2 -> Edit)
         let hotKeyID2 = EventHotKeyID(signature: signature, id: editHotKeyID)
         let status2 = RegisterEventHotKey(
             19,
@@ -102,7 +103,7 @@ final class HotKeyManager {
         )
 
         if status1 == noErr && status2 == noErr {
-            logger.info("Successfully registered global shortcuts: ⌘⇧1 (Direct) & ⌘⇧2 (Edit)")
+            logger.info("Successfully registered global shortcuts: ⌘⇧1 & ⌘⇧2")
         } else {
             logger.error("Error registering hotkeys: status1=\(status1), status2=\(status2)")
         }
@@ -121,10 +122,10 @@ final class HotKeyManager {
 
     func handleHotKeyTriggered(id: UInt32) {
         if id == directHotKeyID {
-            logger.info("Cmd + Shift + 1 (Direct) triggered")
+            logger.info("Cmd + Shift + 1 triggered")
             onTriggerDirect?()
         } else if id == editHotKeyID {
-            logger.info("Cmd + Shift + 2 (Edit) triggered")
+            logger.info("Cmd + Shift + 2 triggered")
             onTriggerEdit?()
         }
     }

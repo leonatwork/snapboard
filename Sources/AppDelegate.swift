@@ -2,17 +2,25 @@ import AppKit
 import UserNotifications
 import os.log
 
-private let logger = Logger(subsystem: "com.leon.screenie", category: "AppDelegate")
+private let logger = Logger(subsystem: "com.leon.snapboard", category: "AppDelegate")
 
+@main
 @MainActor
 final class AppDelegate: NSObject, NSApplicationDelegate {
-    func applicationDidFinishLaunching(_ notification: Notification) {
-        logger.info("Screenie application started")
+    static func main() {
+        let app = NSApplication.shared
+        let delegate = AppDelegate()
+        app.delegate = delegate
+        _ = NSApplicationMain(CommandLine.argc, CommandLine.unsafeArgv)
+    }
 
-        // Ensure the app runs as an accessory (Status Bar item only, no Dock icon)
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        logger.info("Snapboard application started")
+
+        // Accessory policy (menu bar only)
         NSApp.setActivationPolicy(.accessory)
 
-        // Setup status item in Menu Bar
+        // Setup status item
         StatusItemManager.shared.setupStatusItem()
 
         // Setup HotKey trigger handlers
@@ -24,7 +32,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             CaptureService.shared.captureForEdit()
         }
 
-        // Register global shortcuts (⌘⇧1 and ⌘⇧2)
+        // Register global shortcuts
         HotKeyManager.shared.registerHotKeys()
 
         // Request notification authorization
