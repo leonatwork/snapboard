@@ -9,6 +9,18 @@
 
 ---
 
+## 🖼️ Screenshots
+
+<div align="center">
+  <h3>Annotation & Redaction Studio</h3>
+  <img src="docs/screenshots/editor.png" alt="Snapboard Editor" width="800" />
+  <br /><br />
+  <h3>Preferences & Global Shortcuts</h3>
+  <img src="docs/screenshots/settings.png" alt="Snapboard Settings" width="480" />
+</div>
+
+---
+
 ## ✨ Features
 
 - ⚡ **Zero-Click Clipboard Capture**: Select a region and have it immediately ready in your clipboard for `⌘ V` / `Ctrl + V`.
@@ -81,7 +93,7 @@ dotnet publish Snapboard.Windows\Snapboard.Windows.csproj -c Release -r win-x64 
 
 ## 🛠️ Architecture
 
-- **macOS**: Swift 6, SwiftUI, AppKit, Carbon HotKeys, CoreImage, ServiceManagement (`SMAppService`).
+- **macOS**: Swift, SwiftUI, AppKit, Carbon HotKeys, CoreImage, ServiceManagement (`SMAppService`).
 - **Windows**: C#, .NET 8, WPF / WinForms, Windows API HotKeys (`user32.dll`), Registry Autostart.
 
 ---

@@ -48,13 +48,14 @@ namespace Snapboard
         private Annotation? currentDraft;
         private bool isDrawing = false;
 
-        private Panel canvasPanel;
-        private ToolStrip mainToolbar;
+        private Panel canvasPanel = null!;
+        private ToolStrip mainToolbar = null!;
 
         public EditorForm(Bitmap image)
         {
             this.baseImage = new Bitmap(image);
             this.DoubleBuffered = true;
+            this.KeyPreview = true;
             this.Text = "Snapboard Editor";
             this.StartPosition = FormStartPosition.CenterScreen;
             this.Size = new Size(Math.Max(850, baseImage.Width + 60), Math.Max(600, baseImage.Height + 120));
@@ -97,12 +98,10 @@ namespace Snapboard
             mainToolbar.Items.Add(new ToolStripSeparator());
 
             // Undo / Redo
-            var undoBtn = new ToolStripButton("↩ Undo", null, (s, e) => Undo());
-            undoBtn.ShortcutKeys = Keys.Control | Keys.Z;
+            var undoBtn = new ToolStripButton("↩ Undo", null, (s, e) => Undo()) { ToolTipText = "Rückgängig (Strg+Z)" };
             mainToolbar.Items.Add(undoBtn);
 
-            var redoBtn = new ToolStripButton("↪ Redo", null, (s, e) => Redo());
-            redoBtn.ShortcutKeys = Keys.Control | Keys.Y;
+            var redoBtn = new ToolStripButton("↪ Redo", null, (s, e) => Redo()) { ToolTipText = "Wiederholen (Strg+Y)" };
             mainToolbar.Items.Add(redoBtn);
 
             mainToolbar.Items.Add(new ToolStripSeparator());
@@ -124,6 +123,36 @@ namespace Snapboard
             canvasPanel.Dock = DockStyle.Fill;
             this.Controls.Add(canvasPanel);
             canvasPanel.BringToFront();
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.Control && e.KeyCode == Keys.Z)
+            {
+                Undo();
+                e.Handled = true;
+            }
+            else if (e.Control && e.KeyCode == Keys.Y)
+            {
+                Redo();
+                e.Handled = true;
+            }
+            else if (e.Control && e.KeyCode == Keys.C)
+            {
+                CopyAndClose();
+                e.Handled = true;
+            }
+            else if (e.Control && e.KeyCode == Keys.S)
+            {
+                SaveToFile();
+                e.Handled = true;
+            }
+            else if (e.KeyCode == Keys.Escape)
+            {
+                this.Close();
+                e.Handled = true;
+            }
+            base.OnKeyDown(e);
         }
 
         private void AddToolButton(string label, ToolType tool)
