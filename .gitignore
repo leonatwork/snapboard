@@ -5,3 +5,7 @@
 *.xcworkspace
 DerivedData/
 .swiftpm/
+
+# Build-Artefakte werden über Releases verteilt
+Snapboard-macOS.zip
+Snapboard-Windows-*.zip

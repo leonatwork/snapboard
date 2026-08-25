@@ -1,0 +1,102 @@
+# Snapboard 📸⚡
+
+[![Build Snapboard](https://github.com/leonatwork/snapboard/actions/workflows/build.yml/badge.svg)](https://github.com/leonatwork/snapboard/actions/workflows/build.yml)
+[![Release](https://img.shields.io/github/v/release/leonatwork/snapboard?color=success&label=Release)](https://github.com/leonatwork/snapboard/releases)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows-lightgrey.svg)]()
+
+> The lightweight, privacy-focused Greenshot alternative for **macOS** and **Windows**. 
+> Capture screen areas directly to your clipboard — **without saving unnecessary files to disk**.
+
+*🇬🇧 [English version](README.md) — die englische Fassung ist maßgeblich und wird zuerst aktualisiert.*
+
+---
+
+## 📥 Download & Installation
+
+Du kannst Snapboard direkt von GitHub herunterladen und ohne Terminal nutzen:
+
+| Plattform | Download | Installation |
+| :--- | :--- | :--- |
+| 🍏 **macOS** (Apple Silicon & Intel) | [**Download Snapboard-macOS.zip**](https://github.com/leonatwork/snapboard/releases/latest/download/Snapboard-macOS.zip) | ZIP entpacken & `Snapboard.app` in deinen **Programme**-Ordner ziehen |
+| 🪟 **Windows** (x64) | [**Download Snapboard-Windows-x64.zip**](https://github.com/leonatwork/snapboard/releases/latest/download/Snapboard-Windows-x64.zip) | ZIP entpacken & `Snapboard.exe` doppelklicken |
+
+👉 Alle Versionen findest du auch unter [**GitHub Releases**](https://github.com/leonatwork/snapboard/releases).
+
+---
+
+## 🖼️ Screenshots
+
+<div align="center">
+  <h3>Annotation & Redaction Studio (⌘ ⇧ 2 / Ctrl + Shift + 2)</h3>
+  <img src="docs/screenshots/editor.png" alt="Snapboard Editor" width="800" />
+  <br /><br />
+  <h3>Preferences & Global Shortcuts</h3>
+  <img src="docs/screenshots/settings.png" alt="Snapboard Settings" width="480" />
+</div>
+
+---
+
+## ✨ Features
+
+- ⚡ **Zero-Click Clipboard Capture**: Bereich auswählen und sofort mit `⌘ V` / `Ctrl + V` in jede beliebige App einfügen.
+- 🎨 **Integriertes Bearbeitungsstudio**:
+  - ⭕ **Kreise & Ellipsen**
+  - ⬜ **Rechtecke & Rahmen**
+  - ➡️ **Pfeile**
+  - ✏️ **Freihand-Stift**
+  - 🖍️ **Highlighter / Textmarker** (halbtransparent)
+  - 🌫️ **Zensieren / Blur (Pixelate)**: Unkenntlichmachen von Passwörtern, IBANs, Namen etc.
+  - 🔤 **Textfelder**
+  - ① **Schrittzähler (1, 2, 3...)**: Automatisch hochzählende Badges für Anleitungen.
+- 🛡️ **Kein Festplattenmüll**: Arbeitet direkt im RAM, keine temporären oder dauerhaften Screenshot-Dateien auf der Festplatte.
+- 🪶 **Nativ & Leichtgewichtig**: Läuft dezent in der Menüleiste (macOS) bzw. im System Tray (Windows).
+- 🚀 **Autostart-Unterstützung**: Mit einem Klick beim Systemstart ausführen.
+
+---
+
+## ⌨️ Shortcuts
+
+### 🍎 macOS
+| Shortcut | Modus | Aktion |
+| :--- | :--- | :--- |
+| **`⌘ + ⇧ + 1`** | **Direkt-Capture** | Bereich markieren → **Sofort in die Zwischenablage** (0 Klicks) |
+| **`⌘ + ⇧ + 2`** | **Capture & Edit** | Bereich markieren → **Öffnet den Snapboard-Editor** |
+| `Leertaste` | Fenstermodus | Spezifisches Fenster während der Auswahl erfassen |
+| `ESC` | Abbrechen | Aufnahme beenden ohne Clipboard zu verändern |
+| `⌘ + C` / `Enter` | Export (im Editor) | Bearbeitetes Bild kopieren & Editor schließen |
+| `⌘ + S` | Speichern als... | Optional als PNG-Datei exportieren |
+
+### 🪟 Windows
+| Shortcut | Modus | Aktion |
+| :--- | :--- | :--- |
+| **`Ctrl + Shift + 1`** | **Direkt-Capture** | Bereich markieren → **Sofort in die Zwischenablage** (0 Klicks) |
+| **`Ctrl + Shift + 2`** | **Capture & Edit** | Bereich markieren → **Öffnet den Snapboard-Editor** |
+| `ESC` | Abbrechen | Aufnahme abbrechen |
+| `Ctrl + C` | Export (im Editor) | Bearbeitetes Bild kopieren & Editor schließen |
+| `Ctrl + S` | Speichern als... | Optional als PNG-Datei exportieren |
+
+---
+
+## 🛠️ Aus dem Quellcode bauen
+
+### 🍎 macOS
+```bash
+# 1-Klick Installation nach /Applications
+./scripts/install.sh
+
+# Oder manuell bauen
+./scripts/build_app.sh
+```
+
+### 🪟 Windows
+```cmd
+cd windows
+dotnet publish Snapboard.Windows\Snapboard.Windows.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o bin\Release
+```
+
+---
+
+## 📄 Lizenz
+
+Veröffentlicht unter der [MIT Lizenz](LICENSE).
