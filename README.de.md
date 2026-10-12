@@ -44,11 +44,11 @@ Du kannst Snapboard direkt von GitHub herunterladen und ohne Terminal nutzen:
 ## 🖼️ Screenshots
 
 <div align="center">
-  <h3>Annotation & Redaction Studio (⌘ ⇧ 2 / Ctrl + Shift + 2)</h3>
-  <img src="docs/screenshots/editor.png" alt="Snapboard Editor" width="800" />
+  <h3>Snapboard Editor: Pfeile, Formen, Text, Schritt-Badges & Zensieren (⌘ ⇧ 2 / Ctrl + Shift + 2)</h3>
+  <img src="docs/screenshots/editor.de.png" alt="Snapboard Editor mit Pfeil, Rechteck, Textfeld, Schritt-Badges und einem zensierten Bereich auf einem Demo-Dashboard" width="800" />
   <br /><br />
-  <h3>Preferences & Global Shortcuts</h3>
-  <img src="docs/screenshots/settings.png" alt="Snapboard Settings" width="480" />
+  <h3>Einstellungen: globale Tastaturkürzel, Ton, Mitteilungen & Autostart</h3>
+  <img src="docs/screenshots/settings.de.png" alt="Snapboard Einstellungen mit den globalen Tastaturkürzeln und den Optionen für Benachrichtigungen und Start" width="576" />
 </div>
 
 ---

@@ -44,11 +44,11 @@ You can download Snapboard straight from GitHub and use it without touching a te
 ## 🖼️ Screenshots
 
 <div align="center">
-  <h3>Annotation & Redaction Studio (⌘ ⇧ 2 / Ctrl + Shift + 2)</h3>
-  <img src="docs/screenshots/editor.png" alt="Snapboard Editor" width="800" />
+  <h3>Snapboard Editor: arrows, shapes, text, step badges & redaction (⌘ ⇧ 2 / Ctrl + Shift + 2)</h3>
+  <img src="docs/screenshots/editor.png" alt="Snapboard Editor with an arrow, a rectangle, a text label, step badges and a redacted area on a demo dashboard" width="800" />
   <br /><br />
-  <h3>Preferences & Global Shortcuts</h3>
-  <img src="docs/screenshots/settings.png" alt="Snapboard Settings" width="480" />
+  <h3>Settings: global shortcuts, sound, notifications & open at login</h3>
+  <img src="docs/screenshots/settings.png" alt="Snapboard Settings with the global keyboard shortcuts and the notification and startup options" width="576" />
 </div>
 
 ---
