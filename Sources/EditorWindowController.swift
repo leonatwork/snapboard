@@ -34,7 +34,7 @@ final class EditorWindowController: NSObject, NSWindowDelegate {
         let hostingController = NSHostingController(rootView: editorView)
 
         let win = NSWindow(contentViewController: hostingController)
-        win.title = "Snapboard Editor"
+        win.title = L10n.tr("editor.windowTitle")
         win.styleMask = [.titled, .closable, .miniaturizable, .resizable]
         win.setContentSize(NSSize(width: windowWidth, height: windowHeight))
         win.center()

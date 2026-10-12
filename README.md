@@ -4,11 +4,27 @@
 [![Release](https://img.shields.io/github/v/release/leonatwork/snapboard?color=success&label=Release)](https://github.com/leonatwork/snapboard/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/Platform-macOS%20%7C%20Windows-lightgrey.svg)]()
+[![Package: I love macOS, but I miss some Windows features](https://img.shields.io/badge/Package-I_love_macOS%2C_but_I_miss_some_Windows_features-0A84FF)](https://github.com/search?q=topic%3Ai-love-macos-but-i-miss-windows-features+user%3Aleonatwork&type=repositories)
 
 > The lightweight, privacy-focused Greenshot alternative for **macOS** and **Windows**.
 > Capture screen areas directly to your clipboard — **without saving unnecessary files to disk**.
 
 *🇩🇪 [Deutsche Version](README.de.md)*
+
+---
+
+## 🧩 Part of the package
+
+Snapboard is one of four tools in the package **[“I love macOS, but I miss some Windows features”](https://github.com/search?q=topic%3Ai-love-macos-but-i-miss-windows-features+user%3Aleonatwork&type=repositories)**:
+
+| Tool | What it does | Download |
+| :--- | :--- | :--- |
+| [**Tappi**](https://github.com/leonatwork/Tappi) | Alt+Tab between windows, not apps | [Latest release](https://github.com/leonatwork/Tappi/releases/latest) |
+| [**Klemmi**](https://github.com/leonatwork/Klemmi) | Clipboard history like Win+V, with the app each entry came from | [Latest release](https://github.com/leonatwork/Klemmi/releases/latest) |
+| [**Snapline**](https://github.com/leonatwork/snapline) | Windows 11 Snap Layouts, Aero Snap and Snap Assist | [Latest release](https://github.com/leonatwork/snapline/releases/latest) |
+| [**Snapboard**](https://github.com/leonatwork/snapboard) *(this tool)* | Snipping-Tool-style screenshots straight to the clipboard | [Latest release](https://github.com/leonatwork/snapboard/releases/latest) |
+
+👉 Missing more than one of these? Download all four and bring your favourite Windows features to your Mac.
 
 ---
 
@@ -52,6 +68,7 @@ You can download Snapboard straight from GitHub and use it without touching a te
 - 🛡️ **No disk clutter**: works entirely in memory — no temporary or leftover screenshot files.
 - 🪶 **Native & lightweight**: sits quietly in the menu bar (macOS) or system tray (Windows).
 - 🚀 **Launch at login**: one click to start with the system.
+- 🌍 **10 languages**: English, German, French, Spanish, Italian, Portuguese (Brazil), Dutch, Japanese, Simplified Chinese and Korean. The macOS app follows your system language (the Windows app is currently German only).
 
 ---
 

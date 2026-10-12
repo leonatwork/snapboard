@@ -1,0 +1,154 @@
+/* Snapboard – Localizable.strings (ko) */
+
+/* Generic OK button */
+"common.ok" = "확인";
+
+/* Generic Cancel button */
+"common.cancel" = "취소";
+
+/* Generic Close button */
+"common.close" = "닫기";
+
+/* Tooltip of the menu bar icon */
+"statusItem.tooltip" = "Snapboard: ⌘⇧1 (바로) / ⌘⇧2 (편집)";
+
+/* Menu item: capture an area straight to the clipboard */
+"menu.captureDirect" = "영역 캡처(바로)";
+
+/* Menu item: capture an area and open the editor */
+"menu.captureEdit" = "영역 캡처 및 편집";
+
+/* Menu toggle: play a sound when capturing */
+"menu.playSound" = "캡처 시 사운드 재생";
+
+/* Menu toggle: start the app at login */
+"menu.launchAtLogin" = "로그인 시 열기";
+
+/* Menu item: open the settings window */
+"menu.settings" = "설정…";
+
+/* Menu item: About */
+"menu.about" = "Snapboard에 관하여";
+
+/* Menu item: Quit */
+"menu.quit" = "Snapboard 종료";
+
+/* Submenu title listing the other tools of the package */
+"menu.moreApps" = "마음에 드실 만한 다른 앱";
+
+/* More apps: Tappi with short description */
+"menu.moreApps.tappi" = "Tappi – 앱이 아닌 윈도우 간 Alt+Tab";
+
+/* More apps: Klemmi with short description */
+"menu.moreApps.klemmi" = "Klemmi – Win+V 같은 클립보드 기록, 출처 앱 표시";
+
+/* More apps: Snapline with short description */
+"menu.moreApps.snapline" = "Snapline – Windows 11의 Snap Layouts, Aero Snap, Snap Assist";
+
+/* More apps: link to all tools of the package */
+"menu.moreApps.package" = "전체 패키지…";
+
+/* Body text of the About alert */
+"about.message" = "macOS용 최신 Greenshot 대안.\n\n• ⌘⇧1: 클립보드로 바로 복사(클릭 없음)\n• ⌘⇧2: 영역을 캡처하여 편집기에서 편집(흐림, 화살표, 텍스트, 배지)\n\n디스크에 파일을 남기지 않습니다.";
+
+/* Notification body after a direct capture */
+"notification.copied" = "스크린샷을 클립보드에 복사했습니다.";
+
+/* Title of the settings window */
+"settings.windowTitle" = "Snapboard 설정";
+
+/* Subtitle in the settings header */
+"settings.subtitle" = "macOS 및 Windows용 Greenshot 대안";
+
+/* Settings section header */
+"settings.section.shortcuts" = "전역 키보드 단축키";
+
+/* Settings: label for the direct capture shortcut */
+"settings.direct.title" = "클립보드로 바로:";
+
+/* Settings: explanation of the direct capture shortcut */
+"settings.direct.detail" = "영역 선택 → 즉시 클립보드로, 클릭 없음";
+
+/* Settings: label for the capture & edit shortcut */
+"settings.edit.title" = "캡처 및 편집:";
+
+/* Settings: explanation of the capture & edit shortcut */
+"settings.edit.detail" = "영역 선택 → 편집기 열기(화살표, 흐림, 배지)";
+
+/* Settings section header */
+"settings.section.notifications" = "알림 및 시작";
+
+/* Settings toggle */
+"settings.playSound" = "캡처 시 사운드 재생";
+
+/* Settings toggle */
+"settings.showNotification" = "캡처 후 알림 표시";
+
+/* Settings toggle */
+"settings.launchAtLogin" = "로그인 시 자동으로 열기";
+
+/* Settings button: try the direct capture */
+"settings.testDirect" = "바로 캡처 테스트(⌘⇧1)";
+
+/* Settings button: try the editor */
+"settings.testEditor" = "편집기 테스트(⌘⇧2)";
+
+/* Title of the editor window */
+"editor.windowTitle" = "Snapboard 편집기";
+
+/* Default text of a new text annotation */
+"editor.defaultText" = "메모";
+
+/* Toolbar tooltip */
+"editor.undo" = "실행 취소(⌘Z)";
+
+/* Toolbar tooltip */
+"editor.redo" = "실행 복귀(⌘⇧Z)";
+
+/* Toolbar tooltip */
+"editor.clearAll" = "모든 주석 지우기";
+
+/* Editor button: close without copying */
+"editor.cancel" = "취소(esc)";
+
+/* Editor button to change the annotation text; %@ is the current text */
+"editor.changeText" = "텍스트 변경: “%@”";
+
+/* Editor button */
+"editor.saveAs" = "다른 이름으로 저장…(⌘S)";
+
+/* Editor primary button */
+"editor.copyToClipboard" = "클립보드로 복사(⌘C)";
+
+/* Title of the sheet that sets the annotation text */
+"editor.textPrompt.title" = "주석 텍스트 설정";
+
+/* Placeholder of the annotation text field */
+"editor.textPrompt.placeholder" = "텍스트 입력…";
+
+/* Button that applies the annotation text */
+"editor.textPrompt.apply" = "적용";
+
+/* Annotation tool name */
+"tool.rectangle" = "사각형";
+
+/* Annotation tool name */
+"tool.circle" = "원 / 타원";
+
+/* Annotation tool name */
+"tool.arrow" = "화살표";
+
+/* Annotation tool name */
+"tool.pen" = "자유 곡선 펜";
+
+/* Annotation tool name */
+"tool.highlighter" = "형광펜";
+
+/* Annotation tool name: obscure sensitive content */
+"tool.blur" = "가리기 / 흐림";
+
+/* Annotation tool name */
+"tool.text" = "텍스트 상자";
+
+/* Annotation tool name: auto-incrementing numbered badges */
+"tool.stepNumber" = "단계 번호";

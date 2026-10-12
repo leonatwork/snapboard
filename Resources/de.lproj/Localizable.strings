@@ -1,0 +1,154 @@
+/* Snapboard – Localizable.strings (de) */
+
+/* Generic OK button */
+"common.ok" = "OK";
+
+/* Generic Cancel button */
+"common.cancel" = "Abbrechen";
+
+/* Generic Close button */
+"common.close" = "Schließen";
+
+/* Tooltip of the menu bar icon */
+"statusItem.tooltip" = "Snapboard: ⌘⇧1 (Direkt) / ⌘⇧2 (Bearbeiten)";
+
+/* Menu item: capture an area straight to the clipboard */
+"menu.captureDirect" = "Bereich aufnehmen (Direkt)";
+
+/* Menu item: capture an area and open the editor */
+"menu.captureEdit" = "Bereich aufnehmen & bearbeiten";
+
+/* Menu toggle: play a sound when capturing */
+"menu.playSound" = "Ton bei Aufnahme";
+
+/* Menu toggle: start the app at login */
+"menu.launchAtLogin" = "Beim Anmelden starten";
+
+/* Menu item: open the settings window */
+"menu.settings" = "Einstellungen…";
+
+/* Menu item: About */
+"menu.about" = "Über Snapboard";
+
+/* Menu item: Quit */
+"menu.quit" = "Snapboard beenden";
+
+/* Submenu title listing the other tools of the package */
+"menu.moreApps" = "Weitere Apps, die dir gefallen könnten";
+
+/* More apps: Tappi with short description */
+"menu.moreApps.tappi" = "Tappi – Alt+Tab zwischen Fenstern statt Apps";
+
+/* More apps: Klemmi with short description */
+"menu.moreApps.klemmi" = "Klemmi – Zwischenablage-Verlauf wie Win+V, mit Quell-App";
+
+/* More apps: Snapline with short description */
+"menu.moreApps.snapline" = "Snapline – Snap Layouts, Aero Snap und Snap Assist aus Windows 11";
+
+/* More apps: link to all tools of the package */
+"menu.moreApps.package" = "Das ganze Paket…";
+
+/* Body text of the About alert */
+"about.message" = "Die moderne Greenshot-Alternative für macOS.\n\n• ⌘⇧1: Direkt in die Zwischenablage (0 Klicks)\n• ⌘⇧2: Bereich aufnehmen & im Editor bearbeiten (Blur, Pfeile, Text, Badges)\n\nKeine Dateien auf der Festplatte.";
+
+/* Notification body after a direct capture */
+"notification.copied" = "Screenshot in die Zwischenablage kopiert.";
+
+/* Title of the settings window */
+"settings.windowTitle" = "Snapboard Einstellungen";
+
+/* Subtitle in the settings header */
+"settings.subtitle" = "Greenshot-Alternative für macOS & Windows";
+
+/* Settings section header */
+"settings.section.shortcuts" = "Globale Tastaturkürzel";
+
+/* Settings: label for the direct capture shortcut */
+"settings.direct.title" = "Direkt in Zwischenablage:";
+
+/* Settings: explanation of the direct capture shortcut */
+"settings.direct.detail" = "Bereich wählen → 0 Klicks sofort im Clipboard";
+
+/* Settings: label for the capture & edit shortcut */
+"settings.edit.title" = "Aufnehmen & Bearbeiten:";
+
+/* Settings: explanation of the capture & edit shortcut */
+"settings.edit.detail" = "Bereich wählen → Öffnet Editor (Pfeile, Blur, Badges)";
+
+/* Settings section header */
+"settings.section.notifications" = "Benachrichtigungen & Start";
+
+/* Settings toggle */
+"settings.playSound" = "Ton bei Aufnahme abspielen";
+
+/* Settings toggle */
+"settings.showNotification" = "Mitteilung nach Aufnahme anzeigen";
+
+/* Settings toggle */
+"settings.launchAtLogin" = "Beim Anmelden automatisch starten";
+
+/* Settings button: try the direct capture */
+"settings.testDirect" = "Direkt testen (⌘⇧1)";
+
+/* Settings button: try the editor */
+"settings.testEditor" = "Editor testen (⌘⇧2)";
+
+/* Title of the editor window */
+"editor.windowTitle" = "Snapboard Editor";
+
+/* Default text of a new text annotation */
+"editor.defaultText" = "Hinweis";
+
+/* Toolbar tooltip */
+"editor.undo" = "Rückgängig (⌘Z)";
+
+/* Toolbar tooltip */
+"editor.redo" = "Wiederholen (⌘⇧Z)";
+
+/* Toolbar tooltip */
+"editor.clearAll" = "Alle Annotationen löschen";
+
+/* Editor button: close without copying */
+"editor.cancel" = "Abbrechen (ESC)";
+
+/* Editor button to change the annotation text; %@ is the current text */
+"editor.changeText" = "Text: „%@“ ändern";
+
+/* Editor button */
+"editor.saveAs" = "Speichern als… (⌘S)";
+
+/* Editor primary button */
+"editor.copyToClipboard" = "In Zwischenablage kopieren (⌘C)";
+
+/* Title of the sheet that sets the annotation text */
+"editor.textPrompt.title" = "Hinweistext festlegen";
+
+/* Placeholder of the annotation text field */
+"editor.textPrompt.placeholder" = "Text eingeben…";
+
+/* Button that applies the annotation text */
+"editor.textPrompt.apply" = "Übernehmen";
+
+/* Annotation tool name */
+"tool.rectangle" = "Rechteck";
+
+/* Annotation tool name */
+"tool.circle" = "Kreis / Ellipse";
+
+/* Annotation tool name */
+"tool.arrow" = "Pfeil";
+
+/* Annotation tool name */
+"tool.pen" = "Freihand-Stift";
+
+/* Annotation tool name */
+"tool.highlighter" = "Textmarker";
+
+/* Annotation tool name: obscure sensitive content */
+"tool.blur" = "Zensieren / Blur";
+
+/* Annotation tool name */
+"tool.text" = "Textfeld";
+
+/* Annotation tool name: auto-incrementing numbered badges */
+"tool.stepNumber" = "Schritt-Zähler";

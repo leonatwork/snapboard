@@ -12,9 +12,9 @@ struct SettingsView: View {
                     .font(.system(size: 32))
                     .foregroundColor(.accentColor)
                 VStack(alignment: .leading, spacing: 2) {
-                    Text("Snapboard")
+                    Text(verbatim: "Snapboard")
                         .font(.title2.bold())
-                    Text("Greenshot-Alternative für macOS & Windows")
+                    Text(L10n.tr("settings.subtitle"))
                         .font(.subheadline)
                         .foregroundColor(.secondary)
                 }
@@ -30,14 +30,14 @@ struct SettingsView: View {
                 Section {
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Direkt in Zwischenablage:")
+                            Text(L10n.tr("settings.direct.title"))
                                 .fontWeight(.medium)
-                            Text("Bereich wählen → 0 Klicks sofort im Clipboard")
+                            Text(L10n.tr("settings.direct.detail"))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
                         Spacer()
-                        Text("⌘ ⇧ 1")
+                        Text(verbatim: "⌘ ⇧ 1")
                             .font(.system(.body, design: .monospaced))
                             .fontWeight(.semibold)
                             .padding(.horizontal, 8)
@@ -48,14 +48,14 @@ struct SettingsView: View {
 
                     HStack {
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Aufnehmen & Bearbeiten:")
+                            Text(L10n.tr("settings.edit.title"))
                                 .fontWeight(.medium)
-                            Text("Bereich wählen → Öffnet Editor (Pfeile, Blur, Badges)")
+                            Text(L10n.tr("settings.edit.detail"))
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
                         Spacer()
-                        Text("⌘ ⇧ 2")
+                        Text(verbatim: "⌘ ⇧ 2")
                             .font(.system(.body, design: .monospaced))
                             .fontWeight(.semibold)
                             .padding(.horizontal, 8)
@@ -64,17 +64,17 @@ struct SettingsView: View {
                             .cornerRadius(6)
                     }
                 } header: {
-                    Text("Globale Tastaturkürzel")
+                    Text(L10n.tr("settings.section.shortcuts"))
                 }
 
                 Section {
-                    Toggle("Ton bei Aufnahme abspielen", isOn: $appState.playSound)
+                    Toggle(L10n.tr("settings.playSound"), isOn: $appState.playSound)
 
-                    Toggle("Mitteilung nach Aufnahme anzeigen", isOn: $appState.showNotification)
+                    Toggle(L10n.tr("settings.showNotification"), isOn: $appState.showNotification)
 
-                    Toggle("Beim Anmelden automatisch starten", isOn: $appState.launchAtLogin)
+                    Toggle(L10n.tr("settings.launchAtLogin"), isOn: $appState.launchAtLogin)
                 } header: {
-                    Text("Benachrichtigungen & Start")
+                    Text(L10n.tr("settings.section.notifications"))
                 }
             }
             .formStyle(.grouped)
@@ -84,18 +84,18 @@ struct SettingsView: View {
 
             // Footer
             HStack {
-                Button("Direkt testen (⌘⇧1)") {
+                Button(L10n.tr("settings.testDirect")) {
                     CaptureService.shared.captureDirect()
                 }
 
-                Button("Editor testen (⌘⇧2)") {
+                Button(L10n.tr("settings.testEditor")) {
                     CaptureService.shared.captureForEdit()
                 }
                 .buttonStyle(.borderedProminent)
 
                 Spacer()
 
-                Button("Schließen") {
+                Button(L10n.tr("common.close")) {
                     NSApp.keyWindow?.close()
                 }
                 .keyboardShortcut(.cancelAction)
@@ -103,7 +103,7 @@ struct SettingsView: View {
             .padding(16)
             .background(Color(NSColor.windowBackgroundColor))
         }
-        .frame(width: 490, height: 460)
+        .frame(width: 520, height: 460)
         .onAppear {
             appState.checkLaunchAtLoginStatus()
         }

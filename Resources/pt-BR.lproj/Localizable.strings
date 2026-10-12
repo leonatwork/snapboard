@@ -1,0 +1,154 @@
+/* Snapboard – Localizable.strings (pt-BR) */
+
+/* Generic OK button */
+"common.ok" = "OK";
+
+/* Generic Cancel button */
+"common.cancel" = "Cancelar";
+
+/* Generic Close button */
+"common.close" = "Fechar";
+
+/* Tooltip of the menu bar icon */
+"statusItem.tooltip" = "Snapboard: ⌘⇧1 (direto) / ⌘⇧2 (editar)";
+
+/* Menu item: capture an area straight to the clipboard */
+"menu.captureDirect" = "Capturar Área (Direto)";
+
+/* Menu item: capture an area and open the editor */
+"menu.captureEdit" = "Capturar e Editar Área";
+
+/* Menu toggle: play a sound when capturing */
+"menu.playSound" = "Som ao Capturar";
+
+/* Menu toggle: start the app at login */
+"menu.launchAtLogin" = "Abrir ao Iniciar Sessão";
+
+/* Menu item: open the settings window */
+"menu.settings" = "Ajustes…";
+
+/* Menu item: About */
+"menu.about" = "Sobre o Snapboard";
+
+/* Menu item: Quit */
+"menu.quit" = "Encerrar o Snapboard";
+
+/* Submenu title listing the other tools of the package */
+"menu.moreApps" = "Mais apps que você pode gostar";
+
+/* More apps: Tappi with short description */
+"menu.moreApps.tappi" = "Tappi – Alt+Tab entre janelas, não entre apps";
+
+/* More apps: Klemmi with short description */
+"menu.moreApps.klemmi" = "Klemmi – Histórico da Área de Transferência como Win+V, com o app de origem";
+
+/* More apps: Snapline with short description */
+"menu.moreApps.snapline" = "Snapline – Snap Layouts, Aero Snap e Snap Assist do Windows 11";
+
+/* More apps: link to all tools of the package */
+"menu.moreApps.package" = "O pacote completo…";
+
+/* Body text of the About alert */
+"about.message" = "A alternativa moderna ao Greenshot para macOS.\n\n• ⌘⇧1: direto para a Área de Transferência (zero cliques)\n• ⌘⇧2: capturar uma área e editá-la no editor (desfoque, setas, texto, selos)\n\nNenhum arquivo no disco.";
+
+/* Notification body after a direct capture */
+"notification.copied" = "Captura de tela copiada para a Área de Transferência.";
+
+/* Title of the settings window */
+"settings.windowTitle" = "Ajustes do Snapboard";
+
+/* Subtitle in the settings header */
+"settings.subtitle" = "Alternativa ao Greenshot para macOS e Windows";
+
+/* Settings section header */
+"settings.section.shortcuts" = "Atalhos de Teclado Globais";
+
+/* Settings: label for the direct capture shortcut */
+"settings.direct.title" = "Direto para a Área de Transferência:";
+
+/* Settings: explanation of the direct capture shortcut */
+"settings.direct.detail" = "Selecione uma área → na hora na Área de Transferência, zero cliques";
+
+/* Settings: label for the capture & edit shortcut */
+"settings.edit.title" = "Capturar e Editar:";
+
+/* Settings: explanation of the capture & edit shortcut */
+"settings.edit.detail" = "Selecione uma área → abre o editor (setas, desfoque, selos)";
+
+/* Settings section header */
+"settings.section.notifications" = "Notificações e Inicialização";
+
+/* Settings toggle */
+"settings.playSound" = "Reproduzir som ao capturar";
+
+/* Settings toggle */
+"settings.showNotification" = "Mostrar notificação após capturar";
+
+/* Settings toggle */
+"settings.launchAtLogin" = "Abrir automaticamente ao iniciar sessão";
+
+/* Settings button: try the direct capture */
+"settings.testDirect" = "Testar Direto (⌘⇧1)";
+
+/* Settings button: try the editor */
+"settings.testEditor" = "Testar Editor (⌘⇧2)";
+
+/* Title of the editor window */
+"editor.windowTitle" = "Editor do Snapboard";
+
+/* Default text of a new text annotation */
+"editor.defaultText" = "Nota";
+
+/* Toolbar tooltip */
+"editor.undo" = "Desfazer (⌘Z)";
+
+/* Toolbar tooltip */
+"editor.redo" = "Refazer (⌘⇧Z)";
+
+/* Toolbar tooltip */
+"editor.clearAll" = "Apagar Todas as Anotações";
+
+/* Editor button: close without copying */
+"editor.cancel" = "Cancelar (Esc)";
+
+/* Editor button to change the annotation text; %@ is the current text */
+"editor.changeText" = "Alterar Texto: “%@”";
+
+/* Editor button */
+"editor.saveAs" = "Salvar Como… (⌘S)";
+
+/* Editor primary button */
+"editor.copyToClipboard" = "Copiar para a Área de Transferência (⌘C)";
+
+/* Title of the sheet that sets the annotation text */
+"editor.textPrompt.title" = "Definir Texto da Anotação";
+
+/* Placeholder of the annotation text field */
+"editor.textPrompt.placeholder" = "Digite o texto…";
+
+/* Button that applies the annotation text */
+"editor.textPrompt.apply" = "Aplicar";
+
+/* Annotation tool name */
+"tool.rectangle" = "Retângulo";
+
+/* Annotation tool name */
+"tool.circle" = "Círculo / Elipse";
+
+/* Annotation tool name */
+"tool.arrow" = "Seta";
+
+/* Annotation tool name */
+"tool.pen" = "Caneta à Mão Livre";
+
+/* Annotation tool name */
+"tool.highlighter" = "Marca-texto";
+
+/* Annotation tool name: obscure sensitive content */
+"tool.blur" = "Ocultar / Desfocar";
+
+/* Annotation tool name */
+"tool.text" = "Caixa de Texto";
+
+/* Annotation tool name: auto-incrementing numbered badges */
+"tool.stepNumber" = "Contador de Passos";

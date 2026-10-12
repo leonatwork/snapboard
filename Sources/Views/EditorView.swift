@@ -13,7 +13,7 @@ final class EditorViewModel: ObservableObject {
     @Published var lineWidth: CGFloat = 4.0
 
     @Published var currentDraft: AnnotationItem?
-    @Published var currentText: String = "Hinweis"
+    @Published var currentText: String = L10n.tr("editor.defaultText")
     @Published var nextStepNumber: Int = 1
 
     var onClose: (() -> Void)?
@@ -54,7 +54,7 @@ final class EditorViewModel: ObservableObject {
                 endPoint: normalized,
                 color: selectedColor,
                 lineWidth: lineWidth,
-                text: currentText.isEmpty ? "Hinweis" : currentText
+                text: currentText.isEmpty ? L10n.tr("editor.defaultText") : currentText
             )
             annotations.append(item)
         case .stepNumber:
@@ -231,7 +231,7 @@ struct EditorView: View {
                             .font(.system(size: 13))
                     }
                     .disabled(viewModel.undoStack.isEmpty)
-                    .help("Rückgängig (⌘Z)")
+                    .help(L10n.tr("editor.undo"))
 
                     Button {
                         viewModel.redo()
@@ -240,7 +240,7 @@ struct EditorView: View {
                             .font(.system(size: 13))
                     }
                     .disabled(viewModel.redoStack.isEmpty)
-                    .help("Wiederholen (⌘⇧Z)")
+                    .help(L10n.tr("editor.redo"))
 
                     Button {
                         viewModel.clearAll()
@@ -249,7 +249,7 @@ struct EditorView: View {
                             .font(.system(size: 13))
                     }
                     .disabled(viewModel.annotations.isEmpty)
-                    .help("Alle Annotationen löschen")
+                    .help(L10n.tr("editor.clearAll"))
                 }
             }
             .padding(.horizontal, 16)
@@ -307,7 +307,7 @@ struct EditorView: View {
 
             // Bottom Bar
             HStack {
-                Button("Abbrechen (ESC)") {
+                Button(L10n.tr("editor.cancel")) {
                     viewModel.onClose?()
                 }
                 .keyboardShortcut(.cancelAction)
@@ -315,19 +315,19 @@ struct EditorView: View {
                 Spacer()
 
                 if viewModel.selectedTool == .text {
-                    Button("Text: \"\(viewModel.currentText)\" ändern") {
+                    Button(L10n.format("editor.changeText", viewModel.currentText)) {
                         tempInputText = viewModel.currentText
                         showingTextPrompt = true
                     }
                     .buttonStyle(.accessoryBar)
                 }
 
-                Button("Speichern als... (⌘S)") {
+                Button(L10n.tr("editor.saveAs")) {
                     viewModel.saveAsFile()
                 }
                 .keyboardShortcut("s", modifiers: .command)
 
-                Button("In Zwischenablage kopieren (⌘C)") {
+                Button(L10n.tr("editor.copyToClipboard")) {
                     viewModel.copyToClipboardAndClose()
                 }
                 .buttonStyle(.borderedProminent)
@@ -341,16 +341,16 @@ struct EditorView: View {
         .frame(minWidth: 780, minHeight: 560)
         .sheet(isPresented: $showingTextPrompt) {
             VStack(spacing: 16) {
-                Text("Hinweistext festlegen")
+                Text(L10n.tr("editor.textPrompt.title"))
                     .font(.headline)
-                TextField("Text eingeben...", text: $tempInputText)
+                TextField(L10n.tr("editor.textPrompt.placeholder"), text: $tempInputText)
                     .textFieldStyle(.roundedBorder)
                     .frame(width: 280)
                 HStack {
-                    Button("Abbrechen") {
+                    Button(L10n.tr("common.cancel")) {
                         showingTextPrompt = false
                     }
-                    Button("Übernehmen") {
+                    Button(L10n.tr("editor.textPrompt.apply")) {
                         viewModel.currentText = tempInputText
                         showingTextPrompt = false
                     }

@@ -108,7 +108,7 @@ final class CaptureService {
     private func sendNotification() {
         let content = UNMutableNotificationContent()
         content.title = "Snapboard"
-        content.body = "Screenshot in die Zwischenablage kopiert."
+        content.body = L10n.tr("notification.copied")
         content.sound = nil
 
         let request = UNNotificationRequest(

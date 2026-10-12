@@ -1,0 +1,154 @@
+/* Snapboard – Localizable.strings (nl) */
+
+/* Generic OK button */
+"common.ok" = "OK";
+
+/* Generic Cancel button */
+"common.cancel" = "Annuleer";
+
+/* Generic Close button */
+"common.close" = "Sluit";
+
+/* Tooltip of the menu bar icon */
+"statusItem.tooltip" = "Snapboard: ⌘⇧1 (direct) / ⌘⇧2 (bewerken)";
+
+/* Menu item: capture an area straight to the clipboard */
+"menu.captureDirect" = "Gebied vastleggen (direct)";
+
+/* Menu item: capture an area and open the editor */
+"menu.captureEdit" = "Gebied vastleggen en bewerken";
+
+/* Menu toggle: play a sound when capturing */
+"menu.playSound" = "Geluid bij vastleggen";
+
+/* Menu toggle: start the app at login */
+"menu.launchAtLogin" = "Open bij inloggen";
+
+/* Menu item: open the settings window */
+"menu.settings" = "Instellingen…";
+
+/* Menu item: About */
+"menu.about" = "Over Snapboard";
+
+/* Menu item: Quit */
+"menu.quit" = "Stop Snapboard";
+
+/* Submenu title listing the other tools of the package */
+"menu.moreApps" = "Meer apps die je misschien leuk vindt";
+
+/* More apps: Tappi with short description */
+"menu.moreApps.tappi" = "Tappi – Alt+Tab tussen vensters in plaats van apps";
+
+/* More apps: Klemmi with short description */
+"menu.moreApps.klemmi" = "Klemmi – Klembordgeschiedenis zoals Win+V, met de bron-app";
+
+/* More apps: Snapline with short description */
+"menu.moreApps.snapline" = "Snapline – Snap Layouts, Aero Snap en Snap Assist uit Windows 11";
+
+/* More apps: link to all tools of the package */
+"menu.moreApps.package" = "Het hele pakket…";
+
+/* Body text of the About alert */
+"about.message" = "Het moderne alternatief voor Greenshot op macOS.\n\n• ⌘⇧1: direct naar het klembord (nul klikken)\n• ⌘⇧2: gebied vastleggen en bewerken in de editor (vervagen, pijlen, tekst, badges)\n\nGeen bestanden op schijf.";
+
+/* Notification body after a direct capture */
+"notification.copied" = "Schermafbeelding naar het klembord gekopieerd.";
+
+/* Title of the settings window */
+"settings.windowTitle" = "Snapboard-instellingen";
+
+/* Subtitle in the settings header */
+"settings.subtitle" = "Greenshot-alternatief voor macOS en Windows";
+
+/* Settings section header */
+"settings.section.shortcuts" = "Globale toetscombinaties";
+
+/* Settings: label for the direct capture shortcut */
+"settings.direct.title" = "Direct naar klembord:";
+
+/* Settings: explanation of the direct capture shortcut */
+"settings.direct.detail" = "Kies een gebied → meteen op het klembord, nul klikken";
+
+/* Settings: label for the capture & edit shortcut */
+"settings.edit.title" = "Vastleggen en bewerken:";
+
+/* Settings: explanation of the capture & edit shortcut */
+"settings.edit.detail" = "Kies een gebied → opent de editor (pijlen, vervagen, badges)";
+
+/* Settings section header */
+"settings.section.notifications" = "Meldingen en opstarten";
+
+/* Settings toggle */
+"settings.playSound" = "Speel geluid af bij vastleggen";
+
+/* Settings toggle */
+"settings.showNotification" = "Toon melding na vastleggen";
+
+/* Settings toggle */
+"settings.launchAtLogin" = "Automatisch openen bij inloggen";
+
+/* Settings button: try the direct capture */
+"settings.testDirect" = "Test direct (⌘⇧1)";
+
+/* Settings button: try the editor */
+"settings.testEditor" = "Test editor (⌘⇧2)";
+
+/* Title of the editor window */
+"editor.windowTitle" = "Snapboard-editor";
+
+/* Default text of a new text annotation */
+"editor.defaultText" = "Opmerking";
+
+/* Toolbar tooltip */
+"editor.undo" = "Herstel (⌘Z)";
+
+/* Toolbar tooltip */
+"editor.redo" = "Opnieuw (⌘⇧Z)";
+
+/* Toolbar tooltip */
+"editor.clearAll" = "Wis alle annotaties";
+
+/* Editor button: close without copying */
+"editor.cancel" = "Annuleer (Esc)";
+
+/* Editor button to change the annotation text; %@ is the current text */
+"editor.changeText" = "Wijzig tekst: ‘%@’";
+
+/* Editor button */
+"editor.saveAs" = "Bewaar als… (⌘S)";
+
+/* Editor primary button */
+"editor.copyToClipboard" = "Kopieer naar klembord (⌘C)";
+
+/* Title of the sheet that sets the annotation text */
+"editor.textPrompt.title" = "Stel annotatietekst in";
+
+/* Placeholder of the annotation text field */
+"editor.textPrompt.placeholder" = "Voer tekst in…";
+
+/* Button that applies the annotation text */
+"editor.textPrompt.apply" = "Pas toe";
+
+/* Annotation tool name */
+"tool.rectangle" = "Rechthoek";
+
+/* Annotation tool name */
+"tool.circle" = "Cirkel / ellips";
+
+/* Annotation tool name */
+"tool.arrow" = "Pijl";
+
+/* Annotation tool name */
+"tool.pen" = "Pen uit de vrije hand";
+
+/* Annotation tool name */
+"tool.highlighter" = "Markeerstift";
+
+/* Annotation tool name: obscure sensitive content */
+"tool.blur" = "Afschermen / vervagen";
+
+/* Annotation tool name */
+"tool.text" = "Tekstvak";
+
+/* Annotation tool name: auto-incrementing numbered badges */
+"tool.stepNumber" = "Stappenteller";
