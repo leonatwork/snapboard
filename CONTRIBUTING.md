@@ -28,3 +28,9 @@ dotnet build Snapboard.Windows\Snapboard.Windows.csproj -c Release
 ## Pull Requests & Issues
 - Keep PRs focused and well-scoped.
 - Ensure macOS and Windows builds pass cleanly in CI.
+
+## License of contributions
+
+Contributions are accepted under the MIT License, the same license as the project.
+Optional premium add-ons are developed separately. Community contributions are only
+included there with the contributor's explicit consent.
