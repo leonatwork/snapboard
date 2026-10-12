@@ -1,0 +1,154 @@
+/* Snapboard – Localizable.strings (en) */
+
+/* Generic OK button */
+"common.ok" = "OK";
+
+/* Generic Cancel button */
+"common.cancel" = "Cancel";
+
+/* Generic Close button */
+"common.close" = "Close";
+
+/* Tooltip of the menu bar icon */
+"statusItem.tooltip" = "Snapboard: ⌘⇧1 (direct) / ⌘⇧2 (edit)";
+
+/* Menu item: capture an area straight to the clipboard */
+"menu.captureDirect" = "Capture Area (Direct)";
+
+/* Menu item: capture an area and open the editor */
+"menu.captureEdit" = "Capture & Edit Area";
+
+/* Menu toggle: play a sound when capturing */
+"menu.playSound" = "Play Sound on Capture";
+
+/* Menu toggle: start the app at login */
+"menu.launchAtLogin" = "Open at Login";
+
+/* Menu item: open the settings window */
+"menu.settings" = "Settings…";
+
+/* Menu item: About */
+"menu.about" = "About Snapboard";
+
+/* Menu item: Quit */
+"menu.quit" = "Quit Snapboard";
+
+/* Submenu title listing the other tools of the package */
+"menu.moreApps" = "More apps you might like";
+
+/* More apps: Tappi with short description */
+"menu.moreApps.tappi" = "Tappi – Alt+Tab between windows, not apps";
+
+/* More apps: Klemmi with short description */
+"menu.moreApps.klemmi" = "Klemmi – Clipboard history like Win+V, with the app each entry came from";
+
+/* More apps: Snapline with short description */
+"menu.moreApps.snapline" = "Snapline – Windows 11 Snap Layouts, Aero Snap and Snap Assist";
+
+/* More apps: link to all tools of the package */
+"menu.moreApps.package" = "The whole package…";
+
+/* Body text of the About alert */
+"about.message" = "The modern Greenshot alternative for macOS.\n\n• ⌘⇧1: Straight to the clipboard (zero clicks)\n• ⌘⇧2: Capture an area and edit it in the editor (blur, arrows, text, badges)\n\nNo files on disk.";
+
+/* Notification body after a direct capture */
+"notification.copied" = "Screenshot copied to the clipboard.";
+
+/* Title of the settings window */
+"settings.windowTitle" = "Snapboard Settings";
+
+/* Subtitle in the settings header */
+"settings.subtitle" = "Greenshot alternative for macOS & Windows";
+
+/* Settings section header */
+"settings.section.shortcuts" = "Global Keyboard Shortcuts";
+
+/* Settings: label for the direct capture shortcut */
+"settings.direct.title" = "Straight to Clipboard:";
+
+/* Settings: explanation of the direct capture shortcut */
+"settings.direct.detail" = "Select an area → in the clipboard instantly, zero clicks";
+
+/* Settings: label for the capture & edit shortcut */
+"settings.edit.title" = "Capture & Edit:";
+
+/* Settings: explanation of the capture & edit shortcut */
+"settings.edit.detail" = "Select an area → opens the editor (arrows, blur, badges)";
+
+/* Settings section header */
+"settings.section.notifications" = "Notifications & Startup";
+
+/* Settings toggle */
+"settings.playSound" = "Play sound on capture";
+
+/* Settings toggle */
+"settings.showNotification" = "Show notification after capture";
+
+/* Settings toggle */
+"settings.launchAtLogin" = "Open automatically at login";
+
+/* Settings button: try the direct capture */
+"settings.testDirect" = "Test Direct (⌘⇧1)";
+
+/* Settings button: try the editor */
+"settings.testEditor" = "Test Editor (⌘⇧2)";
+
+/* Title of the editor window */
+"editor.windowTitle" = "Snapboard Editor";
+
+/* Default text of a new text annotation */
+"editor.defaultText" = "Note";
+
+/* Toolbar tooltip */
+"editor.undo" = "Undo (⌘Z)";
+
+/* Toolbar tooltip */
+"editor.redo" = "Redo (⌘⇧Z)";
+
+/* Toolbar tooltip */
+"editor.clearAll" = "Clear All Annotations";
+
+/* Editor button: close without copying */
+"editor.cancel" = "Cancel (Esc)";
+
+/* Editor button to change the annotation text; %@ is the current text */
+"editor.changeText" = "Change Text: “%@”";
+
+/* Editor button */
+"editor.saveAs" = "Save As… (⌘S)";
+
+/* Editor primary button */
+"editor.copyToClipboard" = "Copy to Clipboard (⌘C)";
+
+/* Title of the sheet that sets the annotation text */
+"editor.textPrompt.title" = "Set Annotation Text";
+
+/* Placeholder of the annotation text field */
+"editor.textPrompt.placeholder" = "Enter text…";
+
+/* Button that applies the annotation text */
+"editor.textPrompt.apply" = "Apply";
+
+/* Annotation tool name */
+"tool.rectangle" = "Rectangle";
+
+/* Annotation tool name */
+"tool.circle" = "Circle / Ellipse";
+
+/* Annotation tool name */
+"tool.arrow" = "Arrow";
+
+/* Annotation tool name */
+"tool.pen" = "Freehand Pen";
+
+/* Annotation tool name */
+"tool.highlighter" = "Highlighter";
+
+/* Annotation tool name: obscure sensitive content */
+"tool.blur" = "Redact / Blur";
+
+/* Annotation tool name */
+"tool.text" = "Text Box";
+
+/* Annotation tool name: auto-incrementing numbered badges */
+"tool.stepNumber" = "Step Counter";

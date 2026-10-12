@@ -21,7 +21,7 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
             ?? NSImage(systemSymbolName: "crop", accessibilityDescription: "Snapboard")
         icon?.isTemplate = true
         button.image = icon
-        button.toolTip = "Snapboard: ⌘⇧1 (Direkt) / ⌘⇧2 (Bearbeiten)"
+        button.toolTip = L10n.tr("statusItem.tooltip")
 
         rebuildMenu()
     }
@@ -32,7 +32,7 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
 
         // Action 1: Direct
         let directItem = NSMenuItem(
-            title: "Bereich aufnehmen (Direkt)",
+            title: L10n.tr("menu.captureDirect"),
             action: #selector(captureDirectAction),
             keyEquivalent: "1"
         )
@@ -42,7 +42,7 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
 
         // Action 2: Edit
         let editItem = NSMenuItem(
-            title: "Bereich aufnehmen & bearbeiten",
+            title: L10n.tr("menu.captureEdit"),
             action: #selector(captureEditAction),
             keyEquivalent: "2"
         )
@@ -54,7 +54,7 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
 
         // Toggles
         let soundItem = NSMenuItem(
-            title: "Ton bei Aufnahme",
+            title: L10n.tr("menu.playSound"),
             action: #selector(toggleSoundAction),
             keyEquivalent: ""
         )
@@ -63,7 +63,7 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
         menu.addItem(soundItem)
 
         let autostartItem = NSMenuItem(
-            title: "Beim Anmelden starten",
+            title: L10n.tr("menu.launchAtLogin"),
             action: #selector(toggleAutostartAction),
             keyEquivalent: ""
         )
@@ -75,7 +75,7 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
 
         // Settings & About
         let settingsItem = NSMenuItem(
-            title: "Einstellungen...",
+            title: L10n.tr("menu.settings"),
             action: #selector(openSettingsAction),
             keyEquivalent: ","
         )
@@ -83,18 +83,23 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
         menu.addItem(settingsItem)
 
         let aboutItem = NSMenuItem(
-            title: "Über Snapboard",
+            title: L10n.tr("menu.about"),
             action: #selector(openAboutAction),
             keyEquivalent: ""
         )
         aboutItem.target = self
         menu.addItem(aboutItem)
 
+        // More apps from the same package
+        let moreAppsItem = NSMenuItem(title: L10n.tr("menu.moreApps"), action: nil, keyEquivalent: "")
+        moreAppsItem.submenu = makeMoreAppsMenu()
+        menu.addItem(moreAppsItem)
+
         menu.addItem(NSMenuItem.separator())
 
         // Quit
         let quitItem = NSMenuItem(
-            title: "Snapboard beenden",
+            title: L10n.tr("menu.quit"),
             action: #selector(quitAction),
             keyEquivalent: "q"
         )
@@ -102,6 +107,40 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
         menu.addItem(quitItem)
 
         statusItem?.menu = menu
+    }
+
+    // MARK: - More apps
+
+    /// Other tools of the package "I love macOS, but I miss some Windows features".
+    private static let otherApps: [(titleKey: String, url: String)] = [
+        ("menu.moreApps.tappi", "https://github.com/leonatwork/Tappi"),
+        ("menu.moreApps.klemmi", "https://github.com/leonatwork/Klemmi"),
+        ("menu.moreApps.snapline", "https://github.com/leonatwork/snapline")
+    ]
+
+    private static let packageURL =
+        "https://github.com/search?q=topic%3Ai-love-macos-but-i-miss-windows-features+user%3Aleonatwork&type=repositories"
+
+    private func makeMoreAppsMenu() -> NSMenu {
+        let submenu = NSMenu()
+        for app in Self.otherApps {
+            submenu.addItem(makeLinkItem(title: L10n.tr(app.titleKey), url: app.url))
+        }
+        submenu.addItem(NSMenuItem.separator())
+        submenu.addItem(makeLinkItem(title: L10n.tr("menu.moreApps.package"), url: Self.packageURL))
+        return submenu
+    }
+
+    private func makeLinkItem(title: String, url: String) -> NSMenuItem {
+        let item = NSMenuItem(title: title, action: #selector(openLinkAction(_:)), keyEquivalent: "")
+        item.target = self
+        item.representedObject = URL(string: url)
+        return item
+    }
+
+    @objc private func openLinkAction(_ sender: NSMenuItem) {
+        guard let url = sender.representedObject as? URL else { return }
+        NSWorkspace.shared.open(url)
     }
 
     // MARK: - NSMenuDelegate
@@ -138,7 +177,7 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
 
         let hostingController = NSHostingController(rootView: SettingsView())
         let window = NSWindow(contentViewController: hostingController)
-        window.title = "Snapboard Einstellungen"
+        window.title = L10n.tr("settings.windowTitle")
         window.styleMask = [.titled, .closable]
         window.center()
         window.isReleasedWhenClosed = false
@@ -151,9 +190,9 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
     @objc private func openAboutAction() {
         let alert = NSAlert()
         alert.messageText = "Snapboard v1.0"
-        alert.informativeText = "Die moderne Greenshot-Alternative für macOS.\n\n• ⌘⇧1: Direkt in die Zwischenablage (0 Klicks)\n• ⌘⇧2: Bereich aufnehmen & im Editor bearbeiten (Blur, Pfeile, Text, Badges)\n\nKeine Dateien auf der Festplatte."
+        alert.informativeText = L10n.tr("about.message")
         alert.alertStyle = .informational
-        alert.addButton(withTitle: "OK")
+        alert.addButton(withTitle: L10n.tr("common.ok"))
         alert.runModal()
     }
 

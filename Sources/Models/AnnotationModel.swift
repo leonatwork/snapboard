@@ -16,14 +16,14 @@ enum AnnotationTool: String, CaseIterable, Identifiable {
 
     var title: String {
         switch self {
-        case .rectangle: return "Rechteck"
-        case .circle: return "Kreis / Ellipse"
-        case .arrow: return "Pfeil"
-        case .pen: return "Freihand-Stift"
-        case .highlighter: return "Textmarker"
-        case .blur: return "Zensieren / Blur"
-        case .text: return "Textfeld"
-        case .stepNumber: return "Schritt-Zähler"
+        case .rectangle: return L10n.tr("tool.rectangle")
+        case .circle: return L10n.tr("tool.circle")
+        case .arrow: return L10n.tr("tool.arrow")
+        case .pen: return L10n.tr("tool.pen")
+        case .highlighter: return L10n.tr("tool.highlighter")
+        case .blur: return L10n.tr("tool.blur")
+        case .text: return L10n.tr("tool.text")
+        case .stepNumber: return L10n.tr("tool.stepNumber")
         }
     }
 

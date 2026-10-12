@@ -1,0 +1,154 @@
+/* Snapboard – Localizable.strings (ja) */
+
+/* Generic OK button */
+"common.ok" = "OK";
+
+/* Generic Cancel button */
+"common.cancel" = "キャンセル";
+
+/* Generic Close button */
+"common.close" = "閉じる";
+
+/* Tooltip of the menu bar icon */
+"statusItem.tooltip" = "Snapboard：⌘⇧1（直接）/ ⌘⇧2（編集）";
+
+/* Menu item: capture an area straight to the clipboard */
+"menu.captureDirect" = "範囲を取り込む（直接）";
+
+/* Menu item: capture an area and open the editor */
+"menu.captureEdit" = "範囲を取り込んで編集";
+
+/* Menu toggle: play a sound when capturing */
+"menu.playSound" = "取り込み時にサウンドを再生";
+
+/* Menu toggle: start the app at login */
+"menu.launchAtLogin" = "ログイン時に開く";
+
+/* Menu item: open the settings window */
+"menu.settings" = "設定…";
+
+/* Menu item: About */
+"menu.about" = "Snapboardについて";
+
+/* Menu item: Quit */
+"menu.quit" = "Snapboardを終了";
+
+/* Submenu title listing the other tools of the package */
+"menu.moreApps" = "ほかのおすすめアプリ";
+
+/* More apps: Tappi with short description */
+"menu.moreApps.tappi" = "Tappi – アプリではなくウインドウ単位で Alt+Tab";
+
+/* More apps: Klemmi with short description */
+"menu.moreApps.klemmi" = "Klemmi – Win+V のようなクリップボード履歴（コピー元アプリ付き）";
+
+/* More apps: Snapline with short description */
+"menu.moreApps.snapline" = "Snapline – Windows 11 の Snap Layouts、Aero Snap、Snap Assist";
+
+/* More apps: link to all tools of the package */
+"menu.moreApps.package" = "パッケージ全体…";
+
+/* Body text of the About alert */
+"about.message" = "macOS 向けのモダンな Greenshot 代替アプリ。\n\n• ⌘⇧1：クリップボードに直接（クリック不要）\n• ⌘⇧2：範囲を取り込んでエディタで編集（ぼかし、矢印、テキスト、バッジ）\n\nディスクにファイルを残しません。";
+
+/* Notification body after a direct capture */
+"notification.copied" = "スクリーンショットをクリップボードにコピーしました。";
+
+/* Title of the settings window */
+"settings.windowTitle" = "Snapboard 設定";
+
+/* Subtitle in the settings header */
+"settings.subtitle" = "macOS・Windows 向け Greenshot 代替アプリ";
+
+/* Settings section header */
+"settings.section.shortcuts" = "グローバルキーボードショートカット";
+
+/* Settings: label for the direct capture shortcut */
+"settings.direct.title" = "クリップボードに直接：";
+
+/* Settings: explanation of the direct capture shortcut */
+"settings.direct.detail" = "範囲を選択 → すぐにクリップボードへ（クリック不要）";
+
+/* Settings: label for the capture & edit shortcut */
+"settings.edit.title" = "取り込んで編集：";
+
+/* Settings: explanation of the capture & edit shortcut */
+"settings.edit.detail" = "範囲を選択 → エディタを開く（矢印、ぼかし、バッジ）";
+
+/* Settings section header */
+"settings.section.notifications" = "通知と起動";
+
+/* Settings toggle */
+"settings.playSound" = "取り込み時にサウンドを再生";
+
+/* Settings toggle */
+"settings.showNotification" = "取り込み後に通知を表示";
+
+/* Settings toggle */
+"settings.launchAtLogin" = "ログイン時に自動的に開く";
+
+/* Settings button: try the direct capture */
+"settings.testDirect" = "直接をテスト（⌘⇧1）";
+
+/* Settings button: try the editor */
+"settings.testEditor" = "エディタをテスト（⌘⇧2）";
+
+/* Title of the editor window */
+"editor.windowTitle" = "Snapboard エディタ";
+
+/* Default text of a new text annotation */
+"editor.defaultText" = "メモ";
+
+/* Toolbar tooltip */
+"editor.undo" = "取り消す（⌘Z）";
+
+/* Toolbar tooltip */
+"editor.redo" = "やり直す（⌘⇧Z）";
+
+/* Toolbar tooltip */
+"editor.clearAll" = "すべての注釈を消去";
+
+/* Editor button: close without copying */
+"editor.cancel" = "キャンセル（esc）";
+
+/* Editor button to change the annotation text; %@ is the current text */
+"editor.changeText" = "テキストを変更：“%@”";
+
+/* Editor button */
+"editor.saveAs" = "別名で保存…（⌘S）";
+
+/* Editor primary button */
+"editor.copyToClipboard" = "クリップボードにコピー（⌘C）";
+
+/* Title of the sheet that sets the annotation text */
+"editor.textPrompt.title" = "注釈テキストを設定";
+
+/* Placeholder of the annotation text field */
+"editor.textPrompt.placeholder" = "テキストを入力…";
+
+/* Button that applies the annotation text */
+"editor.textPrompt.apply" = "適用";
+
+/* Annotation tool name */
+"tool.rectangle" = "四角形";
+
+/* Annotation tool name */
+"tool.circle" = "円 / 楕円";
+
+/* Annotation tool name */
+"tool.arrow" = "矢印";
+
+/* Annotation tool name */
+"tool.pen" = "フリーハンドペン";
+
+/* Annotation tool name */
+"tool.highlighter" = "蛍光ペン";
+
+/* Annotation tool name: obscure sensitive content */
+"tool.blur" = "黒塗り / ぼかし";
+
+/* Annotation tool name */
+"tool.text" = "テキストボックス";
+
+/* Annotation tool name: auto-incrementing numbered badges */
+"tool.stepNumber" = "ステップ番号";

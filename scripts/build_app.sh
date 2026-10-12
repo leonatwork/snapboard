@@ -32,6 +32,11 @@ echo "📦 Erstelle $APP_NAME..."
 cp ".build/release/Snapboard" "$MACOS_DIR/Snapboard"
 cp "Resources/Info.plist" "$CONTENTS_DIR/Info.plist"
 cp "Resources/AppIcon.icns" "$RESOURCES_DIR/AppIcon.icns"
+
+# Lokalisierungen (eine .lproj-Mappe pro Sprache)
+for LPROJ in Resources/*.lproj; do
+    cp -R "$LPROJ" "$RESOURCES_DIR/"
+done
 echo "APPL????" > "$CONTENTS_DIR/PkgInfo"
 
 # 4. Codesigning: gemeinsame Identität bevorzugen, sonst ad-hoc.

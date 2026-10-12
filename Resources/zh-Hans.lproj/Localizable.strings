@@ -1,0 +1,154 @@
+/* Snapboard – Localizable.strings (zh-Hans) */
+
+/* Generic OK button */
+"common.ok" = "好";
+
+/* Generic Cancel button */
+"common.cancel" = "取消";
+
+/* Generic Close button */
+"common.close" = "关闭";
+
+/* Tooltip of the menu bar icon */
+"statusItem.tooltip" = "Snapboard：⌘⇧1（直接）/ ⌘⇧2（编辑）";
+
+/* Menu item: capture an area straight to the clipboard */
+"menu.captureDirect" = "截取区域（直接）";
+
+/* Menu item: capture an area and open the editor */
+"menu.captureEdit" = "截取并编辑区域";
+
+/* Menu toggle: play a sound when capturing */
+"menu.playSound" = "截取时播放声音";
+
+/* Menu toggle: start the app at login */
+"menu.launchAtLogin" = "登录时打开";
+
+/* Menu item: open the settings window */
+"menu.settings" = "设置…";
+
+/* Menu item: About */
+"menu.about" = "关于 Snapboard";
+
+/* Menu item: Quit */
+"menu.quit" = "退出 Snapboard";
+
+/* Submenu title listing the other tools of the package */
+"menu.moreApps" = "你可能喜欢的其他应用";
+
+/* More apps: Tappi with short description */
+"menu.moreApps.tappi" = "Tappi – 在窗口之间而非应用之间 Alt+Tab";
+
+/* More apps: Klemmi with short description */
+"menu.moreApps.klemmi" = "Klemmi – 类似 Win+V 的剪贴板历史，并显示来源应用";
+
+/* More apps: Snapline with short description */
+"menu.moreApps.snapline" = "Snapline – Windows 11 的 Snap Layouts、Aero Snap 和 Snap Assist";
+
+/* More apps: link to all tools of the package */
+"menu.moreApps.package" = "整套工具…";
+
+/* Body text of the About alert */
+"about.message" = "适用于 macOS 的现代 Greenshot 替代品。\n\n• ⌘⇧1：直接存入剪贴板（无需点击）\n• ⌘⇧2：截取区域并在编辑器中编辑（模糊、箭头、文字、徽章）\n\n不在磁盘上留下文件。";
+
+/* Notification body after a direct capture */
+"notification.copied" = "截屏已拷贝到剪贴板。";
+
+/* Title of the settings window */
+"settings.windowTitle" = "Snapboard 设置";
+
+/* Subtitle in the settings header */
+"settings.subtitle" = "适用于 macOS 和 Windows 的 Greenshot 替代品";
+
+/* Settings section header */
+"settings.section.shortcuts" = "全局键盘快捷键";
+
+/* Settings: label for the direct capture shortcut */
+"settings.direct.title" = "直接存入剪贴板：";
+
+/* Settings: explanation of the direct capture shortcut */
+"settings.direct.detail" = "选择区域 → 立即存入剪贴板，无需点击";
+
+/* Settings: label for the capture & edit shortcut */
+"settings.edit.title" = "截取并编辑：";
+
+/* Settings: explanation of the capture & edit shortcut */
+"settings.edit.detail" = "选择区域 → 打开编辑器（箭头、模糊、徽章）";
+
+/* Settings section header */
+"settings.section.notifications" = "通知与启动";
+
+/* Settings toggle */
+"settings.playSound" = "截取时播放声音";
+
+/* Settings toggle */
+"settings.showNotification" = "截取后显示通知";
+
+/* Settings toggle */
+"settings.launchAtLogin" = "登录时自动打开";
+
+/* Settings button: try the direct capture */
+"settings.testDirect" = "测试直接截取（⌘⇧1）";
+
+/* Settings button: try the editor */
+"settings.testEditor" = "测试编辑器（⌘⇧2）";
+
+/* Title of the editor window */
+"editor.windowTitle" = "Snapboard 编辑器";
+
+/* Default text of a new text annotation */
+"editor.defaultText" = "注释";
+
+/* Toolbar tooltip */
+"editor.undo" = "撤销（⌘Z）";
+
+/* Toolbar tooltip */
+"editor.redo" = "重做（⌘⇧Z）";
+
+/* Toolbar tooltip */
+"editor.clearAll" = "清除所有标注";
+
+/* Editor button: close without copying */
+"editor.cancel" = "取消（Esc）";
+
+/* Editor button to change the annotation text; %@ is the current text */
+"editor.changeText" = "更改文字：“%@”";
+
+/* Editor button */
+"editor.saveAs" = "存储为…（⌘S）";
+
+/* Editor primary button */
+"editor.copyToClipboard" = "拷贝到剪贴板（⌘C）";
+
+/* Title of the sheet that sets the annotation text */
+"editor.textPrompt.title" = "设置标注文字";
+
+/* Placeholder of the annotation text field */
+"editor.textPrompt.placeholder" = "输入文字…";
+
+/* Button that applies the annotation text */
+"editor.textPrompt.apply" = "应用";
+
+/* Annotation tool name */
+"tool.rectangle" = "矩形";
+
+/* Annotation tool name */
+"tool.circle" = "圆形 / 椭圆";
+
+/* Annotation tool name */
+"tool.arrow" = "箭头";
+
+/* Annotation tool name */
+"tool.pen" = "手绘笔";
+
+/* Annotation tool name */
+"tool.highlighter" = "荧光笔";
+
+/* Annotation tool name: obscure sensitive content */
+"tool.blur" = "遮挡 / 模糊";
+
+/* Annotation tool name */
+"tool.text" = "文本框";
+
+/* Annotation tool name: auto-incrementing numbered badges */
+"tool.stepNumber" = "步骤编号";
