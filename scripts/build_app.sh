@@ -34,9 +34,20 @@ cp "Resources/Info.plist" "$CONTENTS_DIR/Info.plist"
 cp "Resources/AppIcon.icns" "$RESOURCES_DIR/AppIcon.icns"
 echo "APPL????" > "$CONTENTS_DIR/PkgInfo"
 
-# 4. Ad-hoc Codesigning
-echo "✍️ Signiere Anwendung ad-hoc..."
-codesign --force --deep --sign - "$APP_DIR"
+# 4. Codesigning: gemeinsame Identität bevorzugen, sonst ad-hoc.
+# In der CI kommt sie über CODESIGN_IDENTITY, lokal aus dem Schlüsselbund.
+IDENTITY="${CODESIGN_IDENTITY:-}"
+if [[ -z "$IDENTITY" ]]; then
+  for candidate in "leonatwork Code Signing" ; do
+    if security find-identity -p codesigning 2>/dev/null | grep -q "$candidate"; then
+      IDENTITY="$candidate"
+      break
+    fi
+  done
+  IDENTITY="${IDENTITY:--}"
+fi
+echo "✍️ Signiere Anwendung (Identität: $IDENTITY)..."
+codesign --force --deep --sign "$IDENTITY" "$APP_DIR"
 
 echo "✅ Erfolgreich erstellt: $APP_DIR"
 echo ""
