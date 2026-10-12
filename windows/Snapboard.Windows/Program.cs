@@ -62,7 +62,7 @@ namespace Snapboard
             contextMenu.Items.Add(new ToolStripSeparator());
             contextMenu.Items.Add("ℹ️ Über Snapboard", null, (s, e) =>
             {
-                MessageBox.Show("Snapboard v1.0 für Windows & macOS\n\n• Strg+Umschalt+1: Direkt in Zwischenablage (0 Klicks)\n• Strg+Umschalt+2: Bereich markieren & Editor öffnen\n\nKeine Dateien auf der Festplatte gespeichert.", "Über Snapboard", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Snapboard v1.1 für Windows & macOS\n\n• Strg+Umschalt+1: Direkt in Zwischenablage (0 Klicks)\n• Strg+Umschalt+2: Bereich markieren & Editor öffnen\n\nKeine Dateien auf der Festplatte gespeichert.", "Über Snapboard", MessageBoxButtons.OK, MessageBoxIcon.Information);
             });
             contextMenu.Items.Add("Beenden", null, (s, e) => Exit());
 

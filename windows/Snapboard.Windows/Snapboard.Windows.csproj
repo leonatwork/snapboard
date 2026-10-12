@@ -8,8 +8,8 @@
     <UseWindowsForms>true</UseWindowsForms>
     <AssemblyName>Snapboard</AssemblyName>
     <RootNamespace>Snapboard</RootNamespace>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <FileVersion>1.0.0.0</FileVersion>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
     <PublishSingleFile>true</PublishSingleFile>
     <SelfContained>false</SelfContained>
   </PropertyGroup>

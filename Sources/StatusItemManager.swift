@@ -189,7 +189,8 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
 
     @objc private func openAboutAction() {
         let alert = NSAlert()
-        alert.messageText = "Snapboard v1.0"
+        let version = Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
+        alert.messageText = "Snapboard v\(version)"
         alert.informativeText = L10n.tr("about.message")
         alert.alertStyle = .informational
         alert.addButton(withTitle: L10n.tr("common.ok"))
