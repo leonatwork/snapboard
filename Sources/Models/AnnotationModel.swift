@@ -250,22 +250,8 @@ final class ImageRendererService {
             path.stroke()
 
         case .text:
-            guard !item.text.isEmpty else { break }
-            let fontSize = max(14.0, lineWidth * 4.5)
-            let font = NSFont.boldSystemFont(ofSize: fontSize)
-            let attributes: [NSAttributedString.Key: Any] = [
-                .font: font,
-                .foregroundColor: color
-            ]
-            let attrStr = NSAttributedString(string: item.text, attributes: attributes)
-            let strSize = attrStr.size()
-            let bgRect = CGRect(x: start.x - 4, y: start.y - 2, width: strSize.width + 8, height: strSize.height + 4)
-
-            NSColor.black.withAlphaComponent(0.65).setFill()
-            let bgPath = NSBezierPath(roundedRect: bgRect, xRadius: 4, yRadius: 4)
-            bgPath.fill()
-
-            attrStr.draw(at: start)
+            TextAnnotationLayout(item: item, imagePixelSize: CGSize(width: pW, height: pH))?
+                .draw(flipped: false)
 
         case .stepNumber:
             let radius = max(14.0, lineWidth * 3.5)
@@ -328,6 +314,64 @@ final class ImageRendererService {
         headPath.line(to: pt2)
         headPath.close()
         headPath.fill()
+    }
+}
+
+/// Geometry of a text annotation, shared by the editor preview and the exported image so
+/// both look exactly the same.
+///
+/// All values are in the pixel space of the image with a top-left origin. The anchor point
+/// (`startPoint`) is the bottom-left corner of the text; the background box adds a small
+/// padding around it.
+struct TextAnnotationLayout {
+    static let backgroundColor = NSColor.black.withAlphaComponent(0.65)
+    static let cornerRadius: CGFloat = 4
+
+    let attributedString: NSAttributedString
+    let textRect: CGRect
+    let backgroundRect: CGRect
+    let imagePixelSize: CGSize
+
+    init?(item: AnnotationItem, imagePixelSize: CGSize) {
+        guard item.tool == .text, !item.text.isEmpty,
+              imagePixelSize.width > 0, imagePixelSize.height > 0 else { return nil }
+
+        let lineWidth = max(2.0, item.lineWidth * (imagePixelSize.width / 800.0))
+        let font = NSFont.boldSystemFont(ofSize: max(14.0, lineWidth * 4.5))
+        let attributedString = NSAttributedString(string: item.text, attributes: [
+            .font: font,
+            .foregroundColor: item.color.nsColor
+        ])
+        let size = attributedString.size()
+        let anchor = CGPoint(
+            x: item.startPoint.x * imagePixelSize.width,
+            y: item.startPoint.y * imagePixelSize.height
+        )
+
+        self.attributedString = attributedString
+        self.imagePixelSize = imagePixelSize
+        self.textRect = CGRect(x: anchor.x, y: anchor.y - size.height, width: size.width, height: size.height)
+        self.backgroundRect = textRect.insetBy(dx: -4, dy: -2)
+    }
+
+    /// Draws background and text into the current `NSGraphicsContext`, whose coordinate
+    /// space is the image's pixel space. `flipped` tells whether its origin is top-left.
+    func draw(flipped: Bool) {
+        func place(_ rect: CGRect) -> CGRect {
+            flipped ? rect : CGRect(
+                x: rect.minX, y: imagePixelSize.height - rect.maxY,
+                width: rect.width, height: rect.height
+            )
+        }
+
+        Self.backgroundColor.setFill()
+        NSBezierPath(
+            roundedRect: place(backgroundRect),
+            xRadius: Self.cornerRadius,
+            yRadius: Self.cornerRadius
+        ).fill()
+
+        attributedString.draw(at: place(textRect).origin)
     }
 }
 
