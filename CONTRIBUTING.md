@@ -25,6 +25,17 @@ cd windows
 dotnet build Snapboard.Windows\Snapboard.Windows.csproj -c Release
 ```
 
+### README screenshots
+The images in `docs/screenshots/` (`<name>.png` in English, `<name>.de.png` in German) are rendered
+offscreen by a small harness, never captured from the screen:
+```bash
+./scripts/screenshots/render.sh
+```
+The harness in `scripts/screenshots/` compiles the app sources without the app entry point, runs them
+inside a temporary `.app` bundle (so the `.lproj` localizations work) with its own bundle identifier,
+and draws a demo image instead of a real screenshot. It does not read or change the settings of an
+installed Snapboard. If your default SDK cannot compile SwiftUI, set `SDKROOT` to another macOS SDK.
+
 ## Pull Requests & Issues
 - Keep PRs focused and well-scoped.
 - Ensure macOS and Windows builds pass cleanly in CI.
