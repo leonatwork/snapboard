@@ -77,12 +77,37 @@ enum DemoContent {
         )
     }
 
+    /// Returns the demo "screenshot" as a 2x bitmap, like a capture from a Retina display.
     static func makeImage(language: String) -> NSImage {
         let s = strings(for: language)
-        return NSImage(size: imageSize, flipped: true) { bounds in
-            draw(s, in: bounds)
-            return true
-        }
+        let scale: CGFloat = 2
+        let rep = NSBitmapImageRep(
+            bitmapDataPlanes: nil,
+            pixelsWide: Int(imageSize.width * scale),
+            pixelsHigh: Int(imageSize.height * scale),
+            bitsPerSample: 8,
+            samplesPerPixel: 4,
+            hasAlpha: true,
+            isPlanar: false,
+            colorSpaceName: .deviceRGB,
+            bytesPerRow: 0,
+            bitsPerPixel: 0
+        )!
+        rep.size = imageSize
+
+        NSGraphicsContext.saveGraphicsState()
+        let ctx = NSGraphicsContext(bitmapImageRep: rep)!
+        NSGraphicsContext.current = ctx
+        // Flip to a top-left origin for the layout code below.
+        ctx.cgContext.translateBy(x: 0, y: imageSize.height)
+        ctx.cgContext.scaleBy(x: 1, y: -1)
+        NSGraphicsContext.current = NSGraphicsContext(cgContext: ctx.cgContext, flipped: true)
+        draw(s, in: NSRect(origin: .zero, size: imageSize))
+        NSGraphicsContext.restoreGraphicsState()
+
+        let image = NSImage(size: imageSize)
+        image.addRepresentation(rep)
+        return image
     }
 
     // MARK: - Drawing

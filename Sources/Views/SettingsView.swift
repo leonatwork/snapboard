@@ -103,7 +103,9 @@ struct SettingsView: View {
             .padding(16)
             .background(Color(NSColor.windowBackgroundColor))
         }
-        .frame(width: 520, height: 460)
+        // Tall enough for the whole form plus its bottom inset in every language,
+        // so the last row never touches the footer divider.
+        .frame(width: 520, height: 490)
         .onAppear {
             appState.checkLaunchAtLoginStatus()
         }

@@ -3,7 +3,11 @@ import AppKit
 
 @MainActor
 final class EditorViewModel: ObservableObject {
-    @Published var image: NSImage
+    @Published var image: NSImage {
+        didSet { imagePixelSize = Self.pixelSize(of: image) }
+    }
+    /// Pixel size of `image`, the coordinate space of the exported image.
+    private(set) var imagePixelSize: CGSize
     @Published var annotations: [AnnotationItem] = []
     @Published var undoStack: [[AnnotationItem]] = []
     @Published var redoStack: [[AnnotationItem]] = []
@@ -20,6 +24,14 @@ final class EditorViewModel: ObservableObject {
 
     init(image: NSImage) {
         self.image = image
+        self.imagePixelSize = Self.pixelSize(of: image)
+    }
+
+    private static func pixelSize(of image: NSImage) -> CGSize {
+        if let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) {
+            return CGSize(width: cgImage.width, height: cgImage.height)
+        }
+        return image.size
     }
 
     func startDrawing(at point: CGPoint, in size: CGSize) {
@@ -458,15 +470,16 @@ struct EditorView: View {
             context.stroke(Path(rect), with: .color(Color.white.opacity(0.9)), style: StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
 
         case .text:
-            guard !item.text.isEmpty else { break }
-            let bgRect = CGRect(x: start.x - 4, y: start.y - 2, width: CGFloat(item.text.count * 10) + 16, height: max(16, item.lineWidth * 4) + 6)
-            context.fill(Path(roundedRect: bgRect, cornerRadius: 4), with: .color(Color.black.opacity(0.7)))
-
-            let text = Text(item.text)
-                .font(.system(size: max(14, item.lineWidth * 4), weight: .bold))
-                .foregroundColor(color)
-            let resolved = context.resolve(text)
-            context.draw(resolved, at: start)
+            // Same layout as the exported image, scaled from image pixels to the canvas.
+            let pixelSize = viewModel.imagePixelSize
+            guard let layout = TextAnnotationLayout(item: item, imagePixelSize: pixelSize) else { break }
+            context.withCGContext { cgContext in
+                cgContext.scaleBy(x: size.width / pixelSize.width, y: size.height / pixelSize.height)
+                NSGraphicsContext.saveGraphicsState()
+                NSGraphicsContext.current = NSGraphicsContext(cgContext: cgContext, flipped: true)
+                layout.draw(flipped: true)
+                NSGraphicsContext.restoreGraphicsState()
+            }
 
         case .stepNumber:
             let radius = max(13.0, item.lineWidth * 3.2)

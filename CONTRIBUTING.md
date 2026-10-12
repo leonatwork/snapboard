@@ -35,6 +35,8 @@ The harness in `scripts/screenshots/` compiles the app sources without the app e
 inside a temporary `.app` bundle (so the `.lproj` localizations work) with its own bundle identifier,
 and draws a demo image instead of a real screenshot. It does not read or change the settings of an
 installed Snapboard. If your default SDK cannot compile SwiftUI, set `SDKROOT` to another macOS SDK.
+`--all-languages` renders every localization into `build/screenshots/languages/` for review, and
+`--verify-text` checks that the editor preview draws text annotations exactly like the exported image.
 
 ## Pull Requests & Issues
 - Keep PRs focused and well-scoped.

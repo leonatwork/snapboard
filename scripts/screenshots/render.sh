@@ -6,7 +6,9 @@
 # It never captures the screen: the editor shows a drawn demo image. It uses its own
 # bundle identifier, so the settings of an installed Snapboard are never read or changed.
 #
-# Usage: scripts/screenshots/render.sh [--debug]
+# Usage: scripts/screenshots/render.sh [--debug] [--all-languages | --verify-text]
+#   --all-languages  render every localization into build/screenshots/languages (for review)
+#   --verify-text    check that the editor preview draws text annotations like the export
 # If your default SDK fails to compile SwiftUI, point SDKROOT at another macOS SDK.
 set -euo pipefail
 
@@ -41,20 +43,43 @@ for LPROJ in Resources/*.lproj; do
 done
 
 DEBUG_ARGS=()
-if [[ "${1:-}" == "--debug" ]]; then
-  DEBUG_ARGS=(--debug "$WORK_DIR/debug")
-fi
+ALL_LANGUAGES=0
+VERIFY_TEXT=0
+for arg in "$@"; do
+  case "$arg" in
+    --debug) DEBUG_ARGS=(--debug "$WORK_DIR/debug") ;;
+    --all-languages) ALL_LANGUAGES=1 ;;
+    --verify-text) VERIFY_TEXT=1 ;;
+    *) echo "Unknown option: $arg" >&2; exit 2 ;;
+  esac
+done
+
+run_harness() {
+  local lang="$1"; shift
+  "$APP_DIR/Contents/MacOS/SnapboardScreenshots" "$@" ${DEBUG_ARGS[@]+"${DEBUG_ARGS[@]}"} \
+    -AppleLanguages "($lang)" -AppleLocale "$lang" -AppleAccentColor 4
+}
 
 render() {
   local lang="$1" suffix="$2"
   echo "Rendering ($lang)..."
-  "$APP_DIR/Contents/MacOS/SnapboardScreenshots" \
-    --out "$OUT_DIR" --suffix "$suffix" ${DEBUG_ARGS[@]+"${DEBUG_ARGS[@]}"} \
-    -AppleLanguages "($lang)" -AppleLocale "$lang" -AppleAccentColor 4
+  run_harness "$lang" --out "$OUT_DIR" --suffix "$suffix"
 }
 
-render en ""
-render de ".de"
+if [[ "$VERIFY_TEXT" == 1 ]]; then
+  # Checks that the editor preview draws text annotations like the exported image.
+  run_harness en --verify-text "$WORK_DIR/verify-text"
+elif [[ "$ALL_LANGUAGES" == 1 ]]; then
+  # Renders every localization into build/ for a visual check (not committed).
+  for LPROJ in Resources/*.lproj; do
+    lang="$(basename "$LPROJ" .lproj)"
+    echo "Rendering ($lang)..."
+    run_harness "$lang" --out "$WORK_DIR/languages" --suffix ".$lang"
+  done
+else
+  render en ""
+  render de ".de"
+fi
 
 # The harness does not write preferences; remove its domain anyway in case AppKit did.
 defaults delete "$BUNDLE_ID" >/dev/null 2>&1 || true
