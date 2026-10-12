@@ -97,6 +97,20 @@ dotnet publish Snapboard.Windows\Snapboard.Windows.csproj -c Release -r win-x64 
 
 ---
 
+## 💎 Open Source & Premium
+
+Snapboard ist und bleibt Open Source unter der MIT-Lizenz. Alles in diesem Repository darf
+weiterhin frei genutzt, verändert und weitergegeben werden.
+
+Geplant sind zwei Wege, das Projekt zu unterstützen:
+
+- **Sponsoring**: freiwillige Unterstützung der Weiterentwicklung. Der Link folgt hier,
+  sobald er eingerichtet ist.
+- **Premium-Erweiterungen**: optionale Zusatzfunktionen als separates, kostenpflichtiges
+  Paket. Sie bauen auf dem freien Kern auf und nehmen ihm nie Funktionen weg.
+
+---
+
 ## 📄 Lizenz
 
 Veröffentlicht unter der [MIT Lizenz](LICENSE).
