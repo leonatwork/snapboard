@@ -1,5 +1,14 @@
 /* Snapboard – Localizable.strings (ja) */
 
+/* Permission dialogs and capture launch errors */
+"permission.openSettings" = "システム設定を開く";
+"permission.screenCapture.title" = "画面収録の許可が必要です";
+"permission.screenCapture.message" = "Snapboardで画面を撮影するには許可が必要です。「システム設定」>「プライバシーとセキュリティ」>「画面収録とシステムオーディオ録音」でSnapboardを有効にしてください。その後、Snapboardの終了と再起動が必要になる場合があります。設定後にもう一度撮影してください。";
+"capture.error.title" = "撮影を開始できませんでした";
+"capture.error.message" = "Snapboardで画面の撮影を開始できませんでした。もう一度お試しください。\n\n詳細：%@";
+"permission.notification.title" = "通知が許可されていません";
+"permission.notification.message" = "Snapboardは通知の許可を取得できませんでした。撮影後の通知をオフにしました。「システム設定」>「通知」でSnapboardの通知を許可してから、スイッチを再びオンにできます。";
+
 /* Generic OK button */
 "common.ok" = "OK";
 

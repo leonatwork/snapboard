@@ -1,4 +1,5 @@
 import AppKit
+import CoreGraphics
 import Foundation
 import UserNotifications
 import os.log
@@ -10,14 +11,51 @@ final class CaptureService {
     static let shared = CaptureService()
 
     private var activeProcess: Process?
+    private var didRequestAccess = false
+    private let preflight: () -> Bool
+    private let requestAccess: () -> Void
+    private let showPermissionDialog: @MainActor () -> Bool
+    private let openURL: @MainActor (URL) -> Void
+    private let showCaptureError: @MainActor (String) -> Void
+    private let runProcess: (Process) throws -> Void
 
-    private init() {}
+    init(
+        preflight: @escaping () -> Bool = { CGPreflightScreenCaptureAccess() },
+        requestAccess: @escaping () -> Void = { _ = CGRequestScreenCaptureAccess() },
+        showPermissionDialog: @escaping @MainActor () -> Bool = { PermissionDialogs.screenCapture() },
+        openURL: @escaping @MainActor (URL) -> Void = { _ = NSWorkspace.shared.open($0) },
+        showCaptureError: @escaping @MainActor (String) -> Void = { PermissionDialogs.captureError($0) },
+        runProcess: @escaping (Process) throws -> Void = { try $0.run() }
+    ) {
+        self.preflight = preflight
+        self.requestAccess = requestAccess
+        self.showPermissionDialog = showPermissionDialog
+        self.openURL = openURL
+        self.showCaptureError = showCaptureError
+        self.runProcess = runProcess
+    }
+
+    private func ensureScreenCaptureAccess() -> Bool {
+        guard !preflight() else { return true }
+        if !didRequestAccess {
+            didRequestAccess = true
+            requestAccess()
+        }
+        if showPermissionDialog(), let url = URL(string:
+            "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture") {
+            openURL(url)
+        }
+        // Never start the pending capture, even if the system prompt granted access.
+        return false
+    }
 
     func captureDirect() {
         if let process = activeProcess, process.isRunning {
             logger.info("Capture process is already running.")
             return
         }
+
+        guard ensureScreenCaptureAccess() else { return }
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
@@ -28,20 +66,17 @@ final class CaptureService {
         process.terminationHandler = { [weak self] proc in
             Task { @MainActor [weak self] in
                 self?.activeProcess = nil
-                let newChangeCount = NSPasteboard.general.changeCount
-
-                if proc.terminationStatus == 0 && newChangeCount != initialChangeCount {
-                    logger.info("Direct capture successful.")
-                    self?.handleCaptureSuccess()
-                }
+                self?.finishDirectCapture(status: proc.terminationStatus,
+                    clipboardChanged: NSPasteboard.general.changeCount != initialChangeCount)
             }
         }
 
         do {
-            try process.run()
+            try runProcess(process)
             self.activeProcess = process
         } catch {
             logger.error("Failed to run screencapture: \(error.localizedDescription)")
+            showCaptureError(error.localizedDescription)
         }
     }
 
@@ -50,6 +85,8 @@ final class CaptureService {
             logger.info("Capture process is already running.")
             return
         }
+
+        guard ensureScreenCaptureAccess() else { return }
 
         let tempFileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("snapboard_capture_\(UUID().uuidString).png")
 
@@ -63,31 +100,41 @@ final class CaptureService {
             Task { @MainActor [weak self] in
                 self?.activeProcess = nil
 
-                guard proc.terminationStatus == 0, FileManager.default.fileExists(atPath: tempFileURL.path) else {
-                    try? FileManager.default.removeItem(at: tempFileURL)
-                    logger.info("Capture cancelled or aborted.")
-                    return
-                }
-
-                // Load image into RAM
-                if let imageData = try? Data(contentsOf: tempFileURL),
-                   let image = NSImage(data: imageData) {
-                    // Clean up temp file immediately (0 files on disk)
-                    try? FileManager.default.removeItem(at: tempFileURL)
-                    logger.info("Capture loaded into memory. Opening Editor...")
-                    EditorWindowController.shared.show(image: image)
-                } else {
-                    try? FileManager.default.removeItem(at: tempFileURL)
-                    logger.error("Failed to load captured image from memory.")
-                }
+                self?.finishEditorCapture(status: proc.terminationStatus, tempFileURL: tempFileURL)
             }
         }
 
         do {
-            try process.run()
+            try runProcess(process)
             self.activeProcess = process
         } catch {
             logger.error("Failed to start screencapture for edit: \(error.localizedDescription)")
+            try? FileManager.default.removeItem(at: tempFileURL)
+            showCaptureError(error.localizedDescription)
+        }
+    }
+
+    func finishDirectCapture(status: Int32, clipboardChanged: Bool) {
+        // Esc can return a nonzero status or leave the clipboard unchanged.
+        guard status == 0, clipboardChanged else { return }
+        logger.info("Direct capture successful.")
+        handleCaptureSuccess()
+    }
+
+    func finishEditorCapture(status: Int32, tempFileURL: URL) {
+        defer { try? FileManager.default.removeItem(at: tempFileURL) }
+        guard status == 0, FileManager.default.fileExists(atPath: tempFileURL.path) else {
+            logger.info("Capture cancelled or aborted.")
+            return
+        }
+        if let imageData = try? Data(contentsOf: tempFileURL),
+           let image = NSImage(data: imageData) {
+            // Remove before opening the editor, which may run a nested event loop.
+            try? FileManager.default.removeItem(at: tempFileURL)
+            logger.info("Capture loaded into memory. Opening Editor...")
+            EditorWindowController.shared.show(image: image)
+        } else {
+            logger.error("Failed to load captured image from memory.")
         }
     }
 

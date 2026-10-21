@@ -9,6 +9,15 @@
 /* Generic Close button */
 "common.close" = "Schließen";
 
+/* Permission dialogs and capture launch errors */
+"permission.openSettings" = "Systemeinstellungen öffnen";
+"permission.screenCapture.title" = "Recht zur Bildschirmaufnahme fehlt";
+"permission.screenCapture.message" = "Snapboard benötigt das Recht, deinen Bildschirm aufzunehmen. Aktiviere Snapboard unter Systemeinstellungen > Datenschutz & Sicherheit > Bildschirm- & Systemaudioaufnahme. Danach musst du Snapboard möglicherweise beenden und neu starten. Versuche die Aufnahme anschließend erneut.";
+"capture.error.title" = "Aufnahme konnte nicht gestartet werden";
+"capture.error.message" = "Snapboard konnte die Bildschirmaufnahme nicht starten. Bitte versuche es erneut.\n\nDetails: %@";
+"permission.notification.title" = "Mitteilungen nicht erlaubt";
+"permission.notification.message" = "Snapboard hat keine Berechtigung für Mitteilungen erhalten. Mitteilung nach Aufnahme wurde ausgeschaltet. Du kannst Mitteilungen für Snapboard unter Systemeinstellungen > Mitteilungen erlauben und den Schalter danach wieder einschalten.";
+
 /* Tooltip of the menu bar icon */
 "statusItem.tooltip" = "Snapboard: ⌘⇧1 (Direkt) / ⌘⇧2 (Bearbeiten)";
 

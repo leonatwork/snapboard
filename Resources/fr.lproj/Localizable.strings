@@ -1,5 +1,14 @@
 /* Snapboard – Localizable.strings (fr) */
 
+/* Permission dialogs and capture launch errors */
+"permission.openSettings" = "Ouvrir les Réglages Système";
+"permission.screenCapture.title" = "Autorisation d’enregistrement de l’écran requise";
+"permission.screenCapture.message" = "Snapboard a besoin de l’autorisation de capturer votre écran. Activez Snapboard dans Réglages Système > Confidentialité et sécurité > Enregistrement de l’écran et de l’audio système. Vous devrez peut-être quitter et rouvrir Snapboard, puis réessayer la capture.";
+"capture.error.title" = "Impossible de démarrer la capture";
+"capture.error.message" = "Snapboard n’a pas pu démarrer la capture d’écran. Veuillez réessayer.\n\nDétails : %@";
+"permission.notification.title" = "Notifications non autorisées";
+"permission.notification.message" = "Snapboard n’a pas obtenu l’autorisation d’afficher des notifications. La notification après capture a été désactivée. Vous pouvez autoriser les notifications de Snapboard dans Réglages Système > Notifications, puis réactiver l’option.";
+
 /* Generic OK button */
 "common.ok" = "OK";
 

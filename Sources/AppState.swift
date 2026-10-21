@@ -10,16 +10,26 @@ final class AppState: ObservableObject {
 
     private let playSoundKey = "Snapboard_PlaySound"
     private let showNotificationKey = "Snapboard_ShowNotification"
+    private let defaults: UserDefaults
+    private let notificationAuthorization: NotificationAuthorizationProviding
+    private let showNotificationDenied: @MainActor () -> Void
+    private(set) var notificationAuthorizationTask: Task<Void, Never>?
+    private var notificationChangeID = 0
 
     @Published var playSound: Bool {
         didSet {
-            UserDefaults.standard.set(playSound, forKey: playSoundKey)
+            defaults.set(playSound, forKey: playSoundKey)
         }
     }
 
     @Published var showNotification: Bool {
         didSet {
-            UserDefaults.standard.set(showNotification, forKey: showNotificationKey)
+            defaults.set(showNotification, forKey: showNotificationKey)
+            guard showNotification != oldValue else { return }
+            notificationChangeID += 1
+            if showNotification {
+                authorizeNotifications(changeID: notificationChangeID)
+            }
         }
     }
 
@@ -29,15 +39,53 @@ final class AppState: ObservableObject {
         }
     }
 
-    private init() {
-        UserDefaults.standard.register(defaults: [
+    init(
+        defaults: UserDefaults = .standard,
+        notificationAuthorization: NotificationAuthorizationProviding? = nil,
+        showNotificationDenied: @escaping @MainActor () -> Void = { PermissionDialogs.notificationDenied() }
+    ) {
+        self.defaults = defaults
+        self.notificationAuthorization = notificationAuthorization ?? SystemNotificationAuthorization()
+        self.showNotificationDenied = showNotificationDenied
+        defaults.register(defaults: [
             playSoundKey: true,
             showNotificationKey: false
         ])
 
-        self.playSound = UserDefaults.standard.bool(forKey: playSoundKey)
-        self.showNotification = UserDefaults.standard.bool(forKey: showNotificationKey)
+        self.playSound = defaults.bool(forKey: playSoundKey)
+        self.showNotification = defaults.bool(forKey: showNotificationKey)
         self.launchAtLogin = (SMAppService.mainApp.status == .enabled)
+    }
+
+    private func authorizeNotifications(changeID: Int) {
+        // Serialize rapid off/on changes so only one system request can be in flight.
+        let previousTask = notificationAuthorizationTask
+        notificationAuthorizationTask = Task { [weak self] in
+            await previousTask?.value
+            guard let self, self.showNotification,
+                  self.notificationChangeID == changeID else { return }
+            let status = await self.notificationAuthorization.authorizationStatus()
+            guard self.showNotification, self.notificationChangeID == changeID else { return }
+            let granted: Bool
+            switch status {
+            case .authorized, .provisional:
+                granted = true
+            case .notDetermined:
+                do {
+                    granted = try await self.notificationAuthorization.requestAuthorization()
+                } catch {
+                    logger.error("Notification permission error: \(error.localizedDescription)")
+                    granted = false
+                }
+            default:
+                granted = false
+            }
+            guard self.showNotification, self.notificationChangeID == changeID else { return }
+            if !granted {
+                self.showNotification = false
+                self.showNotificationDenied()
+            }
+        }
     }
 
     func checkLaunchAtLoginStatus() {

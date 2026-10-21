@@ -1,5 +1,14 @@
 /* Snapboard – Localizable.strings (zh-Hans) */
 
+/* Permission dialogs and capture launch errors */
+"permission.openSettings" = "打开系统设置";
+"permission.screenCapture.title" = "需要屏幕录制权限";
+"permission.screenCapture.message" = "Snapboard 需要获得截取屏幕的权限。请前往“系统设置”>“隐私与安全性”>“屏幕与系统音频录制”，启用 Snapboard。之后可能需要退出并重新打开 Snapboard，然后再次尝试截图。";
+"capture.error.title" = "无法开始截图";
+"capture.error.message" = "Snapboard 无法开始屏幕截图。请重试。\n\n详细信息：%@";
+"permission.notification.title" = "未允许通知";
+"permission.notification.message" = "Snapboard 未获得显示通知的权限，已关闭截图后通知。你可以在“系统设置”>“通知”中允许 Snapboard 的通知，然后重新打开此开关。";
+
 /* Generic OK button */
 "common.ok" = "好";
 

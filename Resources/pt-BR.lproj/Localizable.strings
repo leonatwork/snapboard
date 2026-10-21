@@ -1,5 +1,14 @@
 /* Snapboard – Localizable.strings (pt-BR) */
 
+/* Permission dialogs and capture launch errors */
+"permission.openSettings" = "Abrir Ajustes do Sistema";
+"permission.screenCapture.title" = "Permissão de gravação da tela necessária";
+"permission.screenCapture.message" = "O Snapboard precisa de permissão para capturar sua tela. Ative o Snapboard em Ajustes do Sistema > Privacidade e Segurança > Gravação de Tela e Áudio do Sistema. Talvez seja necessário encerrar e reabrir o Snapboard. Depois, tente capturar novamente.";
+"capture.error.title" = "Não foi possível iniciar a captura";
+"capture.error.message" = "O Snapboard não conseguiu iniciar a captura de tela. Tente novamente.\n\nDetalhes: %@";
+"permission.notification.title" = "Notificações não permitidas";
+"permission.notification.message" = "O Snapboard não obteve permissão para mostrar notificações. A notificação após a captura foi desativada. Você pode permitir as notificações do Snapboard em Ajustes do Sistema > Notificações e ativar a opção novamente.";
+
 /* Generic OK button */
 "common.ok" = "OK";
 

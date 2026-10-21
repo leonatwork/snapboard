@@ -1,5 +1,14 @@
 /* Snapboard – Localizable.strings (nl) */
 
+/* Permission dialogs and capture launch errors */
+"permission.openSettings" = "Open Systeeminstellingen";
+"permission.screenCapture.title" = "Toestemming voor schermopname vereist";
+"permission.screenCapture.message" = "Snapboard heeft toestemming nodig om je scherm vast te leggen. Schakel Snapboard in via Systeeminstellingen > Privacy en beveiliging > Scherm- en systeemaudio-opname. Mogelijk moet je Snapboard daarna stoppen en opnieuw openen. Probeer vervolgens opnieuw een opname te maken.";
+"capture.error.title" = "Opname kon niet worden gestart";
+"capture.error.message" = "Snapboard kon de schermopname niet starten. Probeer het opnieuw.\n\nDetails: %@";
+"permission.notification.title" = "Meldingen niet toegestaan";
+"permission.notification.message" = "Snapboard heeft geen toestemming gekregen om meldingen te tonen. De melding na een opname is uitgeschakeld. Je kunt meldingen voor Snapboard toestaan via Systeeminstellingen > Meldingen en de schakelaar daarna weer inschakelen.";
+
 /* Generic OK button */
 "common.ok" = "OK";
 

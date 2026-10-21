@@ -9,6 +9,15 @@
 /* Generic Close button */
 "common.close" = "Close";
 
+/* Permission dialogs and capture launch errors */
+"permission.openSettings" = "Open System Settings";
+"permission.screenCapture.title" = "Screen Recording Permission Required";
+"permission.screenCapture.message" = "Snapboard needs permission to capture your screen. In System Settings > Privacy & Security > Screen & System Audio Recording, enable Snapboard. You may need to quit and reopen Snapboard afterward. Then try the capture again.";
+"capture.error.title" = "Could Not Start Capture";
+"capture.error.message" = "Snapboard could not start the screen capture. Please try again.\n\nDetails: %@";
+"permission.notification.title" = "Notifications Not Allowed";
+"permission.notification.message" = "Snapboard could not get permission to show notifications. Show notification after capture has been turned off. You can allow notifications for Snapboard in System Settings > Notifications and then turn the switch on again.";
+
 /* Tooltip of the menu bar icon */
 "statusItem.tooltip" = "Snapboard: ⌘⇧1 (direct) / ⌘⇧2 (edit)";
 
