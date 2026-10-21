@@ -1,5 +1,12 @@
 /* Snapboard – Localizable.strings (nl) */
 
+/* Editor export error alert titles and details */
+"editor.export.copyFailed" = "De afbeelding kon niet worden gekopieerd.";
+"editor.export.saveFailed" = "De afbeelding kon niet worden opgeslagen.";
+"editor.export.renderFailed" = "De afbeelding kon niet worden gerenderd. Je annotaties zijn nog beschikbaar in de editor.";
+"editor.export.encodingFailed" = "De afbeelding kon niet worden gecodeerd voor export.";
+"editor.export.clipboardFailed" = "De afbeelding kon niet naar het klembord worden geschreven.";
+
 /* Generic OK button */
 "common.ok" = "OK";
 

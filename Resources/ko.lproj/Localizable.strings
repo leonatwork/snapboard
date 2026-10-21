@@ -1,5 +1,12 @@
 /* Snapboard – Localizable.strings (ko) */
 
+/* Editor export error alert titles and details */
+"editor.export.copyFailed" = "이미지를 복사할 수 없습니다.";
+"editor.export.saveFailed" = "이미지를 저장할 수 없습니다.";
+"editor.export.renderFailed" = "이미지를 렌더링할 수 없습니다. 주석은 편집기에 그대로 남아 있습니다.";
+"editor.export.encodingFailed" = "내보내기용 이미지를 인코딩할 수 없습니다.";
+"editor.export.clipboardFailed" = "이미지를 클립보드에 쓸 수 없습니다.";
+
 /* Generic OK button */
 "common.ok" = "확인";
 

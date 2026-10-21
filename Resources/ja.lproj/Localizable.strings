@@ -1,5 +1,12 @@
 /* Snapboard – Localizable.strings (ja) */
 
+/* Editor export error alert titles and details */
+"editor.export.copyFailed" = "画像をコピーできませんでした。";
+"editor.export.saveFailed" = "画像を保存できませんでした。";
+"editor.export.renderFailed" = "画像をレンダリングできませんでした。注釈は引き続きエディタで利用できます。";
+"editor.export.encodingFailed" = "エクスポート用に画像をエンコードできませんでした。";
+"editor.export.clipboardFailed" = "画像をクリップボードに書き込めませんでした。";
+
 /* Generic OK button */
 "common.ok" = "OK";
 

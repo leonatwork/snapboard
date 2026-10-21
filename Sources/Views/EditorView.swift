@@ -22,6 +22,23 @@ final class EditorViewModel: ObservableObject {
 
     var onClose: (() -> Void)?
 
+    // Small seams for testing export actions without the system clipboard or modal UI.
+    var pasteboard: NSPasteboard = .general
+    var selectSaveURL: () -> URL? = {
+        let panel = NSSavePanel()
+        panel.allowedContentTypes = [.png]
+        panel.nameFieldStringValue = "Snapboard_\(Int(Date().timeIntervalSince1970)).png"
+        return panel.runModal() == .OK ? panel.url : nil
+    }
+    var presentExportError: (String, Error) -> Void = { title, error in
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = title
+        alert.informativeText = error.localizedDescription
+        alert.addButton(withTitle: L10n.tr("common.ok"))
+        alert.runModal()
+    }
+
     init(image: NSImage) {
         self.image = image
         self.imagePixelSize = Self.pixelSize(of: image)
@@ -128,32 +145,47 @@ final class EditorViewModel: ObservableObject {
     }
 
     func copyToClipboardAndClose() {
-        if let renderedImage = ImageRendererService.shared.render(image: image, annotations: annotations) {
-            NSPasteboard.general.clearContents()
-            NSPasteboard.general.writeObjects([renderedImage])
+        do {
+            let bitmap = try renderExportBitmap()
+            let pngData = try ImageExport.data(from: bitmap, using: .png)
+            let tiffData = try ImageExport.data(from: bitmap, using: .tiff)
+            let item = NSPasteboardItem()
+            guard item.setData(pngData, forType: .png),
+                  item.setData(tiffData, forType: .tiff) else {
+                throw EditorExportError.clipboardFailed
+            }
+
+            // Encode both formats before replacing the existing clipboard contents.
+            pasteboard.clearContents()
+            guard pasteboard.writeObjects([item]) else {
+                throw EditorExportError.clipboardFailed
+            }
 
             if AppState.shared.playSound {
                 NSSound(named: "Tink")?.play()
             }
+            onClose?()
+        } catch {
+            presentExportError(L10n.tr("editor.export.copyFailed"), error)
         }
-        onClose?()
     }
 
     func saveAsFile() {
-        guard let renderedImage = ImageRendererService.shared.render(image: image, annotations: annotations),
-              let tiffData = renderedImage.tiffRepresentation,
-              let bitmap = NSBitmapImageRep(data: tiffData),
-              let pngData = bitmap.representation(using: .png, properties: [:]) else {
-            return
+        do {
+            let bitmap = try renderExportBitmap()
+            let pngData = try ImageExport.data(from: bitmap, using: .png)
+            guard let url = selectSaveURL() else { return }
+            try pngData.write(to: url)
+        } catch {
+            presentExportError(L10n.tr("editor.export.saveFailed"), error)
         }
+    }
 
-        let panel = NSSavePanel()
-        panel.allowedContentTypes = [.png]
-        panel.nameFieldStringValue = "Snapboard_\(Int(Date().timeIntervalSince1970)).png"
-
-        if panel.runModal() == .OK, let url = panel.url {
-            try? pngData.write(to: url)
+    private func renderExportBitmap() throws -> NSBitmapImageRep {
+        guard let renderedImage = ImageRendererService.shared.render(image: image, annotations: annotations) else {
+            throw EditorExportError.renderFailed
         }
+        return try ImageExport.bitmap(image: renderedImage)
     }
 }
 

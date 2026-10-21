@@ -12,9 +12,15 @@ jobs:
     runs-on: macos-14
     steps:
       - uses: actions/checkout@v4
+      - name: Test macOS Editor Export
+        run: swift test --filter EditorExportTests
       - name: Build macOS App
         run: |
           ./scripts/build_app.sh
+      - name: Check macOS Localizations
+        run: scripts/check-localizations.sh
+      - name: Verify Text Annotation Rendering
+        run: scripts/screenshots/render.sh --verify-text
 
   build-windows:
     name: Build Windows (.NET 8)

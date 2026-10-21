@@ -123,6 +123,9 @@ final class ImageRendererService {
 
         let pixelWidth = cgImage.width
         let pixelHeight = cgImage.height
+        guard let geometry = ImageExportGeometry(
+            pointSize: image.size, pixelWidth: pixelWidth, pixelHeight: pixelHeight
+        ) else { return nil }
 
         guard let colorSpace = cgImage.colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB),
               let context = CGContext(
@@ -162,7 +165,7 @@ final class ImageRendererService {
         NSGraphicsContext.restoreGraphicsState()
 
         guard let resultCGImage = context.makeImage() else { return nil }
-        return NSImage(cgImage: resultCGImage, size: NSSize(width: pixelWidth, height: pixelHeight))
+        return NSImage(cgImage: resultCGImage, size: geometry.pointSize)
     }
 
     private func applyBlur(to context: CGContext, rect: CGRect, originalCGImage: CGImage) {

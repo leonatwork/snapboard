@@ -1,5 +1,12 @@
 /* Snapboard – Localizable.strings (zh-Hans) */
 
+/* Editor export error alert titles and details */
+"editor.export.copyFailed" = "无法复制图像。";
+"editor.export.saveFailed" = "无法保存图像。";
+"editor.export.renderFailed" = "无法渲染图像。你的标注仍保留在编辑器中。";
+"editor.export.encodingFailed" = "无法对图像进行编码以供导出。";
+"editor.export.clipboardFailed" = "无法将图像写入剪贴板。";
+
 /* Generic OK button */
 "common.ok" = "好";
 

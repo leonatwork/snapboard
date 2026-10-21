@@ -1,5 +1,12 @@
 /* Snapboard – Localizable.strings (es) */
 
+/* Editor export error alert titles and details */
+"editor.export.copyFailed" = "No se pudo copiar la imagen.";
+"editor.export.saveFailed" = "No se pudo guardar la imagen.";
+"editor.export.renderFailed" = "No se pudo renderizar la imagen. Tus anotaciones siguen disponibles en el editor.";
+"editor.export.encodingFailed" = "No se pudo codificar la imagen para exportarla.";
+"editor.export.clipboardFailed" = "No se pudo escribir la imagen en el portapapeles.";
+
 /* Generic OK button */
 "common.ok" = "Aceptar";
 
