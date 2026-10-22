@@ -28,3 +28,5 @@ jobs:
       - name: Build Windows App
         run: |
           dotnet build windows/Snapboard.Windows/Snapboard.Windows.csproj -c Release
+      - name: Run Windows regression tests
+        run: dotnet run --project windows/Tests/Snapboard.Windows.Tests.csproj -c Release

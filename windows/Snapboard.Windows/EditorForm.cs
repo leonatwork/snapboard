@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
+using System.IO;
 using System.Media;
 using System.Windows.Forms;
 
@@ -48,7 +48,7 @@ namespace Snapboard
         private Annotation? currentDraft;
         private bool isDrawing = false;
 
-        private Panel canvasPanel = null!;
+        private CanvasPanel canvasPanel = null!;
         private ToolStrip mainToolbar = null!;
 
         public EditorForm(Bitmap image)
@@ -57,11 +57,23 @@ namespace Snapboard
             this.DoubleBuffered = true;
             this.KeyPreview = true;
             this.Text = "Snapboard Editor";
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.Size = new Size(Math.Max(850, baseImage.Width + 60), Math.Max(600, baseImage.Height + 120));
+            this.StartPosition = FormStartPosition.Manual;
             this.Icon = SystemIcons.Application;
 
             InitializeComponents();
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+            // Apply after WinForms' initial DPI scaling, using outer window bounds.
+            this.Bounds = EditorGeometry.GetWindowBounds(baseImage.Size, Screen.FromPoint(Cursor.Position).WorkingArea);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing) baseImage.Dispose();
+            base.Dispose(disposing);
         }
 
         private void InitializeComponents()
@@ -107,6 +119,15 @@ namespace Snapboard
             mainToolbar.Items.Add(new ToolStripSeparator());
 
             // Actions
+            var actualSizeButton = new ToolStripButton("100 %")
+            {
+                Name = "actualSizeButton",
+                CheckOnClick = true,
+                ToolTipText = "Zwischen Einpassen und 100 % mit Scrollbalken umschalten"
+            };
+            actualSizeButton.CheckedChanged += (s, e) => canvasPanel.SetActualSize(actualSizeButton.Checked);
+            mainToolbar.Items.Add(actualSizeButton);
+
             var copyBtn = new ToolStripButton("📋 In Zwischenablage kopieren (Strg+C)", null, (s, e) => CopyAndClose());
             copyBtn.Font = new Font(mainToolbar.Font, FontStyle.Bold);
             copyBtn.BackColor = Color.FromArgb(0, 122, 255);
@@ -313,7 +334,8 @@ namespace Snapboard
             {
                 g.SmoothingMode = SmoothingMode.AntiAlias;
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.DrawImage(baseImage, 0, 0);
+                g.DrawImage(baseImage, new Rectangle(Point.Empty, baseImage.Size),
+                    new Rectangle(Point.Empty, baseImage.Size), GraphicsUnit.Pixel);
 
                 // Apply blur items
                 foreach (var item in annotations)
@@ -365,7 +387,13 @@ namespace Snapboard
         {
             using (Bitmap finalBmp = RenderFinalImage())
             {
-                Clipboard.SetImage(finalBmp);
+                if (!ClipboardRetry.TrySetImage(finalBmp))
+                {
+                    MessageBox.Show(this,
+                        "Die Zwischenablage ist belegt. Das Bild konnte nach 3 Versuchen nicht kopiert werden. Ihre Anmerkungen bleiben erhalten. Bitte versuchen Sie es erneut.",
+                        "Snapboard", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
                 SystemSounds.Asterisk.Play();
             }
             this.Close();
@@ -376,12 +404,15 @@ namespace Snapboard
             using (SaveFileDialog sfd = new SaveFileDialog())
             {
                 sfd.Filter = "PNG Image (*.png)|*.png|JPEG Image (*.jpg)|*.jpg";
-                sfd.FileName = $"Snapboard_{DateTime.Now:yyyyMMdd_HHmmss}.png";
-                if (sfd.ShowDialog() == DialogResult.OK)
+                sfd.FileName = $"Snapboard_{DateTime.Now:yyyyMMdd_HHmmss}";
+                sfd.DefaultExt = "png";
+                sfd.AddExtension = true;
+                if (sfd.ShowDialog(this) == DialogResult.OK)
                 {
                     using (Bitmap finalBmp = RenderFinalImage())
                     {
-                        finalBmp.Save(sfd.FileName, ImageFormat.Png);
+                        using var destination = File.Create(sfd.FileName);
+                        ImageExport.Save(finalBmp, destination, sfd.FilterIndex);
                     }
                 }
             }
@@ -460,6 +491,7 @@ namespace Snapboard
         private class CanvasPanel : Panel
         {
             private EditorForm form;
+            private bool actualSize;
 
             public CanvasPanel(EditorForm form)
             {
@@ -469,10 +501,36 @@ namespace Snapboard
                 this.AutoScroll = true;
             }
 
+            public void SetActualSize(bool value)
+            {
+                form.FinishDrawing();
+                Capture = false;
+                actualSize = value;
+                AutoScrollPosition = Point.Empty;
+                AutoScrollMinSize = value ? form.baseImage.Size : Size.Empty;
+                Invalidate();
+            }
+
+            protected override void OnResize(EventArgs e)
+            {
+                base.OnResize(e);
+                Invalidate();
+            }
+
+            protected override void OnScroll(ScrollEventArgs e)
+            {
+                base.OnScroll(e);
+                Invalidate();
+            }
+
+            private RectangleF ImageBounds => EditorGeometry.GetImageBounds(form.baseImage.Size,
+                ClientSize, !actualSize, AutoScrollPosition);
+
             protected override void OnMouseDown(MouseEventArgs e)
             {
-                if (e.Button == MouseButtons.Left)
+                if (e.Button == MouseButtons.Left && ImageBounds.Contains(e.Location))
                 {
+                    Capture = true;
                     Point imgPt = ScreenToImagePoint(e.Location);
                     form.StartDrawing(imgPt);
                 }
@@ -488,15 +546,21 @@ namespace Snapboard
             {
                 if (e.Button == MouseButtons.Left)
                 {
+                    form.UpdateDrawing(ScreenToImagePoint(e.Location));
                     form.FinishDrawing();
+                    Capture = false;
                 }
+            }
+
+            protected override void OnMouseCaptureChanged(EventArgs e)
+            {
+                base.OnMouseCaptureChanged(e);
+                if (!Capture) form.FinishDrawing();
             }
 
             private Point ScreenToImagePoint(Point pt)
             {
-                int imgX = (this.Width - form.baseImage.Width) / 2;
-                int imgY = (this.Height - form.baseImage.Height) / 2;
-                return new Point(pt.X - imgX, pt.Y - imgY);
+                return EditorGeometry.ScreenToImagePoint(pt, ImageBounds, form.baseImage.Size);
             }
 
             protected override void OnPaint(PaintEventArgs e)
@@ -504,12 +568,15 @@ namespace Snapboard
                 Graphics g = e.Graphics;
                 g.SmoothingMode = SmoothingMode.AntiAlias;
 
-                int imgX = (this.Width - form.baseImage.Width) / 2;
-                int imgY = (this.Height - form.baseImage.Height) / 2;
+                RectangleF bounds = ImageBounds;
+                var state = g.Save();
+                g.SetClip(bounds, CombineMode.Intersect);
 
-                g.DrawImage(form.baseImage, imgX, imgY);
+                g.DrawImage(form.baseImage, bounds,
+                    new RectangleF(PointF.Empty, form.baseImage.Size), GraphicsUnit.Pixel);
 
-                g.TranslateTransform(imgX, imgY);
+                g.TranslateTransform(bounds.X, bounds.Y);
+                g.ScaleTransform(bounds.Width / form.baseImage.Width, bounds.Height / form.baseImage.Height);
 
                 foreach (var item in form.annotations)
                 {
@@ -547,7 +614,7 @@ namespace Snapboard
                     }
                 }
 
-                g.ResetTransform();
+                g.Restore(state);
             }
         }
     }

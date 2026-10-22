@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Media;
 using System.Threading;
@@ -10,10 +11,16 @@ namespace Snapboard
     internal static class Program
     {
         private static Mutex? singleInstanceMutex;
+        private static int reportingException;
 
         [STAThread]
         static void Main()
         {
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+            Application.ThreadException += (s, e) => ReportUnexpectedException(e.Exception, false);
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+                ReportUnexpectedException(e.ExceptionObject as Exception, e.IsTerminating);
+
             // Single instance lock
             singleInstanceMutex = new Mutex(true, "Snapboard_SingleInstance_Mutex", out bool createdNew);
             if (!createdNew)
@@ -25,6 +32,20 @@ namespace Snapboard
             ApplicationConfiguration.Initialize();
             Application.Run(new SnapboardAppContext());
         }
+
+        private static void ReportUnexpectedException(Exception? exception, bool terminating)
+        {
+            if (Interlocked.Exchange(ref reportingException, 1) != 0) return;
+            try
+            {
+                string consequence = terminating
+                    ? "Snapboard muss beendet werden. Bitte starten Sie die Anwendung erneut."
+                    : "Sie können Snapboard weiter verwenden.";
+                MessageBox.Show($"Ein unerwarteter Fehler ist aufgetreten.\n{consequence}\n\n{exception?.Message}",
+                    "Snapboard", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally { Interlocked.Exchange(ref reportingException, 0); }
+        }
     }
 
     public class SnapboardAppContext : ApplicationContext
@@ -33,15 +54,11 @@ namespace Snapboard
         private MessageWindow messageWindow;
         private const int HOTKEY_DIRECT_ID = 1;
         private const int HOTKEY_EDIT_ID = 2;
+        private readonly CaptureGate captureGate = new CaptureGate();
 
         public SnapboardAppContext()
         {
             messageWindow = new MessageWindow(this);
-
-            // Register Ctrl + Shift + 1 (0x31) and Ctrl + Shift + 2 (0x32)
-            uint modifiers = HotKeyHelper.MOD_CONTROL | HotKeyHelper.MOD_SHIFT | HotKeyHelper.MOD_NOREPEAT;
-            HotKeyHelper.RegisterHotKey(messageWindow.Handle, HOTKEY_DIRECT_ID, modifiers, 0x31);
-            HotKeyHelper.RegisterHotKey(messageWindow.Handle, HOTKEY_EDIT_ID, modifiers, 0x32);
 
             // Tray Menu
             ContextMenuStrip contextMenu = new ContextMenuStrip();
@@ -50,13 +67,14 @@ namespace Snapboard
             contextMenu.Items.Add(new ToolStripSeparator());
 
             var autostartItem = new ToolStripMenuItem("Beim Windows-Start ausführen");
-            autostartItem.Checked = IsAutostartEnabled();
+            RefreshAutostartItem(autostartItem);
             autostartItem.Click += (s, e) =>
             {
                 bool newState = !autostartItem.Checked;
                 SetAutostart(newState);
-                autostartItem.Checked = newState;
+                RefreshAutostartItem(autostartItem);
             };
+            contextMenu.Opening += (s, e) => RefreshAutostartItem(autostartItem);
             contextMenu.Items.Add(autostartItem);
 
             contextMenu.Items.Add(new ToolStripSeparator());
@@ -74,33 +92,70 @@ namespace Snapboard
                 Text = "Snapboard (Strg+Umschalt+1: Direkt / Strg+Umschalt+2: Editor)",
                 Visible = true
             };
+
+            // Register only after the tray is ready: startup dialogs also pump WM_HOTKEY.
+            uint modifiers = HotKeyHelper.MOD_CONTROL | HotKeyHelper.MOD_SHIFT | HotKeyHelper.MOD_NOREPEAT;
+            var unavailableHotkeys = new List<string>();
+            if (!HotKeyHelper.RegisterHotKey(messageWindow.Handle, HOTKEY_DIRECT_ID, modifiers, 0x31))
+                unavailableHotkeys.Add("Strg+Umschalt+1");
+            if (!HotKeyHelper.RegisterHotKey(messageWindow.Handle, HOTKEY_EDIT_ID, modifiers, 0x32))
+                unavailableHotkeys.Add("Strg+Umschalt+2");
+            if (unavailableHotkeys.Count > 0)
+            {
+                MessageBox.Show($"Diese Tastenkürzel konnten nicht registriert werden: {string.Join(", ", unavailableHotkeys)}.\n" +
+                    "Möglicherweise werden sie bereits von einer anderen Anwendung verwendet. Die Aufnahme ist weiterhin über das Tray-Menü verfügbar.",
+                    "Snapboard", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         public void CaptureDirect()
         {
-            using (var snipper = new SnippingOverlay())
-            {
-                if (snipper.ShowDialog() == DialogResult.OK && snipper.SelectedImage != null)
-                {
-                    Clipboard.SetImage(snipper.SelectedImage);
-                    SystemSounds.Asterisk.Play();
-                }
-            }
+            captureGate.TryRun(() => Capture(false));
         }
 
         public void CaptureForEdit()
+        {
+            captureGate.TryRun(() => Capture(true));
+        }
+
+        private void Capture(bool edit)
         {
             using (var snipper = new SnippingOverlay())
             {
                 if (snipper.ShowDialog() == DialogResult.OK && snipper.SelectedImage != null)
                 {
-                    var editor = new EditorForm(snipper.SelectedImage);
-                    editor.Show();
+                    using (var selectedImage = snipper.SelectedImage)
+                    {
+                        if (edit)
+                        {
+                            var editor = new EditorForm(selectedImage);
+                            editor.Show();
+                        }
+                        else if (ClipboardRetry.TrySetImage(selectedImage))
+                        {
+                            SystemSounds.Asterisk.Play();
+                        }
+                        else
+                        {
+                            trayIcon.ShowBalloonTip(5000, "Snapboard",
+                                "Die Zwischenablage ist belegt. Das Bild konnte nach 3 Versuchen nicht kopiert werden. Bitte versuchen Sie es erneut.",
+                                ToolTipIcon.Warning);
+                        }
+                    }
                 }
             }
         }
 
-        private bool IsAutostartEnabled()
+        private void RefreshAutostartItem(ToolStripMenuItem item)
+        {
+            bool? enabled = IsAutostartEnabled();
+            item.CheckState = enabled.HasValue
+                ? (enabled.Value ? CheckState.Checked : CheckState.Unchecked)
+                : CheckState.Indeterminate;
+            item.Enabled = enabled.HasValue;
+        }
+
+        private bool? IsAutostartEnabled()
         {
             try
             {
@@ -109,26 +164,37 @@ namespace Snapboard
                     return key?.GetValue("Snapboard") != null;
                 }
             }
-            catch { return false; }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Der Autostart-Status konnte nicht gelesen werden.\n\n{ex.Message}",
+                    "Snapboard", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                // A failed read is unknown, not proof that autostart is disabled.
+                return null;
+            }
         }
 
         private void SetAutostart(bool enable)
         {
             try
             {
-                using (var key = Registry.CurrentUser.OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true))
+                using (var key = Registry.CurrentUser.CreateSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", true))
                 {
+                    if (key == null) throw new InvalidOperationException("Der Autostart-Schlüssel konnte nicht geöffnet werden.");
                     if (enable)
                     {
-                        key?.SetValue("Snapboard", $"\"{Application.ExecutablePath}\"");
+                        key.SetValue("Snapboard", $"\"{Application.ExecutablePath}\"");
                     }
                     else
                     {
-                        key?.DeleteValue("Snapboard", false);
+                        key.DeleteValue("Snapboard", false);
                     }
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Der Autostart konnte nicht geändert werden.\n\n{ex.Message}",
+                    "Snapboard", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
         }
 
         public void HandleHotKey(int id)
