@@ -12,7 +12,7 @@ final class EditorExportTests: XCTestCase {
         XCTAssertEqual(geometry.pixelWidth, 161)
         XCTAssertEqual(geometry.pixelHeight, 101)
         XCTAssertNil(ImageExportGeometry(pointSize: .zero, pixelWidth: 160, pixelHeight: 100))
-        XCTAssertNil(ImageExportGeometry(pointSize: CGSize(width: .infinity, height: 50),
+        XCTAssertNil(ImageExportGeometry(pointSize: CGSize(width: CGFloat.infinity, height: 50),
                                         pixelWidth: 160, pixelHeight: 100))
     }
 
