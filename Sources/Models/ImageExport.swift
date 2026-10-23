@@ -1,4 +1,6 @@
 import AppKit
+import ImageIO
+import UniformTypeIdentifiers
 
 /// Point size describes the source's physical size; pixel dimensions describe its raster.
 /// Keep them independent: a 2x capture must not become a 1x image or be resampled.
@@ -46,9 +48,31 @@ enum ImageExport {
     }
 
     static func data(from bitmap: NSBitmapImageRep, using type: NSBitmapImageRep.FileType) throws -> Data {
-        guard let data = bitmap.representation(using: type, properties: [:]) else {
+        let uti: CFString
+        switch type {
+        case .png: uti = UTType.png.identifier as CFString
+        case .tiff: uti = UTType.tiff.identifier as CFString
+        default:
+            guard let data = bitmap.representation(using: type, properties: [:]) else {
+                throw EditorExportError.encodingFailed
+            }
+            return data
+        }
+        guard let cgImage = bitmap.cgImage, bitmap.size.width > 0, bitmap.size.height > 0 else {
             throw EditorExportError.encodingFailed
         }
-        return data
+        // NSBitmapImageRep does not reliably write the resolution; set it explicitly via ImageIO
+        // (points are 1/72 inch, so DPI = 72 * pixels / points).
+        let properties: [CFString: Any] = [
+            kCGImagePropertyDPIWidth: 72.0 * Double(cgImage.width) / Double(bitmap.size.width),
+            kCGImagePropertyDPIHeight: 72.0 * Double(cgImage.height) / Double(bitmap.size.height),
+        ]
+        let output = NSMutableData()
+        guard let destination = CGImageDestinationCreateWithData(output, uti, 1, nil) else {
+            throw EditorExportError.encodingFailed
+        }
+        CGImageDestinationAddImage(destination, cgImage, properties as CFDictionary)
+        guard CGImageDestinationFinalize(destination) else { throw EditorExportError.encodingFailed }
+        return output as Data
     }
 }
