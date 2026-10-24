@@ -120,6 +120,12 @@
 /* Editor primary button */
 "editor.copyToClipboard" = "Copier dans le presse-papiers (⌘C)";
 
+/* Editor export errors: title and localized descriptions; system write errors use localizedDescription */
+"editor.exportError.title" = "Impossible d’exporter l’image";
+"editor.exportError.rendering" = "Le rendu de l’image a échoué. Vos annotations sont toujours disponibles dans l’éditeur.";
+"editor.exportError.encoding" = "L’encodage de l’image a échoué. Vos annotations sont toujours disponibles dans l’éditeur.";
+"editor.exportError.clipboard" = "L’image n’a pas pu être copiée dans le presse-papiers. Vos annotations sont toujours disponibles dans l’éditeur.";
+
 /* Title of the sheet that sets the annotation text */
 "editor.textPrompt.title" = "Définir le texte de l’annotation";
 

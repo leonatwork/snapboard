@@ -120,6 +120,12 @@
 /* Editor primary button */
 "editor.copyToClipboard" = "Copy to Clipboard (⌘C)";
 
+/* Editor export errors: title and localized descriptions; system write errors use localizedDescription */
+"editor.exportError.title" = "Could Not Export Image";
+"editor.exportError.rendering" = "The image could not be rendered. Your annotations are still available in the editor.";
+"editor.exportError.encoding" = "The image could not be encoded. Your annotations are still available in the editor.";
+"editor.exportError.clipboard" = "The image could not be copied to the clipboard. Your annotations are still available in the editor.";
+
 /* Title of the sheet that sets the annotation text */
 "editor.textPrompt.title" = "Set Annotation Text";
 

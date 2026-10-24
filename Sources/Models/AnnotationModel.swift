@@ -162,7 +162,8 @@ final class ImageRendererService {
         NSGraphicsContext.restoreGraphicsState()
 
         guard let resultCGImage = context.makeImage() else { return nil }
-        return NSImage(cgImage: resultCGImage, size: NSSize(width: pixelWidth, height: pixelHeight))
+        // Keep the source's point size (and therefore DPI) without resampling its pixels.
+        return NSImage(cgImage: resultCGImage, size: image.size)
     }
 
     private func applyBlur(to context: CGContext, rect: CGRect, originalCGImage: CGImage) {

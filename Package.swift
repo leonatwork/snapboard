@@ -13,6 +13,11 @@ let package = Package(
         .executableTarget(
             name: "Snapboard",
             path: "Sources"
+        ),
+        .testTarget(
+            name: "SnapboardTests",
+            dependencies: ["Snapboard"],
+            path: "Tests/SnapboardTests"
         )
     ]
 )
