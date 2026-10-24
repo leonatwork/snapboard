@@ -1,5 +1,14 @@
 /* Snapboard – Localizable.strings (en) */
 
+/* Permission and capture-error dialogs */
+"permission.screenCapture.title" = "Screen Recording Permission Required";
+"permission.screenCapture.message" = "Snapboard needs permission to capture your screen. Enable Snapboard in System Settings > Privacy & Security > Screen & System Audio Recording. You may need to quit and reopen Snapboard afterwards. This capture has not started.";
+"permission.openSettings" = "Open System Settings";
+"capture.launchFailed.title" = "Could Not Start Capture";
+"capture.launchFailed.message" = "The macOS screenshot tool could not be started. Please try again or restart Snapboard.";
+"permission.notifications.title" = "Notifications Are Not Allowed";
+"permission.notifications.message" = "Notification after capture has been turned off because notification permission was not granted. You can allow notifications for Snapboard in System Settings > Notifications, then turn the switch on again.";
+
 /* Generic OK button */
 "common.ok" = "OK";
 

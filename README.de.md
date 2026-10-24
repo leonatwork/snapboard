@@ -39,6 +39,31 @@ Du kannst Snapboard direkt von GitHub herunterladen und ohne Terminal nutzen:
 
 👉 Alle Versionen findest du auch unter [**GitHub Releases**](https://github.com/leonatwork/snapboard/releases).
 
+### macOS: Erststart und Gatekeeper
+
+Release-Builds sind signiert, aber nicht notarisiert. Gatekeeper kann daher den
+ersten Start blockieren. Versuche auf **macOS 15 oder neuer** zunächst, Snapboard
+zu öffnen, und schließe die Warnung. Öffne anschließend **Systemeinstellungen >
+Datenschutz & Sicherheit**, scrolle zum Bereich Sicherheit und wähle für Snapboard
+**„Dennoch öffnen“**. Bestätige den folgenden Dialog und authentifiziere dich, falls
+du dazu aufgefordert wirst. Nutze diesen Weg nur für die App aus den oben verlinkten
+Snapboard-Releases.
+
+### macOS: Recht zur Bildschirmaufnahme
+
+Beim ersten Aufnahmeversuch (`⌘⇧1` oder `⌘⇧2`) prüft Snapboard das Recht zur
+Bildschirmaufnahme. Fehlt es, startet keine Aufnahme. Wähle im Dialog
+**Systemeinstellungen öffnen** und aktiviere Snapboard unter **Datenschutz &
+Sicherheit > Bildschirm- & Systemaudioaufnahme** (auf älteren macOS-Versionen
+**Bildschirmaufnahme**). macOS kann zusätzlich seine eigene Berechtigungsanfrage
+anzeigen. Beende und öffne Snapboard bei Bedarf erneut und drücke dann das Kürzel
+noch einmal. In diesem Einstellungsbereich kannst du das Recht später ändern.
+
+Mitteilungen sind standardmäßig aus. Snapboard fragt erst nach der Berechtigung,
+wenn du **Mitteilung nach Aufnahme** in den Einstellungen einschaltest. Bei
+Ablehnung wird der Schalter ausgeschaltet; ein Hinweis erklärt, wie du die
+Berechtigung später erteilen kannst.
+
 ---
 
 ## 🖼️ Screenshots

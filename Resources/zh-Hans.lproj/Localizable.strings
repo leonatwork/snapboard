@@ -1,5 +1,14 @@
 /* Snapboard – Localizable.strings (zh-Hans) */
 
+/* Permission and capture-error dialogs */
+"permission.screenCapture.title" = "需要屏幕录制权限";
+"permission.screenCapture.message" = "Snapboard需要获得权限才能截取屏幕。请在系统设置 > 隐私与安全性 > 屏幕与系统音频录制中启用Snapboard。之后可能需要退出并重新打开Snapboard。本次截图尚未开始。";
+"permission.openSettings" = "打开系统设置";
+"capture.launchFailed.title" = "无法开始截图";
+"capture.launchFailed.message" = "无法启动macOS截图工具。请重试或重新启动Snapboard。";
+"permission.notifications.title" = "通知未获允许";
+"permission.notifications.message" = "由于未获得通知权限，截图后通知已关闭。你可以在系统设置 > 通知中允许Snapboard发送通知，然后重新打开开关。";
+
 /* Generic OK button */
 "common.ok" = "好";
 

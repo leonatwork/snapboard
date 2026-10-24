@@ -1,5 +1,14 @@
 /* Snapboard – Localizable.strings (it) */
 
+/* Permission and capture-error dialogs */
+"permission.screenCapture.title" = "È richiesta l’autorizzazione per registrare lo schermo";
+"permission.screenCapture.message" = "Snapboard richiede l’autorizzazione per catturare lo schermo. Abilita Snapboard in Impostazioni di Sistema > Privacy e sicurezza > Registrazione schermo e audio di sistema. Potrebbe essere necessario chiudere e riaprire Snapboard. Questa cattura non è stata avviata.";
+"permission.openSettings" = "Apri Impostazioni di Sistema";
+"capture.launchFailed.title" = "Impossibile avviare la cattura";
+"capture.launchFailed.message" = "Non è stato possibile avviare lo strumento di cattura dello schermo di macOS. Riprova o riavvia Snapboard.";
+"permission.notifications.title" = "Notifiche non consentite";
+"permission.notifications.message" = "La notifica dopo la cattura è stata disattivata perché l’autorizzazione non è stata concessa. Puoi consentire le notifiche di Snapboard in Impostazioni di Sistema > Notifiche e poi riattivare l’opzione.";
+
 /* Generic OK button */
 "common.ok" = "OK";
 

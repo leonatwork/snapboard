@@ -1,5 +1,14 @@
 /* Snapboard – Localizable.strings (de) */
 
+/* Permission and capture-error dialogs */
+"permission.screenCapture.title" = "Recht zur Bildschirmaufnahme erforderlich";
+"permission.screenCapture.message" = "Snapboard benötigt das Recht, deinen Bildschirm aufzunehmen. Aktiviere Snapboard unter Systemeinstellungen > Datenschutz & Sicherheit > Bildschirm- & Systemaudioaufnahme. Danach musst du Snapboard möglicherweise beenden und erneut öffnen. Diese Aufnahme wurde nicht gestartet.";
+"permission.openSettings" = "Systemeinstellungen öffnen";
+"capture.launchFailed.title" = "Aufnahme konnte nicht gestartet werden";
+"capture.launchFailed.message" = "Das macOS-Werkzeug für Bildschirmaufnahmen konnte nicht gestartet werden. Versuche es erneut oder starte Snapboard neu.";
+"permission.notifications.title" = "Mitteilungen sind nicht erlaubt";
+"permission.notifications.message" = "Die Mitteilung nach Aufnahme wurde ausgeschaltet, weil die Berechtigung für Mitteilungen nicht erteilt wurde. Du kannst Mitteilungen für Snapboard unter Systemeinstellungen > Mitteilungen erlauben und den Schalter danach wieder einschalten.";
+
 /* Generic OK button */
 "common.ok" = "OK";
 

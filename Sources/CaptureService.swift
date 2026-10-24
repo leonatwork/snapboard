@@ -1,4 +1,5 @@
 import AppKit
+import CoreGraphics
 import Foundation
 import UserNotifications
 import os.log
@@ -10,14 +11,58 @@ final class CaptureService {
     static let shared = CaptureService()
 
     private var activeProcess: Process?
+    private let preflight: () -> Bool
+    private let requestAccess: () -> Void
+    private let permissionDialog: @MainActor () -> Bool
+    private let openSettings: @MainActor (URL) -> Void
+    private let startProcess: (Process) throws -> Void
+    private let launchErrorDialog: @MainActor () -> Void
+    private var didRequestAccess = false
+    private var isShowingPermissionDialog = false
 
-    private init() {}
+    init(
+        preflight: @escaping () -> Bool = { CGPreflightScreenCaptureAccess() },
+        requestAccess: @escaping () -> Void = { _ = CGRequestScreenCaptureAccess() },
+        permissionDialog: @escaping @MainActor () -> Bool = { PermissionDialogs.screenCapture() },
+        openSettings: @escaping @MainActor (URL) -> Void = { _ = NSWorkspace.shared.open($0) },
+        startProcess: @escaping (Process) throws -> Void = { try $0.run() },
+        launchErrorDialog: @escaping @MainActor () -> Void = { PermissionDialogs.captureLaunchFailed() }
+    ) {
+        self.preflight = preflight
+        self.requestAccess = requestAccess
+        self.permissionDialog = permissionDialog
+        self.openSettings = openSettings
+        self.startProcess = startProcess
+        self.launchErrorDialog = launchErrorDialog
+    }
+
+    private func canCapture() -> Bool {
+        // runModal runs a nested event loop: ignore further capture shortcuts meanwhile.
+        guard !isShowingPermissionDialog else { return false }
+        guard preflight() else {
+            isShowingPermissionDialog = true
+            defer { isShowingPermissionDialog = false }
+            if permissionDialog() {
+                // Register the app in TCC at most once per app session, on user action.
+                if !didRequestAccess {
+                    didRequestAccess = true
+                    requestAccess()
+                }
+                openSettings(URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture")!)
+            }
+            // Never resume this attempt, even if the system request grants access.
+            return false
+        }
+        return true
+    }
 
     func captureDirect() {
         if let process = activeProcess, process.isRunning {
             logger.info("Capture process is already running.")
             return
         }
+
+        guard canCapture() else { return }
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
@@ -38,10 +83,11 @@ final class CaptureService {
         }
 
         do {
-            try process.run()
+            try startProcess(process)
             self.activeProcess = process
         } catch {
             logger.error("Failed to run screencapture: \(error.localizedDescription)")
+            launchErrorDialog()
         }
     }
 
@@ -50,6 +96,8 @@ final class CaptureService {
             logger.info("Capture process is already running.")
             return
         }
+
+        guard canCapture() else { return }
 
         let tempFileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("snapboard_capture_\(UUID().uuidString).png")
 
@@ -84,10 +132,12 @@ final class CaptureService {
         }
 
         do {
-            try process.run()
+            try startProcess(process)
             self.activeProcess = process
         } catch {
             logger.error("Failed to start screencapture for edit: \(error.localizedDescription)")
+            try? FileManager.default.removeItem(at: tempFileURL)
+            launchErrorDialog()
         }
     }
 

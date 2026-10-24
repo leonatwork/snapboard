@@ -1,5 +1,14 @@
 /* Snapboard – Localizable.strings (ja) */
 
+/* Permission and capture-error dialogs */
+"permission.screenCapture.title" = "画面収録の許可が必要です";
+"permission.screenCapture.message" = "Snapboardで画面を撮影するには許可が必要です。システム設定 > プライバシーとセキュリティ > 画面収録とシステムオーディオ録音でSnapboardを有効にしてください。その後、Snapboardを終了して開き直す必要がある場合があります。この撮影は開始されていません。";
+"permission.openSettings" = "システム設定を開く";
+"capture.launchFailed.title" = "撮影を開始できませんでした";
+"capture.launchFailed.message" = "macOSのスクリーンショットツールを起動できませんでした。もう一度試すか、Snapboardを再起動してください。";
+"permission.notifications.title" = "通知が許可されていません";
+"permission.notifications.message" = "通知の許可が得られなかったため、撮影後の通知をオフにしました。システム設定 > 通知でSnapboardの通知を許可してから、スイッチを再びオンにできます。";
+
 /* Generic OK button */
 "common.ok" = "OK";
 

@@ -39,6 +39,28 @@ You can download Snapboard straight from GitHub and use it without touching a te
 
 👉 All versions are also listed under [**GitHub Releases**](https://github.com/leonatwork/snapboard/releases).
 
+### macOS: first launch and Gatekeeper
+
+Release builds are signed but not notarized, so Gatekeeper may block the first launch.
+On **macOS 15 or later**, first try opening Snapboard, dismiss the warning, then open
+**System Settings > Privacy & Security**, scroll to the security section and choose
+**Open Anyway** (German: **„Dennoch öffnen“**) for Snapboard. Confirm the subsequent
+dialog and authenticate if asked. Only do this for the app you downloaded from the
+Snapboard releases linked above.
+
+### macOS: screen recording permission
+
+At your first capture attempt (`⌘⇧1` or `⌘⇧2`), Snapboard checks screen recording
+permission. If it is missing, no capture starts. Choose **Open System Settings** in
+the dialog and enable Snapboard under **Privacy & Security > Screen & System Audio
+Recording** (called **Screen Recording** on older macOS versions). macOS may also
+show its own permission prompt. Quit and reopen Snapboard if necessary, then press
+the shortcut again. You can return to this pane to change the permission later.
+
+Notifications are off by default: Snapboard asks for notification permission only
+when you enable **Show notification after capture** in Settings. If permission is
+denied, the switch turns off and a hint explains how to allow it later.
+
 ---
 
 ## 🖼️ Screenshots
