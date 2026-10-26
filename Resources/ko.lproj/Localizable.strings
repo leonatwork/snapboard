@@ -129,6 +129,12 @@
 /* Editor primary button */
 "editor.copyToClipboard" = "클립보드로 복사(⌘C)";
 
+/* Editor export errors: title and localized descriptions; system write errors use localizedDescription */
+"editor.exportError.title" = "이미지를 내보낼 수 없습니다";
+"editor.exportError.rendering" = "이미지를 렌더링할 수 없습니다. 주석은 편집기에 그대로 보존되어 있습니다.";
+"editor.exportError.encoding" = "이미지를 인코딩할 수 없습니다. 주석은 편집기에 그대로 보존되어 있습니다.";
+"editor.exportError.clipboard" = "이미지를 클립보드로 복사할 수 없습니다. 주석은 편집기에 그대로 보존되어 있습니다.";
+
 /* Title of the sheet that sets the annotation text */
 "editor.textPrompt.title" = "주석 텍스트 설정";
 

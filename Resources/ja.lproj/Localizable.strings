@@ -129,6 +129,12 @@
 /* Editor primary button */
 "editor.copyToClipboard" = "クリップボードにコピー（⌘C）";
 
+/* Editor export errors: title and localized descriptions; system write errors use localizedDescription */
+"editor.exportError.title" = "画像を書き出せませんでした";
+"editor.exportError.rendering" = "画像をレンダリングできませんでした。注釈はエディタに保持されています。";
+"editor.exportError.encoding" = "画像をエンコードできませんでした。注釈はエディタに保持されています。";
+"editor.exportError.clipboard" = "画像をクリップボードにコピーできませんでした。注釈はエディタに保持されています。";
+
 /* Title of the sheet that sets the annotation text */
 "editor.textPrompt.title" = "注釈テキストを設定";
 
