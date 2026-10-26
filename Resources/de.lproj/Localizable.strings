@@ -54,6 +54,15 @@
 /* Notification body after a direct capture */
 "notification.copied" = "Screenshot in die Zwischenablage kopiert.";
 
+/* Aufnahme- und Mitteilungsrechte; Startfehler enthält den Systemfehler (%@). */
+"capture.permission.title" = "Recht zur Bildschirmaufnahme erforderlich";
+"capture.permission.message" = "Snapboard benötigt das Recht zur Bildschirmaufnahme. Aktiviere Snapboard unter Systemeinstellungen → Datenschutz & Sicherheit → Bildschirm- & Systemaudioaufnahme. Eventuell musst du Snapboard anschließend beenden und erneut öffnen. Versuche die Aufnahme danach noch einmal.";
+"capture.permission.openSettings" = "Systemeinstellungen öffnen";
+"capture.startError.title" = "Aufnahme konnte nicht gestartet werden";
+"capture.startError.message" = "Das macOS-Werkzeug für Bildschirmaufnahmen konnte nicht gestartet werden. Bitte versuche es erneut.\n\n%@";
+"notification.permissionDenied.title" = "Mitteilungen nicht erlaubt";
+"notification.permissionDenied.message" = "Mitteilungen bleiben ausgeschaltet, weil das Recht nicht erteilt wurde. Erlaube Snapboard unter Systemeinstellungen → Mitteilungen und schalte danach Mitteilung nach Aufnahme erneut ein.";
+
 /* Title of the settings window */
 "settings.windowTitle" = "Snapboard Einstellungen";
 

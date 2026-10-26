@@ -54,6 +54,15 @@
 /* Notification body after a direct capture */
 "notification.copied" = "Schermafbeelding naar het klembord gekopieerd.";
 
+/* Toestemming voor opnamen en meldingen; systeemfout (%@). */
+"capture.permission.title" = "Toestemming voor schermopname vereist";
+"capture.permission.message" = "Snapboard heeft toestemming nodig om je scherm op te nemen. Schakel Snapboard in via Systeeminstellingen → Privacy en beveiliging → Scherm- en systeemaudio-opname. Mogelijk moet je Snapboard afsluiten en opnieuw openen en daarna de opname opnieuw proberen.";
+"capture.permission.openSettings" = "Open Systeeminstellingen";
+"capture.startError.title" = "Kan opname niet starten";
+"capture.startError.message" = "Het macOS-hulpprogramma voor schermafbeeldingen kon niet worden gestart. Probeer het opnieuw.\n\n%@";
+"notification.permissionDenied.title" = "Meldingen niet toegestaan";
+"notification.permissionDenied.message" = "Meldingen blijven uitgeschakeld omdat er geen toestemming is gegeven. Sta meldingen voor Snapboard toe via Systeeminstellingen → Meldingen en schakel daarna meldingen na opname opnieuw in.";
+
 /* Title of the settings window */
 "settings.windowTitle" = "Snapboard-instellingen";
 

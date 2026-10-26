@@ -54,6 +54,15 @@
 /* Notification body after a direct capture */
 "notification.copied" = "Screenshot copied to the clipboard.";
 
+/* Capture and notification permissions; start error message includes the system error (%@). */
+"capture.permission.title" = "Screen Recording Permission Required";
+"capture.permission.message" = "Snapboard needs Screen Recording permission to capture your screen. Enable Snapboard in System Settings → Privacy & Security → Screen & System Audio Recording. You may need to quit and reopen Snapboard afterwards, then try the capture again.";
+"capture.permission.openSettings" = "Open System Settings";
+"capture.startError.title" = "Could Not Start Capture";
+"capture.startError.message" = "The macOS screenshot tool could not be started. Please try again.\n\n%@";
+"notification.permissionDenied.title" = "Notifications Not Allowed";
+"notification.permissionDenied.message" = "Notifications remain turned off because permission was not granted. To enable them, allow Snapboard in System Settings → Notifications, then turn on Show notification after capture again.";
+
 /* Title of the settings window */
 "settings.windowTitle" = "Snapboard Settings";
 
