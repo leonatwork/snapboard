@@ -1,6 +1,6 @@
 // Frozen export oracle from origin/main 2306fc6, before issue #8.
-// Keep independent of AnnotationLayout and the new renderer. TextAnnotationLayout is
-// deliberately unchanged by this issue; only that existing text implementation is reused.
+// Keep independent of production layouts and rendering, including text. Otherwise the
+// before/after comparison would silently accept a shared text-rendering regression.
 import AppKit
 import CoreImage
 import CoreImage.CIFilterBuiltins
@@ -109,7 +109,7 @@ final class LegacyAnnotationRenderer {
             }
             path.stroke()
         case .text:
-            TextAnnotationLayout(item: item, imagePixelSize: CGSize(width: pW, height: pH))?.draw(flipped: false)
+            drawText(item, imagePixelSize: CGSize(width: pW, height: pH))
         case .stepNumber:
             let radius = max(14.0, lineWidth * 3.5)
             let badgeRect = CGRect(x: start.x - radius, y: start.y - radius, width: radius * 2, height: radius * 2)
@@ -127,5 +127,27 @@ final class LegacyAnnotationRenderer {
         case .blur:
             break
         }
+    }
+
+    // Frozen TextAnnotationLayout arithmetic/drawing from 2306fc6, bottom-left context.
+    private func drawText(_ item: AnnotationItem, imagePixelSize: CGSize) {
+        guard !item.text.isEmpty, imagePixelSize.width > 0, imagePixelSize.height > 0 else { return }
+        let lineWidth = max(2.0, item.lineWidth * (imagePixelSize.width / 800.0))
+        let attributedString = NSAttributedString(string: item.text, attributes: [
+            .font: NSFont.boldSystemFont(ofSize: max(14.0, lineWidth * 4.5)),
+            .foregroundColor: item.color.nsColor
+        ])
+        let size = attributedString.size()
+        let anchor = CGPoint(x: item.startPoint.x * imagePixelSize.width,
+                             y: item.startPoint.y * imagePixelSize.height)
+        let textRect = CGRect(x: anchor.x, y: anchor.y - size.height, width: size.width, height: size.height)
+        let backgroundRect = textRect.insetBy(dx: -4, dy: -2)
+        func place(_ rect: CGRect) -> CGRect {
+            CGRect(x: rect.minX, y: imagePixelSize.height - rect.maxY,
+                   width: rect.width, height: rect.height)
+        }
+        NSColor.black.withAlphaComponent(0.65).setFill()
+        NSBezierPath(roundedRect: place(backgroundRect), xRadius: 4, yRadius: 4).fill()
+        attributedString.draw(at: place(textRect).origin)
     }
 }

@@ -2,17 +2,24 @@
 
 ## Ausgangsstand und verbindlicher Umfang
 
-Basis: ausgechecktes `origin/main`, `2306fc6e8e357a64980c9674b273825f52e8844f`.
-Der Workspace war vor der Arbeit sauber. Kein Branchwechsel, kein fremder PR-Code,
-kein Cherry-Pick, Commit oder Push.
+Basis der vorhandenen Lösung: lokales `origin/main`,
+`2306fc6e8e357a64980c9674b273825f52e8844f`.
+Dieser Fortsetzungslauf startete sauber auf dem bereits ausgecheckten Branch
+`agent/bearbeite-github-issue-8-vollst-ndig-und-1026-2301`, Commit
+`46f2210d93b2f1e2dcdcc0f3d7cccf3d05ee8301` (laut Auftrag der eigene Stand von PR #17).
+Der vorhandene Commit und sein Diff gegen `origin/main` wurden geprüft und beibehalten.
+Die spätere ausdrückliche Anweisung zur Fortsetzung auf diesem Branch konkretisiert die
+ursprüngliche Main-only-Vorgabe. Kein Branchwechsel, Cherry-Pick, neuer Commit oder Push
+in diesem Lauf; kein fremder offener PR als Grundlage.
 
 Grundlage ist die im Auftrag vollständig mitgelieferte strukturierte Issue-Beschreibung
-inklusive Originalbeschreibung. Der Versuch, den GitHub-Thread und offene PRs mit `gh`
-zu lesen, wurde durch die Werkzeugberechtigungen abgewiesen. Kommentare, zusätzliche
+inklusive Originalbeschreibung und des Fortsetzungsauftrags für PR #17. GitHub-Zugriff
+(`gh`, Netzwerkzugriff) ist durch die Werkzeugberechtigungen gesperrt. Kommentare, zusätzliche
 Entscheidungen und mögliche offene PR-Abhängigkeiten sind daher **nicht geprüft**.
 `CLAUDE.md` und `AGENTS.md` wurden im Workspace nicht gefunden; Zugriff außerhalb des
 Workspaces ist gesperrt. `CONTRIBUTING.md`, Paket-/Testkonfiguration, bestehende Tests
-und Build-Workflow wurden gelesen; die Wissensbasis wurde abgefragt.
+und Build-Workflow wurden gelesen; die Wissensbasis wurde erneut abgefragt. Ein aktueller
+GitHub-/CI-Status ist aus lokalen Remote-Tracking-Refs nicht ableitbar.
 
 Verbindlich übernommen: Der Export bestimmt die Optik. Nur die Vorschau wird angepasst;
 keine Angleichung zwischen Plattformen, keine neuen Werkzeuge/Stile, keine Windows-
@@ -27,7 +34,7 @@ Strichstärkenauswahl. `--verify-annotations` ist ein eigener Modus; die bestehe
 | AC-2 | Gemeinsame Pfeilspitzenpunkte und unveränderte Exportkonstanten; Geometrie- und Bildregressionen. | Implementiert, Plattformlauf offen |
 | AC-3 | Gemeinsame Badge-Geometrie, Rand und Schriftgröße; dieselbe AppKit-Zeichenroutine inklusive Ziffernplatzierung. Harness verwendet die mehrstellige Ziffer 12. | Implementiert, Plattformlauf offen |
 | AC-4 | Abgeschlossene macOS-Pixelungen verwenden den unveränderten Exportpfad mit CIPixellate, Blockgröße und Quellbild; eine gecachte Bildlage liegt unter allen Vektoren. Entwürfe dürfen weiterhin vereinfacht sein. | Optische Übereinstimmung implementiert, Plattform-/Sichtprüfung offen; Unlesbarkeitsgarantie siehe unten |
-| AC-5 | Windows cached eine mit `ApplyBlur` erzeugte Bildlage, einschließlich Reihenfolge überlappender Bereiche. Native/fitted Paint-, Cache-, Geometrieänderungs-, Undo-/Redo- und Randfalltests. | Implementiert, Windows-Lauf offen |
+| AC-5 | Windows cached eine mit `ApplyBlur` erzeugte Bildlage, einschließlich Reihenfolge überlappender Bereiche. Native/fitted/scrolled Paint-, Cache-, Geometrieänderungs-, Undo-/Redo- und Randfalltests. | Implementiert, Windows-Lauf offen |
 | AC-6 | Beide Plattformen vergleichen alle acht Werkzeuge auf beiden Größen mit 2/4/7 gegen eingefrorene, unabhängige Exportrenderer des Ausgangsstands. macOS speichert Before/Export/Preview-PNGs; Windows optional ebenso. Windows-Exportmethoden sind im Diff unverändert. | Vergleich vorbereitet, nicht ausgeführt |
 | AC-7 | Bestehendes Textlayout und Textpreview-Zeichenweg unverändert; eigener All-Tool-Harness mit 48 Fällen und je zwei macOS-Canvas-Größen. | Beide Harness-Läufe offen |
 | AC-8 | `build-macos` enthält jetzt relevante Swift-Tests und beide Harness-Prüfungen; die neuen Windows-Tests laufen über den vorhandenen Regression-Runner in `build-windows`. | Kein CI-Lauf gestartet oder eingesehen; Grünstatus nicht bestätigt |
@@ -44,10 +51,18 @@ am Export erfordern. Dieses Teilkriterium wird deshalb nicht als erfüllt behaup
 
 ## Testfolge und Grenzen
 
-Zuerst wurden `AnnotationPreviewTests`, die Windows-Pixelungsregression und der neue
-Vergleichsharness samt eingefrorenem macOS-Exportrenderer angelegt; erst danach wurden
-die Produktionsdateien geändert. Im anschließenden Review kamen zusätzliche direkte
-Editor-Paint-Regressionen und der Windows-All-Tool-Exportvergleich hinzu.
+Der vorherige Handover beschreibt eine test-first-Erstellung der vorhandenen Lösung;
+die genaue Editierreihenfolge ist aus dem einzelnen übernommenen Commit nicht belegbar.
+In diesem Fortsetzungslauf wurden zuerst Windows-Paint-Regressionen für native,
+eingepasste und gescrollte Ansicht ergänzt. Danach wurde das macOS-Exportoracle für
+Text von `TextAnnotationLayout` entkoppelt: Es enthält jetzt die aus `origin/main`
+übernommenen Textwerte und Zeichenoperationen, damit der Before/After-Vergleich nicht
+dieselbe Textregression auf beiden Seiten übernehmen kann. Die vorhandene Textprüfung
+bleibt unverändert. Die direkten macOS-Editor-Regressionen decken jetzt zusätzlich alle
+sechs Vektorwerkzeuge bei 2/4/7 ab; ihre Fehlerbewertung verwendet nur tatsächlich
+veränderte Pixel, damit falsche Pfeilspitzen/Badges nicht durch unveränderten Hintergrund
+im Mittelwert verborgen werden. Im Produktionscode ergab der statische Review keinen
+zusätzlichen erforderlichen Fix; der vorhandene Stand wurde beibehalten.
 
 Der Server ist Linux; der Auftrag verbietet Build und Plattformausführung. Deshalb wurde
 **kein Test vor oder nach dem Fix ausgeführt**, und insbesondere kein korrektes rotes
@@ -112,11 +127,12 @@ Manuell abgeschlossene Pixelung mit dem kopierten Bild vergleichen, inklusive
 
 ## Lieferung / Abhängigkeiten
 
-Alle Änderungen liegen uncommitted im bestehenden Workspace. Keine App-Abhängigkeiten
+Die Ergänzungen dieses Laufs liegen uncommitted im bestehenden Workspace; die bisherige
+Lösung ist bereits im übernommenen Commit enthalten. Keine App-Abhängigkeiten
 und keine neuen UI-Texte. Kein PR erstellt oder gemergt, kein Release/Deployment und keine
 Produktionsdaten oder Supabase-Instanzen angefasst.
 
-Es wurde ausschließlich auf dem genannten `origin/main`-Stand gearbeitet. Aus dem lokalen
+Es wurde auf dem vorhandenen eigenen PR-Stand mit der oben genannten Main-Basis gearbeitet. Aus dem lokalen
 Code ergibt sich keine notwendige zusätzliche PR-Abhängigkeit; die vorhandene Windows-
 Fit-/Scroll-Geometrie ist bereits in diesem Main-Stand enthalten. Ob die nicht lesbaren
 Issue-Kommentare oder offenen PRs andere Abhängigkeiten nennen, bleibt vor Review zu prüfen.

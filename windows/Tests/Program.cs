@@ -18,7 +18,7 @@ internal static class RegressionTests
         ApplicationConfiguration.Initialize();
         if (args.Length == 2 && args[0] == "--verify-annotations")
         {
-            try { AnnotationExports(args[1]); PixelationPreview(); return 0; }
+            try { AnnotationExports(args[1]); PixelationPreview(); PixelationPaintModes(); return 0; }
             catch (Exception ex) { Console.Error.WriteLine(ex); return 1; }
         }
         var tests = new (string Name, Action Run)[]
@@ -32,6 +32,7 @@ internal static class RegressionTests
             ("Fit and scrolled 100% coordinates reach all image corners", ViewCoordinates),
             ("Large editor fits screen, scrolls, and exports annotations at full size", LargeEditor),
             ("Completed pixelation matches export, caches, and follows undo/redo", PixelationPreview),
+            ("Pixelation paint matches export in native, fitted and scrolled views", PixelationPaintModes),
             ("All-tool exports stay identical to the frozen pre-fix renderer", () => AnnotationExports(null))
         };
         int failed = 0;
@@ -245,6 +246,62 @@ internal static class RegressionTests
 
     private static object? Invoke(object target, string name) => target.GetType()
         .GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(target, null);
+
+    // Uses the pre-existing paint/export APIs before accessing the cache. On the pre-fix
+    // editor this must fail on the gray placeholder, not on a missing cache method.
+    private static void PixelationPaintModes()
+    {
+        using var image = new Bitmap(900, 600);
+        for (int y = 0; y < image.Height; y++)
+            for (int x = 0; x < image.Width; x++)
+                image.SetPixel(x, y, Color.FromArgb((x * 17 + y * 31) % 256, x % 256, y % 256));
+        using var editor = new EditorForm(image);
+        var items = (List<Annotation>)Field(editor, "annotations");
+        items.Add(new Annotation { Tool = ToolType.Blur, Start = new Point(80, 70), End = new Point(800, 540) });
+        items.Add(new Annotation { Tool = ToolType.Blur, Start = new Point(300, 200), End = new Point(850, 570) });
+        using var exported = (Bitmap)Invoke(editor, "RenderFinalImage")!;
+        var canvas = (Panel)Field(editor, "canvasPanel");
+        canvas.Dock = DockStyle.None;
+        // AutoScrollPosition requires Created, not merely a DrawToBitmap handle.
+        editor.Show();
+        Application.DoEvents();
+        Equal(true, canvas.Created);
+        var setActualSize = canvas.GetType().GetMethod("SetActualSize")!;
+        Bitmap? cached = null;
+        foreach (var mode in new[] { "native", "fitted", "scrolled" })
+        {
+            canvas.Size = mode == "native" ? image.Size : new Size(240, 180);
+            bool actualSize = mode != "fitted";
+            setActualSize.Invoke(canvas, new object[] { actualSize });
+            Application.DoEvents();
+            if (mode == "scrolled")
+            {
+                canvas.AutoScrollPosition = new Point(420, 300);
+                Application.DoEvents();
+                Equal(true, canvas.AutoScrollPosition.X < 0 && canvas.AutoScrollPosition.Y < 0);
+            }
+            using var painted = new Bitmap(canvas.Width, canvas.Height);
+            canvas.DrawToBitmap(painted, new Rectangle(Point.Empty, canvas.Size));
+            using var expected = new Bitmap(canvas.Width, canvas.Height);
+            using (var g = Graphics.FromImage(expected))
+            {
+                g.Clear(canvas.BackColor);
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                RectangleF bounds = EditorGeometry.GetImageBounds(image.Size, canvas.ClientSize,
+                    !actualSize, canvas.AutoScrollPosition);
+                g.SetClip(bounds, System.Drawing.Drawing2D.CombineMode.Intersect);
+                g.DrawImage(exported, bounds, new RectangleF(PointF.Empty, image.Size), GraphicsUnit.Pixel);
+            }
+            // DrawToBitmap also includes native scrollbar chrome. Compare the client area.
+            var client = new Rectangle(Point.Empty, canvas.ClientSize);
+            using var expectedClient = expected.Clone(client, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            using var paintedClient = painted.Clone(client, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            AssertPixels(expectedClient, paintedClient);
+            Bitmap preview = (Bitmap)Invoke(editor, "GetPixelatedPreview")!;
+            if (cached != null) Equal(true, ReferenceEquals(cached, preview));
+            cached = preview;
+        }
+    }
 
     private static void AnnotationExports(string? outputDirectory)
     {
