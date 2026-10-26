@@ -6,9 +6,10 @@
 # It never captures the screen: the editor shows a drawn demo image. It uses its own
 # bundle identifier, so the settings of an installed Snapboard are never read or changed.
 #
-# Usage: scripts/screenshots/render.sh [--debug] [--all-languages | --verify-text]
+# Usage: scripts/screenshots/render.sh [--debug] [--all-languages | --verify-text | --verify-annotations]
 #   --all-languages  render every localization into build/screenshots/languages (for review)
 #   --verify-text    check that the editor preview draws text annotations like the export
+#   --verify-annotations  all tools, 2/4/7, small/large images, frozen before/after exports
 # If your default SDK fails to compile SwiftUI, point SDKROOT at another macOS SDK.
 set -euo pipefail
 
@@ -29,7 +30,7 @@ while IFS= read -r file; do SOURCES+=("$file"); done < <(
   find Sources -name '*.swift' ! -name 'AppDelegate.swift' | sort
 )
 swiftc -O -swift-version 5 \
-  "${SOURCES[@]}" scripts/screenshots/DemoContent.swift scripts/screenshots/main.swift \
+  "${SOURCES[@]}" scripts/screenshots/DemoContent.swift scripts/screenshots/LegacyAnnotationRenderer.swift scripts/screenshots/main.swift \
   -o "$APP_DIR/Contents/MacOS/SnapboardScreenshots"
 
 cp Resources/Info.plist "$APP_DIR/Contents/Info.plist"
@@ -45,11 +46,13 @@ done
 DEBUG_ARGS=()
 ALL_LANGUAGES=0
 VERIFY_TEXT=0
+VERIFY_ANNOTATIONS=0
 for arg in "$@"; do
   case "$arg" in
     --debug) DEBUG_ARGS=(--debug "$WORK_DIR/debug") ;;
     --all-languages) ALL_LANGUAGES=1 ;;
     --verify-text) VERIFY_TEXT=1 ;;
+    --verify-annotations) VERIFY_ANNOTATIONS=1 ;;
     *) echo "Unknown option: $arg" >&2; exit 2 ;;
   esac
 done
@@ -66,7 +69,9 @@ render() {
   run_harness "$lang" --out "$OUT_DIR" --suffix "$suffix"
 }
 
-if [[ "$VERIFY_TEXT" == 1 ]]; then
+if [[ "$VERIFY_ANNOTATIONS" == 1 ]]; then
+  run_harness en --verify-annotations "$WORK_DIR/verify-annotations"
+elif [[ "$VERIFY_TEXT" == 1 ]]; then
   # Checks that the editor preview draws text annotations like the exported image.
   run_harness en --verify-text "$WORK_DIR/verify-text"
 elif [[ "$ALL_LANGUAGES" == 1 ]]; then

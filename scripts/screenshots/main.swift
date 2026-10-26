@@ -26,6 +26,7 @@ let onlyShot = argument("--only")
 /// Compares the editor preview of a text annotation with the exported image and writes
 /// both crops to this directory.
 let verifyTextDirectory = argument("--verify-text").map { URL(fileURLWithPath: $0, isDirectory: true) }
+let verifyAnnotationsDirectory = argument("--verify-annotations").map { URL(fileURLWithPath: $0, isDirectory: true) }
 
 /// Pixels per point of the rendered windows.
 let renderScale: CGFloat = 2
@@ -59,12 +60,12 @@ func settle(_ seconds: TimeInterval = 0.4) {
 
 /// Renders `view` (and its subviews) offscreen at `renderScale`.
 @MainActor
-func snapshot(_ view: NSView) -> NSBitmapImageRep {
+func snapshot(_ view: NSView, scale: CGFloat = renderScale) -> NSBitmapImageRep {
     let bounds = view.bounds
     let rep = NSBitmapImageRep(
         bitmapDataPlanes: nil,
-        pixelsWide: Int((bounds.width * renderScale).rounded()),
-        pixelsHigh: Int((bounds.height * renderScale).rounded()),
+        pixelsWide: Int((bounds.width * scale).rounded()),
+        pixelsHigh: Int((bounds.height * scale).rounded()),
         bitsPerSample: 8,
         samplesPerPixel: 4,
         hasAlpha: true,
@@ -355,6 +356,137 @@ func verifyTextAnnotation(outputDirectory: URL) throws -> Bool {
     return boxesMatch && mean < 4
 }
 
+// MARK: - All-tool preview and frozen export regression check
+
+/// High-frequency synthetic content makes a gray placeholder or unpixelated source fail.
+@MainActor
+func annotationSource(size: CGSize) -> NSImage {
+    let context = CGContext(data: nil, width: Int(size.width), height: Int(size.height),
+        bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpace(name: CGColorSpace.sRGB)!,
+        bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+    context.setFillColor(NSColor.white.cgColor)
+    context.fill(CGRect(origin: .zero, size: size))
+    for y in stride(from: 0, to: Int(size.height), by: 6) {
+        for x in stride(from: 0, to: Int(size.width), by: 6) {
+            context.setFillColor(NSColor(srgbRed: CGFloat((x * 17 + y * 31) % 180) / 255,
+                green: CGFloat((x * 7) % 180) / 255, blue: CGFloat((y * 13) % 180) / 255, alpha: 1).cgColor)
+            context.fill(CGRect(x: x, y: y, width: 3, height: 3))
+        }
+    }
+    NSGraphicsContext.saveGraphicsState()
+    NSGraphicsContext.current = NSGraphicsContext(cgContext: context, flipped: false)
+    NSAttributedString(string: "Account 1234", attributes: [
+        .font: NSFont.boldSystemFont(ofSize: max(12, size.width / 100)),
+        .foregroundColor: NSColor.black,
+        .backgroundColor: NSColor.white
+    ]).draw(at: CGPoint(x: size.width * 0.3, y: size.height * 0.5))
+    NSGraphicsContext.restoreGraphicsState()
+    return NSImage(cgImage: context.makeImage()!, size: CGSize(width: size.width / 2, height: size.height / 2))
+}
+
+/// Compare every changed pixel, allowing only rasterization differences within one pixel.
+/// Unlike a bounding-box-only check this catches wrong stroke widths and arrow interiors.
+func annotationsMatch(clean: Pixels, exported: Pixels, preview: Pixels, pixelated: Bool) -> Bool {
+    guard clean.width == preview.width, clean.height == preview.height else { return false }
+    var changed = 0
+    for y in 0..<clean.height {
+        for x in 0..<clean.width {
+            let exportChanged = clean.difference(to: exported, x: x, y: y) > 24
+            let previewChanged = clean.difference(to: preview, x: x, y: y) > 24
+            guard exportChanged || previewChanged else { continue }
+            changed += 1
+            if exported.difference(to: preview, x: x, y: y) <= 8 { continue }
+            if pixelated { return false }
+            // Symmetric color matching within ±1 px, not a global alignment adjustment.
+            var forward = false, backward = false
+            for dy in -1...1 {
+                for dx in -1...1 {
+                    let xx = x + dx, yy = y + dy
+                    guard xx >= 0, yy >= 0, xx < clean.width, yy < clean.height else { continue }
+                    forward = forward || exported.difference(to: preview, x: x, y: y, offsetX: dx, offsetY: dy) <= 24
+                    backward = backward || preview.difference(to: exported, x: x, y: y, offsetX: dx, offsetY: dy) <= 24
+                }
+            }
+            if !forward || !backward { return false }
+        }
+    }
+    return changed > 0
+}
+
+@MainActor
+func verifyAnnotations(outputDirectory: URL) throws -> Bool {
+    let legacy = LegacyAnnotationRenderer()
+    var success = true
+    for size in [CGSize(width: 400, height: 300), CGSize(width: 3000, height: 2000)] {
+        let image = annotationSource(size: size)
+        let cleanRep = NSBitmapImageRep(cgImage: image.cgImage(forProposedRect: nil, context: nil, hints: nil)!)
+        let clean = Pixels(cleanRep)
+        for width in [CGFloat(2), 4, 7] {
+            for tool in AnnotationTool.allCases {
+                let item = AnnotationItem(tool: tool, startPoint: CGPoint(x: 0.2, y: 0.3),
+                    endPoint: CGPoint(x: 0.7, y: 0.75),
+                    points: [CGPoint(x: 0.2, y: 0.3), CGPoint(x: 0.4, y: 0.6), CGPoint(x: 0.7, y: 0.75)],
+                    color: .red, lineWidth: width, text: "Private 1234", stepNumber: 12)
+                // Mixed/overlapping annotations ensure blur is always below vectors.
+                var overlap = item
+                overlap.startPoint = CGPoint(x: 0.4, y: 0.45)
+                overlap.endPoint = CGPoint(x: 0.85, y: 0.85)
+                let annotations = tool == .blur ? [item, overlap,
+                    AnnotationItem(tool: .rectangle, startPoint: item.startPoint,
+                        endPoint: item.endPoint, color: .blue, lineWidth: width)] : [item]
+                let name = "\(Int(size.width))x\(Int(size.height))-\(tool.rawValue)-\(Int(width))"
+                guard let exported = ImageRendererService.shared.render(image: image, annotations: annotations),
+                      let baseline = legacy.render(image: image, annotations: annotations),
+                      let exportCG = exported.cgImage(forProposedRect: nil, context: nil, hints: nil),
+                      let baselineCG = baseline.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+                    print("FAIL \(name): rendering failed"); success = false; continue
+                }
+                let exportRep = NSBitmapImageRep(cgImage: exportCG)
+                let baselineRep = NSBitmapImageRep(cgImage: baselineCG)
+                let exportPixels = Pixels(exportRep)
+                let exportUnchanged = exportPixels.data == Pixels(baselineRep).data
+                let model = EditorViewModel(image: image)
+                model.annotations = annotations
+                // This is the actual editor canvas, tested both native and fitted. Rendering
+                // at image-pixel scale undoes ONLY the canvas scale, preserving the ±1 px AC.
+                let hosting = NSHostingView(rootView: AnnotationCanvas(viewModel: model).environment(\.displayScale, renderScale))
+                hosting.frame = CGRect(origin: .zero, size: image.size)
+                let window = ActiveLookingWindow(contentRect: hosting.frame, styleMask: .borderless,
+                                                 backing: .buffered, defer: false)
+                window.isReleasedWhenClosed = false
+                window.contentView = hosting
+                window.appearance = NSAppearance(named: .aqua)
+                hosting.layoutSubtreeIfNeeded()
+                settle(0.1)
+                // Artifacts preserve an independent before/after export and preview for review.
+                try writePNG(baselineRep, to: outputDirectory.appendingPathComponent("\(name)-before.png"))
+                try writePNG(exportRep, to: outputDirectory.appendingPathComponent("\(name)-export.png"))
+                var matches = true
+                for (mode, canvasSize) in [
+                    ("native", image.size),
+                    ("fitted", CGSize(width: 160, height: 160 * size.height / size.width))
+                ] {
+                    hosting.rootView = AnnotationCanvas(viewModel: model).environment(\.displayScale, size.width / canvasSize.width)
+                    window.setContentSize(canvasSize)
+                    hosting.frame = CGRect(origin: .zero, size: canvasSize)
+                    hosting.layoutSubtreeIfNeeded()
+                    settle(0.1)
+                    let previewRep = snapshot(hosting, scale: size.width / canvasSize.width)
+                    let modeMatches = annotationsMatch(clean: clean, exported: exportPixels,
+                        preview: Pixels(previewRep), pixelated: tool == .blur)
+                    try writePNG(previewRep, to: outputDirectory.appendingPathComponent("\(name)-preview-\(mode).png"))
+                    print("  \(mode): \(modeMatches ? "PASS" : "FAIL")")
+                    matches = matches && modeMatches
+                }
+                print("\(exportUnchanged && matches ? "PASS" : "FAIL") \(name): export unchanged=\(exportUnchanged), preview=\(matches)")
+                success = success && exportUnchanged && matches
+                window.close()
+            }
+        }
+    }
+    return success
+}
+
 // MARK: - Main
 
 let currentLanguage = Bundle.main.preferredLocalizations.first ?? "en"
@@ -374,6 +506,10 @@ MainActor.assumeIsolated {
         if let verifyTextDirectory {
             try FileManager.default.createDirectory(at: verifyTextDirectory, withIntermediateDirectories: true)
             exit(try verifyTextAnnotation(outputDirectory: verifyTextDirectory) ? 0 : 1)
+        }
+        if let verifyAnnotationsDirectory {
+            try FileManager.default.createDirectory(at: verifyAnnotationsDirectory, withIntermediateDirectories: true)
+            exit(try verifyAnnotations(outputDirectory: verifyAnnotationsDirectory) ? 0 : 1)
         }
         if onlyShot == nil || onlyShot == "editor" { try renderEditor() }
         if onlyShot == nil || onlyShot == "settings" { try renderSettings() }

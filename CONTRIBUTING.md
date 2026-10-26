@@ -37,6 +37,24 @@ and draws a demo image instead of a real screenshot. It does not read or change 
 installed Snapboard. If your default SDK cannot compile SwiftUI, set `SDKROOT` to another macOS SDK.
 `--all-languages` renders every localization into `build/screenshots/languages/` for review, and
 `--verify-text` checks that the editor preview draws text annotations exactly like the exported image.
+`--verify-annotations` separately checks all eight tools at widths 2/4/7 on 400×300 and
+3000×2000 pixel images, both native and fitted, and compares exports pixel-for-pixel with
+the frozen pre-issue-#8 renderer. Before/export/preview PNGs are written to
+`build/screenshots/verify-annotations/`. `--verify-text` retains its existing check.
+
+Editor regression checks (run on the corresponding platform):
+```bash
+# macOS
+swift test --filter 'AnnotationPreviewTests|AnnotationRenderingRegressionTests|EditorExportTests'
+./scripts/screenshots/render.sh --verify-text
+./scripts/screenshots/render.sh --verify-annotations
+
+# Windows: dependency-free regression runner, or annotation-only checks with PNG artifacts
+dotnet run --project windows/Tests/Snapboard.Windows.Tests.csproj -c Release
+dotnet run --project windows/Tests/Snapboard.Windows.Tests.csproj -c Release -- --verify-annotations build/annotations-windows
+```
+The frozen renderers in `scripts/screenshots/` and `windows/Tests/` are test oracles from
+`2306fc6`; do not update their geometry or styles when changing the production renderer.
 
 ## Pull Requests & Issues
 - Keep PRs focused and well-scoped.

@@ -13,9 +13,14 @@ namespace Snapboard.Tests;
 internal static class RegressionTests
 {
     [STAThread]
-    private static int Main()
+    private static int Main(string[] args)
     {
         ApplicationConfiguration.Initialize();
+        if (args.Length == 2 && args[0] == "--verify-annotations")
+        {
+            try { AnnotationExports(args[1]); PixelationPreview(); return 0; }
+            catch (Exception ex) { Console.Error.WriteLine(ex); return 1; }
+        }
         var tests = new (string Name, Action Run)[]
         {
             ("Clipboard lock: three attempts and two 100 ms intervals", ClipboardLocked),
@@ -25,7 +30,9 @@ internal static class RegressionTests
             ("PNG/JPEG filters produce actual signatures and full dimensions", ExportFormats),
             ("Window bounds respect small and negative-origin working areas", WindowBounds),
             ("Fit and scrolled 100% coordinates reach all image corners", ViewCoordinates),
-            ("Large editor fits screen, scrolls, and exports annotations at full size", LargeEditor)
+            ("Large editor fits screen, scrolls, and exports annotations at full size", LargeEditor),
+            ("Completed pixelation matches export, caches, and follows undo/redo", PixelationPreview),
+            ("All-tool exports stay identical to the frozen pre-fix renderer", () => AnnotationExports(null))
         };
         int failed = 0;
         foreach (var test in tests)
@@ -182,6 +189,156 @@ internal static class RegressionTests
 
     private static object Field(object target, string name) => target.GetType()
         .GetField(name, BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(target)!;
+
+    private static void PixelationPreview()
+    {
+        using var image = new Bitmap(400, 300);
+        for (int y = 0; y < image.Height; y++)
+            for (int x = 0; x < image.Width; x++)
+                image.SetPixel(x, y, Color.FromArgb((x * 17 + y * 31) % 256, x % 256, y % 256));
+        using var editor = new EditorForm(image);
+        var items = (List<Annotation>)Field(editor, "annotations");
+        // Overlap order matters: Windows samples the already pixelated result.
+        items.Add(new Annotation { Tool = ToolType.Blur, Start = new Point(21, 32), End = new Point(250, 220) });
+        items.Add(new Annotation { Tool = ToolType.Blur, Start = new Point(110, 90), End = new Point(380, 290) });
+        items.Add(new Annotation { Tool = ToolType.Blur, Start = new Point(-10, -5), End = new Point(12, 15) });
+        items.Add(new Annotation { Tool = ToolType.Blur, Start = new Point(1, 1), End = new Point(2, 2) });
+        using var exported = (Bitmap)Invoke(editor, "RenderFinalImage")!;
+        // This assertion uses only pre-existing APIs and fails on the original gray box.
+        var canvas = (Panel)Field(editor, "canvasPanel");
+        canvas.Dock = DockStyle.None;
+        canvas.Size = image.Size;
+        using var painted = new Bitmap(image.Width, image.Height);
+        canvas.DrawToBitmap(painted, new Rectangle(Point.Empty, image.Size));
+        AssertPixels(exported, painted);
+
+        Bitmap Preview() => (Bitmap)Invoke(editor, "GetPixelatedPreview")!;
+        Bitmap cached = Preview();
+        AssertPixels(exported, cached);
+        Equal(true, ReferenceEquals(cached, Preview()));
+
+        Point previousEnd = items[0].End;
+        items[0].End = new Point(180, 170);
+        using (var movedExport = (Bitmap)Invoke(editor, "RenderFinalImage")!) AssertPixels(movedExport, Preview());
+        items[0].End = previousEnd;
+        cached = Preview();
+        AssertPixels(exported, cached);
+
+        // Independent pre-fix algorithm checks block size, clipping and overlap.
+        using var legacy = LegacyAnnotationRenderer.Render(image, items.ToArray());
+        AssertPixels(legacy, exported);
+
+        Invoke(editor, "SaveUndo");
+        items.Add(new Annotation { Tool = ToolType.Rectangle, Start = new Point(10, 10),
+            End = new Point(50, 50), Color = Color.Red, LineWidth = 4 });
+        Equal(true, ReferenceEquals(cached, Preview()));
+        Invoke(editor, "Undo");
+        AssertPixels(exported, Preview());
+        Invoke(editor, "SaveUndo");
+        ((List<Annotation>)Field(editor, "annotations")).Clear();
+        AssertPixels(image, Preview());
+        Invoke(editor, "Undo");
+        AssertPixels(exported, Preview());
+        Invoke(editor, "Redo");
+        AssertPixels(image, Preview());
+    }
+
+    private static object? Invoke(object target, string name) => target.GetType()
+        .GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(target, null);
+
+    private static void AnnotationExports(string? outputDirectory)
+    {
+        if (outputDirectory != null) Directory.CreateDirectory(outputDirectory);
+        foreach (var size in new[] { new Size(400, 300), new Size(3000, 2000) })
+        {
+            using var image = new Bitmap(size.Width, size.Height);
+            using (var g = Graphics.FromImage(image))
+            {
+                g.Clear(Color.White);
+                for (int y = 0; y < size.Height; y += 6)
+                    for (int x = 0; x < size.Width; x += 6)
+                    {
+                        using var brush = new SolidBrush(Color.FromArgb((x * 17 + y * 31) % 180,
+                            (x * 7) % 180, (y * 13) % 180));
+                        g.FillRectangle(brush, x, y, 3, 3);
+                    }
+                using var font = new Font("Segoe UI", Math.Max(12, size.Width / 100), FontStyle.Bold);
+                g.DrawString("Account 1234", font, Brushes.Black, size.Width * 0.3f, size.Height * 0.5f);
+            }
+            using var editor = new EditorForm(image);
+            var items = (List<Annotation>)Field(editor, "annotations");
+            foreach (int width in new[] { 2, 4, 7 })
+                foreach (ToolType tool in Enum.GetValues<ToolType>())
+                {
+                    items.Clear();
+                    var item = new Annotation { Tool = tool, Start = new Point(size.Width / 5, size.Height * 3 / 10),
+                        End = new Point(size.Width * 7 / 10, size.Height * 3 / 4),
+                        Color = Color.FromArgb(255, 59, 48), LineWidth = width, Text = "Private 1234", StepNumber = 12 };
+                    item.Points.AddRange(new[] { item.Start, new Point(size.Width * 2 / 5, size.Height * 3 / 5), item.End });
+                    items.Add(item);
+                    using var before = LegacyAnnotationRenderer.Render(image, items.ToArray());
+                    using var after = (Bitmap)Invoke(editor, "RenderFinalImage")!;
+                    string name = $"{size.Width}x{size.Height}-{tool}-{width}";
+                    if (outputDirectory != null)
+                    {
+                        before.Save(Path.Combine(outputDirectory, name + "-before.png"), System.Drawing.Imaging.ImageFormat.Png);
+                        after.Save(Path.Combine(outputDirectory, name + "-export.png"), System.Drawing.Imaging.ImageFormat.Png);
+                    }
+                    AssertPixels(before, after);
+                    if (tool == ToolType.Blur)
+                    {
+                        Bitmap preview = (Bitmap)Invoke(editor, "GetPixelatedPreview")!;
+                        if (outputDirectory != null)
+                            preview.Save(Path.Combine(outputDirectory, name + "-preview.png"), System.Drawing.Imaging.ImageFormat.Png);
+                        AssertPixels(after, preview);
+                        // Actual fitted paint must equal the equally fitted exported bitmap.
+                        var canvas = (Panel)Field(editor, "canvasPanel");
+                        canvas.Dock = DockStyle.None;
+                        canvas.Size = new Size(200, 150);
+                        using var painted = new Bitmap(canvas.Width, canvas.Height);
+                        canvas.DrawToBitmap(painted, new Rectangle(Point.Empty, canvas.Size));
+                        using var fittedExport = new Bitmap(canvas.Width, canvas.Height);
+                        using (var g = Graphics.FromImage(fittedExport))
+                        {
+                            g.Clear(Color.FromArgb(30, 30, 30));
+                            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                            RectangleF bounds = EditorGeometry.GetImageBounds(image.Size, canvas.ClientSize, true, Point.Empty);
+                            g.SetClip(bounds, System.Drawing.Drawing2D.CombineMode.Intersect);
+                            g.DrawImage(after, bounds, new RectangleF(PointF.Empty, image.Size), GraphicsUnit.Pixel);
+                        }
+                        if (outputDirectory != null)
+                            painted.Save(Path.Combine(outputDirectory, name + "-preview-fitted.png"), System.Drawing.Imaging.ImageFormat.Png);
+                        AssertPixels(fittedExport, painted);
+                    }
+                    Console.WriteLine($"PASS {name}: export unchanged");
+                }
+        }
+    }
+
+    private static void AssertPixels(Bitmap expected, Bitmap actual)
+    {
+        Equal(expected.Size, actual.Size);
+        var rect = new Rectangle(Point.Empty, expected.Size);
+        var a = expected.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+        try
+        {
+            var b = actual.LockBits(rect, System.Drawing.Imaging.ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+            try
+            {
+                var rowA = new byte[expected.Width * 4];
+                var rowB = new byte[rowA.Length];
+                for (int y = 0; y < expected.Height; y++)
+                {
+                    Marshal.Copy(IntPtr.Add(a.Scan0, y * a.Stride), rowA, 0, rowA.Length);
+                    Marshal.Copy(IntPtr.Add(b.Scan0, y * b.Stride), rowB, 0, rowB.Length);
+                    for (int i = 0; i < rowA.Length; i++)
+                        if (rowA[i] != rowB[i]) throw new Exception($"Pixel mismatch at {i / 4},{y}");
+                }
+            }
+            finally { actual.UnlockBits(b); }
+        }
+        finally { expected.UnlockBits(a); }
+    }
 
     private static void DrawWithMouse(Panel canvas, Point start, Point end)
     {

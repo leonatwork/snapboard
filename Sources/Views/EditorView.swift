@@ -4,11 +4,19 @@ import AppKit
 @MainActor
 final class EditorViewModel: ObservableObject {
     @Published var image: NSImage {
-        didSet { imagePixelSize = Self.pixelSize(of: image) }
+        didSet {
+            imagePixelSize = Self.pixelSize(of: image)
+            refreshPixelatedPreview(sourceChanged: true)
+        }
     }
     /// Pixel size of `image`, the coordinate space of the exported image.
     private(set) var imagePixelSize: CGSize
-    @Published var annotations: [AnnotationItem] = []
+    @Published var annotations: [AnnotationItem] = [] {
+        didSet { refreshPixelatedPreview() }
+    }
+    /// Source plus completed pixelations, below all vector annotations like the export.
+    @Published private(set) var pixelatedPreview: NSImage?
+    private var pixelationRects: [CGRect] = []
     @Published var undoStack: [[AnnotationItem]] = []
     @Published var redoStack: [[AnnotationItem]] = []
 
@@ -44,6 +52,16 @@ final class EditorViewModel: ObservableObject {
             return CGSize(width: cgImage.width, height: cgImage.height)
         }
         return image.size
+    }
+
+    private func refreshPixelatedPreview(sourceChanged: Bool = false) {
+        let blurItems = annotations.filter { $0.tool == .blur }
+        let rects = blurItems.map {
+            $0.cgRectInPixelSpace(width: Int(imagePixelSize.width), height: Int(imagePixelSize.height))
+        }
+        guard sourceChanged || rects != pixelationRects else { return }
+        pixelationRects = rects
+        pixelatedPreview = blurItems.isEmpty ? nil : ImageRendererService.shared.render(image: image, annotations: blurItems)
     }
 
     func startDrawing(at point: CGPoint, in size: CGSize) {
@@ -312,22 +330,8 @@ struct EditorView: View {
 
                     // Canvas Container with exact fitted dimensions
                     ZStack {
-                        // Original Screenshot
-                        Image(nsImage: viewModel.image)
-                            .resizable()
-                            .interpolation(.high)
+                        AnnotationCanvas(viewModel: viewModel)
                             .frame(width: canvasSize.width, height: canvasSize.height)
-
-                        // Vector Drawing Canvas
-                        Canvas { context, size in
-                            for item in viewModel.annotations {
-                                draw(item: item, in: &context, size: size)
-                            }
-                            if let draft = viewModel.currentDraft {
-                                draw(item: draft, in: &context, size: size)
-                            }
-                        }
-                        .frame(width: canvasSize.width, height: canvasSize.height)
                     }
                     .frame(width: canvasSize.width, height: canvasSize.height)
                     .clipShape(Rectangle())
@@ -427,85 +431,47 @@ struct EditorView: View {
         }
     }
 
+}
+
+/// The editor's fitted canvas, also rendered directly by the annotation harness.
+@MainActor
+struct AnnotationCanvas: View {
+    @ObservedObject var viewModel: EditorViewModel
+
+    var body: some View {
+        ZStack {
+            Image(nsImage: viewModel.pixelatedPreview ?? viewModel.image)
+                .resizable()
+                .interpolation(.high)
+            Canvas { context, size in
+                for item in viewModel.annotations where item.tool != .blur {
+                    draw(item: item, in: &context, size: size)
+                }
+                if let draft = viewModel.currentDraft {
+                    if draft.tool == .blur {
+                        let rect = CGRect(
+                            x: min(draft.startPoint.x, draft.endPoint.x) * size.width,
+                            y: min(draft.startPoint.y, draft.endPoint.y) * size.height,
+                            width: abs(draft.endPoint.x - draft.startPoint.x) * size.width,
+                            height: abs(draft.endPoint.y - draft.startPoint.y) * size.height
+                        )
+                        context.fill(Path(rect), with: .color(Color.gray.opacity(0.7)))
+                        context.stroke(Path(rect), with: .color(Color.white.opacity(0.9)),
+                                       style: StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
+                    } else {
+                        draw(item: draft, in: &context, size: size)
+                    }
+                }
+            }
+        }
+    }
+
     private func draw(item: AnnotationItem, in context: inout GraphicsContext, size: CGSize) {
-        let start = CGPoint(x: item.startPoint.x * size.width, y: item.startPoint.y * size.height)
-        let end = CGPoint(x: item.endPoint.x * size.width, y: item.endPoint.y * size.height)
-        let color = item.color.color
-        let strokeStyle = StrokeStyle(lineWidth: item.lineWidth, lineCap: .round, lineJoin: .round)
-
-        let rect = CGRect(
-            x: min(start.x, end.x),
-            y: min(start.y, end.y),
-            width: abs(end.x - start.x),
-            height: abs(end.y - start.y)
-        )
-
-        switch item.tool {
-        case .rectangle:
-            context.stroke(Path(roundedRect: rect, cornerRadius: item.lineWidth), with: .color(color), style: strokeStyle)
-
-        case .circle:
-            context.stroke(Path(ellipseIn: rect), with: .color(color), style: strokeStyle)
-
-        case .arrow:
-            var path = Path()
-            path.move(to: start)
-            path.addLine(to: end)
-            context.stroke(path, with: .color(color), style: strokeStyle)
-
-            let headLength = max(12.0, item.lineWidth * 3.5)
-            let angle = atan2(end.y - start.y, end.x - start.x)
-            let headAngle = CGFloat.pi / 6.0
-
-            let pt1 = CGPoint(
-                x: end.x - headLength * cos(angle - headAngle),
-                y: end.y - headLength * sin(angle - headAngle)
-            )
-            let pt2 = CGPoint(
-                x: end.x - headLength * cos(angle + headAngle),
-                y: end.y - headLength * sin(angle + headAngle)
-            )
-
-            var headPath = Path()
-            headPath.move(to: end)
-            headPath.addLine(to: pt1)
-            headPath.addLine(to: pt2)
-            headPath.closeSubpath()
-            context.fill(headPath, with: .color(color))
-
-        case .pen:
-            guard item.points.count > 1 else { break }
-            var path = Path()
-            let first = CGPoint(x: item.points[0].x * size.width, y: item.points[0].y * size.height)
-            path.move(to: first)
-            for pt in item.points.dropFirst() {
-                path.addLine(to: CGPoint(x: pt.x * size.width, y: pt.y * size.height))
-            }
-            context.stroke(path, with: .color(color), style: strokeStyle)
-
-        case .highlighter:
-            guard item.points.count > 1 else { break }
-            var path = Path()
-            let first = CGPoint(x: item.points[0].x * size.width, y: item.points[0].y * size.height)
-            path.move(to: first)
-            for pt in item.points.dropFirst() {
-                path.addLine(to: CGPoint(x: pt.x * size.width, y: pt.y * size.height))
-            }
-            context.stroke(
-                path,
-                with: .color(color.opacity(0.4)),
-                style: StrokeStyle(lineWidth: item.lineWidth * 3.5, lineCap: .square, lineJoin: .miter)
-            )
-
-        case .blur:
-            // High contrast frosted overlay representation in SwiftUI canvas
-            context.fill(Path(rect), with: .color(Color.gray.opacity(0.7)))
-            context.stroke(Path(rect), with: .color(Color.white.opacity(0.9)), style: StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
-
-        case .text:
-            // Same layout as the exported image, scaled from image pixels to the canvas.
-            let pixelSize = viewModel.imagePixelSize
-            guard let layout = TextAnnotationLayout(item: item, imagePixelSize: pixelSize) else { break }
+        let pixelSize = viewModel.imagePixelSize
+        guard pixelSize.width > 0, pixelSize.height > 0 else { return }
+        // Preserve the existing text preview path exactly.
+        if item.tool == .text {
+            guard let layout = TextAnnotationLayout(item: item, imagePixelSize: pixelSize) else { return }
             context.withCGContext { cgContext in
                 cgContext.scaleBy(x: size.width / pixelSize.width, y: size.height / pixelSize.height)
                 NSGraphicsContext.saveGraphicsState()
@@ -513,19 +479,16 @@ struct EditorView: View {
                 layout.draw(flipped: true)
                 NSGraphicsContext.restoreGraphicsState()
             }
-
-        case .stepNumber:
-            let radius = max(13.0, item.lineWidth * 3.2)
-            let badgeRect = CGRect(x: start.x - radius, y: start.y - radius, width: radius * 2, height: radius * 2)
-
-            context.fill(Path(ellipseIn: badgeRect), with: .color(color))
-            context.stroke(Path(ellipseIn: badgeRect), with: .color(.white), style: StrokeStyle(lineWidth: 1.5))
-
-            let numText = Text("\(item.stepNumber)")
-                .font(.system(size: radius * 1.1, weight: .bold))
-                .foregroundColor(.white)
-            let resolvedNum = context.resolve(numText)
-            context.draw(resolvedNum, at: start, anchor: .center)
+            return
+        }
+        context.withCGContext { cgContext in
+            cgContext.scaleBy(x: size.width / pixelSize.width, y: size.height / pixelSize.height)
+            cgContext.translateBy(x: 0, y: pixelSize.height)
+            cgContext.scaleBy(x: 1, y: -1)
+            NSGraphicsContext.saveGraphicsState()
+            NSGraphicsContext.current = NSGraphicsContext(cgContext: cgContext, flipped: false)
+            ImageRendererService.shared.drawAnnotation(item, pixelWidth: Int(pixelSize.width), pixelHeight: Int(pixelSize.height))
+            NSGraphicsContext.restoreGraphicsState()
         }
     }
 }

@@ -184,22 +184,14 @@ final class ImageRendererService {
         }
     }
 
-    private func drawAnnotation(_ item: AnnotationItem, pixelWidth: Int, pixelHeight: Int) {
+    /// Draws in image pixels, bottom-left origin. The preview only transforms this space.
+    func drawAnnotation(_ item: AnnotationItem, pixelWidth: Int, pixelHeight: Int) {
         let pW = CGFloat(pixelWidth)
         let pH = CGFloat(pixelHeight)
-
-        // Convert normalized top-down coordinates to CoreGraphics bottom-up coordinates
-        let start = CGPoint(x: item.startPoint.x * pW, y: (1.0 - item.startPoint.y) * pH)
-        let end = CGPoint(x: item.endPoint.x * pW, y: (1.0 - item.endPoint.y) * pH)
+        let layout = AnnotationLayout(item: item, imagePixelSize: CGSize(width: pW, height: pH))
         let color = item.color.nsColor
-        let lineWidth = max(2.0, item.lineWidth * (pW / 800.0))
-
-        let rect = CGRect(
-            x: min(start.x, end.x),
-            y: min(start.y, end.y),
-            width: abs(end.x - start.x),
-            height: abs(end.y - start.y)
-        )
+        let lineWidth = layout.lineWidth
+        let rect = layout.rect
 
         switch item.tool {
         case .rectangle:
@@ -215,7 +207,7 @@ final class ImageRendererService {
             path.stroke()
 
         case .arrow:
-            drawArrow(from: start, to: end, color: color, lineWidth: lineWidth)
+            drawArrow(layout: layout, color: color)
 
         case .pen:
             guard item.points.count > 1 else { break }
@@ -225,11 +217,9 @@ final class ImageRendererService {
             path.lineCapStyle = .round
             path.lineJoinStyle = .round
 
-            let first = CGPoint(x: item.points[0].x * pW, y: (1.0 - item.points[0].y) * pH)
-            path.move(to: first)
-            for pt in item.points.dropFirst() {
-                let current = CGPoint(x: pt.x * pW, y: (1.0 - pt.y) * pH)
-                path.line(to: current)
+            path.move(to: layout.points[0])
+            for point in layout.points.dropFirst() {
+                path.line(to: point)
             }
             path.stroke()
 
@@ -238,15 +228,13 @@ final class ImageRendererService {
             let hlColor = color.withAlphaComponent(0.4)
             hlColor.setStroke()
             let path = NSBezierPath()
-            path.lineWidth = lineWidth * 3.5
+            path.lineWidth = layout.highlighterWidth
             path.lineCapStyle = .square
             path.lineJoinStyle = .miter
 
-            let first = CGPoint(x: item.points[0].x * pW, y: (1.0 - item.points[0].y) * pH)
-            path.move(to: first)
-            for pt in item.points.dropFirst() {
-                let current = CGPoint(x: pt.x * pW, y: (1.0 - pt.y) * pH)
-                path.line(to: current)
+            path.move(to: layout.points[0])
+            for point in layout.points.dropFirst() {
+                path.line(to: point)
             }
             path.stroke()
 
@@ -255,19 +243,18 @@ final class ImageRendererService {
                 .draw(flipped: false)
 
         case .stepNumber:
-            let radius = max(14.0, lineWidth * 3.5)
-            let badgeRect = CGRect(x: start.x - radius, y: start.y - radius, width: radius * 2, height: radius * 2)
+            let badgeRect = layout.badgeRect
 
             color.setFill()
             let circle = NSBezierPath(ovalIn: badgeRect)
             circle.fill()
 
             NSColor.white.setStroke()
-            circle.lineWidth = max(1.5, radius * 0.1)
+            circle.lineWidth = layout.badgeBorderWidth
             circle.stroke()
 
             let numStr = "\(item.stepNumber)"
-            let font = NSFont.boldSystemFont(ofSize: radius * 1.1)
+            let font = NSFont.boldSystemFont(ofSize: layout.badgeFontSize)
             let attributes: [NSAttributedString.Key: Any] = [
                 .font: font,
                 .foregroundColor: NSColor.white
@@ -285,36 +272,65 @@ final class ImageRendererService {
         }
     }
 
-    private func drawArrow(from start: CGPoint, to end: CGPoint, color: NSColor, lineWidth: CGFloat) {
+    private func drawArrow(layout: AnnotationLayout, color: NSColor) {
         color.setStroke()
         color.setFill()
 
         let path = NSBezierPath()
-        path.lineWidth = lineWidth
+        path.lineWidth = layout.lineWidth
         path.lineCapStyle = .round
-        path.move(to: start)
-        path.line(to: end)
+        path.move(to: layout.start)
+        path.line(to: layout.end)
         path.stroke()
 
-        let headLength = max(14.0, lineWidth * 3.5)
-        let headAngle = CGFloat.pi / 6.0 // 30 deg
-        let angle = atan2(end.y - start.y, end.x - start.x)
-
-        let pt1 = CGPoint(
-            x: end.x - headLength * cos(angle - headAngle),
-            y: end.y - headLength * sin(angle - headAngle)
-        )
-        let pt2 = CGPoint(
-            x: end.x - headLength * cos(angle + headAngle),
-            y: end.y - headLength * sin(angle + headAngle)
-        )
-
         let headPath = NSBezierPath()
-        headPath.move(to: end)
-        headPath.line(to: pt1)
-        headPath.line(to: pt2)
+        headPath.move(to: layout.end)
+        for point in layout.arrowHeadPoints {
+            headPath.line(to: point)
+        }
         headPath.close()
         headPath.fill()
+    }
+}
+
+/// Pure geometry/style values in image pixels. Bottom-left origin intentionally matches
+/// the existing export arithmetic exactly (including floating-point operation order).
+struct AnnotationLayout {
+    let start: CGPoint
+    let end: CGPoint
+    let points: [CGPoint]
+    let rect: CGRect
+    let lineWidth: CGFloat
+
+    var highlighterWidth: CGFloat { lineWidth * 3.5 }
+    var arrowHeadLength: CGFloat { max(14.0, lineWidth * 3.5) }
+    var badgeRadius: CGFloat { max(14.0, lineWidth * 3.5) }
+    var badgeBorderWidth: CGFloat { max(1.5, badgeRadius * 0.1) }
+    var badgeFontSize: CGFloat { badgeRadius * 1.1 }
+    var badgeRect: CGRect {
+        CGRect(x: start.x - badgeRadius, y: start.y - badgeRadius,
+               width: badgeRadius * 2, height: badgeRadius * 2)
+    }
+
+    var arrowHeadPoints: [CGPoint] {
+        let angle = atan2(end.y - start.y, end.x - start.x)
+        let headAngle = CGFloat.pi / 6.0
+        return [angle - headAngle, angle + headAngle].map { direction in
+            CGPoint(x: end.x - arrowHeadLength * cos(direction),
+                    y: end.y - arrowHeadLength * sin(direction))
+        }
+    }
+
+    init(item: AnnotationItem, imagePixelSize: CGSize) {
+        func place(_ point: CGPoint) -> CGPoint {
+            CGPoint(x: point.x * imagePixelSize.width, y: (1.0 - point.y) * imagePixelSize.height)
+        }
+        start = place(item.startPoint)
+        end = place(item.endPoint)
+        points = item.points.map(place)
+        rect = CGRect(x: min(start.x, end.x), y: min(start.y, end.y),
+                      width: abs(end.x - start.x), height: abs(end.y - start.y))
+        lineWidth = max(2.0, item.lineWidth * (imagePixelSize.width / 800.0))
     }
 }
 
