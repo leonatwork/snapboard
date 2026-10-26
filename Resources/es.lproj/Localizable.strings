@@ -120,6 +120,12 @@
 /* Editor primary button */
 "editor.copyToClipboard" = "Copiar en el portapapeles (⌘C)";
 
+/* Editor export errors: title and localized descriptions; system write errors use localizedDescription */
+"editor.exportError.title" = "No se pudo exportar la imagen";
+"editor.exportError.rendering" = "No se pudo renderizar la imagen. Tus anotaciones siguen disponibles en el editor.";
+"editor.exportError.encoding" = "No se pudo codificar la imagen. Tus anotaciones siguen disponibles en el editor.";
+"editor.exportError.clipboard" = "No se pudo copiar la imagen en el portapapeles. Tus anotaciones siguen disponibles en el editor.";
+
 /* Title of the sheet that sets the annotation text */
 "editor.textPrompt.title" = "Definir texto de la anotación";
 

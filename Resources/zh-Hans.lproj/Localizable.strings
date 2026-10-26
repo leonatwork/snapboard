@@ -120,6 +120,12 @@
 /* Editor primary button */
 "editor.copyToClipboard" = "拷贝到剪贴板（⌘C）";
 
+/* Editor export errors: title and localized descriptions; system write errors use localizedDescription */
+"editor.exportError.title" = "无法导出图像";
+"editor.exportError.rendering" = "无法渲染图像。你的标注仍保留在编辑器中。";
+"editor.exportError.encoding" = "无法编码图像。你的标注仍保留在编辑器中。";
+"editor.exportError.clipboard" = "无法将图像拷贝到剪贴板。你的标注仍保留在编辑器中。";
+
 /* Title of the sheet that sets the annotation text */
 "editor.textPrompt.title" = "设置标注文字";
 

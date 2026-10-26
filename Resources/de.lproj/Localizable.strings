@@ -120,6 +120,12 @@
 /* Editor primary button */
 "editor.copyToClipboard" = "In Zwischenablage kopieren (⌘C)";
 
+/* Editor export errors: title and localized descriptions; system write errors use localizedDescription */
+"editor.exportError.title" = "Bild konnte nicht exportiert werden";
+"editor.exportError.rendering" = "Das Bild konnte nicht gerendert werden. Deine Anmerkungen sind weiterhin im Editor verfügbar.";
+"editor.exportError.encoding" = "Das Bild konnte nicht kodiert werden. Deine Anmerkungen sind weiterhin im Editor verfügbar.";
+"editor.exportError.clipboard" = "Das Bild konnte nicht in die Zwischenablage kopiert werden. Deine Anmerkungen sind weiterhin im Editor verfügbar.";
+
 /* Title of the sheet that sets the annotation text */
 "editor.textPrompt.title" = "Hinweistext festlegen";
 

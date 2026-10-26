@@ -120,6 +120,12 @@
 /* Editor primary button */
 "editor.copyToClipboard" = "Kopieer naar klembord (⌘C)";
 
+/* Editor export errors: title and localized descriptions; system write errors use localizedDescription */
+"editor.exportError.title" = "Afbeelding kon niet worden geëxporteerd";
+"editor.exportError.rendering" = "De afbeelding kon niet worden gerenderd. Je annotaties zijn nog beschikbaar in de editor.";
+"editor.exportError.encoding" = "De afbeelding kon niet worden gecodeerd. Je annotaties zijn nog beschikbaar in de editor.";
+"editor.exportError.clipboard" = "De afbeelding kon niet naar het klembord worden gekopieerd. Je annotaties zijn nog beschikbaar in de editor.";
+
 /* Title of the sheet that sets the annotation text */
 "editor.textPrompt.title" = "Stel annotatietekst in";
 

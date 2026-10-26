@@ -22,9 +22,21 @@ final class EditorViewModel: ObservableObject {
 
     var onClose: (() -> Void)?
 
-    init(image: NSImage) {
+    private let pasteboard: NSPasteboard
+    private let presentExportError: (Error) -> Void
+    private let chooseSaveURL: () -> URL?
+
+    init(
+        image: NSImage,
+        pasteboard: NSPasteboard = .general,
+        presentExportError: ((Error) -> Void)? = nil,
+        chooseSaveURL: (() -> URL?)? = nil
+    ) {
         self.image = image
         self.imagePixelSize = Self.pixelSize(of: image)
+        self.pasteboard = pasteboard
+        self.presentExportError = presentExportError ?? Self.showExportError
+        self.chooseSaveURL = chooseSaveURL ?? Self.showSavePanel
     }
 
     private static func pixelSize(of image: NSImage) -> CGSize {
@@ -128,32 +140,53 @@ final class EditorViewModel: ObservableObject {
     }
 
     func copyToClipboardAndClose() {
-        if let renderedImage = ImageRendererService.shared.render(image: image, annotations: annotations) {
-            NSPasteboard.general.clearContents()
-            NSPasteboard.general.writeObjects([renderedImage])
+        do {
+            let item = try renderForExport().pasteboardItem()
+            pasteboard.clearContents()
+            guard pasteboard.writeObjects([item]) else {
+                throw ImageExportError.clipboardFailed
+            }
 
             if AppState.shared.playSound {
                 NSSound(named: "Tink")?.play()
             }
+            onClose?()
+        } catch {
+            presentExportError(error)
         }
-        onClose?()
     }
 
     func saveAsFile() {
-        guard let renderedImage = ImageRendererService.shared.render(image: image, annotations: annotations),
-              let tiffData = renderedImage.tiffRepresentation,
-              let bitmap = NSBitmapImageRep(data: tiffData),
-              let pngData = bitmap.representation(using: .png, properties: [:]) else {
-            return
+        do {
+            let pngData = try renderForExport().pngData()
+            guard let url = chooseSaveURL() else { return }
+            try pngData.write(to: url)
+        } catch {
+            presentExportError(error)
         }
+    }
 
+    private func renderForExport() throws -> ImageExport {
+        guard let renderedImage = ImageRendererService.shared.render(image: image, annotations: annotations) else {
+            throw ImageExportError.renderingFailed
+        }
+        return try ImageExport(image: renderedImage)
+    }
+
+    private static func showSavePanel() -> URL? {
         let panel = NSSavePanel()
         panel.allowedContentTypes = [.png]
         panel.nameFieldStringValue = "Snapboard_\(Int(Date().timeIntervalSince1970)).png"
+        return panel.runModal() == .OK ? panel.url : nil
+    }
 
-        if panel.runModal() == .OK, let url = panel.url {
-            try? pngData.write(to: url)
-        }
+    private static func showExportError(_ error: Error) {
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = L10n.tr("editor.exportError.title")
+        alert.informativeText = error.localizedDescription
+        alert.addButton(withTitle: L10n.tr("common.ok"))
+        alert.runModal()
     }
 }
 
