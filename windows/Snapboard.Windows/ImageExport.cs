@@ -20,7 +20,7 @@ namespace Snapboard
 
             ImageCodecInfo jpeg = Array.Find(ImageCodecInfo.GetImageEncoders(),
                 codec => codec.FormatID == ImageFormat.Jpeg.Guid)
-                ?? throw new InvalidOperationException("Der JPEG-Encoder ist nicht verfügbar.");
+                ?? throw new InvalidOperationException(L10n.Get("windows.error.jpegEncoder"));
             using var parameters = new EncoderParameters(1);
             parameters.Param[0] = new EncoderParameter(Encoder.Quality, JpegQuality);
             image.Save(destination, jpeg, parameters);

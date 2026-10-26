@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="common.appName" xml:space="preserve"><value>Snapboard</value></data>
+  <data name="common.listSeparator" xml:space="preserve"><value>, </value></data>
+  <data name="common.ok" xml:space="preserve"><value>확인</value></data>
+  <data name="common.cancel" xml:space="preserve"><value>취소</value></data>
+  <data name="menu.about" xml:space="preserve"><value>ℹ️ Snapboard에 관하여</value></data>
+  <data name="menu.quit" xml:space="preserve"><value>Snapboard 종료</value></data>
+  <data name="editor.windowTitle" xml:space="preserve"><value>Snapboard 편집기</value></data>
+  <data name="editor.defaultText" xml:space="preserve"><value>메모</value></data>
+  <data name="editor.textPrompt.title" xml:space="preserve"><value>주석 텍스트 설정</value></data>
+  <data name="editor.textPrompt.placeholder" xml:space="preserve"><value>텍스트 입력…</value></data>
+  <data name="tool.rectangle" xml:space="preserve"><value>⬜ 사각형</value></data>
+  <data name="tool.circle" xml:space="preserve"><value>⭕ 원 / 타원</value></data>
+  <data name="tool.arrow" xml:space="preserve"><value>➡️ 화살표</value></data>
+  <data name="tool.pen" xml:space="preserve"><value>✏️ 자유 곡선 펜</value></data>
+  <data name="tool.highlighter" xml:space="preserve"><value>🖍️ 형광펜</value></data>
+  <data name="tool.blur" xml:space="preserve"><value>🌫️ 가리기 / 흐림</value></data>
+  <data name="tool.text" xml:space="preserve"><value>🔤 텍스트 상자</value></data>
+  <data name="tool.stepNumber" xml:space="preserve"><value>① 단계 번호</value></data>
+  <data name="color.red" xml:space="preserve"><value>빨강</value></data>
+  <data name="color.orange" xml:space="preserve"><value>주황</value></data>
+  <data name="color.yellow" xml:space="preserve"><value>노랑</value></data>
+  <data name="color.green" xml:space="preserve"><value>초록</value></data>
+  <data name="color.blue" xml:space="preserve"><value>파랑</value></data>
+  <data name="color.purple" xml:space="preserve"><value>보라</value></data>
+  <data name="color.black" xml:space="preserve"><value>검정</value></data>
+  <data name="color.white" xml:space="preserve"><value>흰색</value></data>
+  <data name="windows.menu.captureDirect" xml:space="preserve"><value>📷 영역 캡처 (Ctrl+Shift+1)</value></data>
+  <data name="windows.menu.captureEdit" xml:space="preserve"><value>✏️ 영역 캡처 및 편집 (Ctrl+Shift+2)</value></data>
+  <data name="windows.menu.autostart" xml:space="preserve"><value>Windows 시작 시 실행</value></data>
+  <data name="windows.shortcut.direct" xml:space="preserve"><value>Ctrl+Shift+1</value></data>
+  <data name="windows.shortcut.edit" xml:space="preserve"><value>Ctrl+Shift+2</value></data>
+  <data name="windows.statusItem.tooltip" xml:space="preserve"><value>Snapboard (Ctrl+Shift+1: 직접 / Ctrl+Shift+2: 편집기)</value></data>
+  <data name="windows.alreadyRunning" xml:space="preserve"><value>Snapboard가 이미 알림 영역(시스템 트레이)에서 실행 중입니다.</value></data>
+  <data name="windows.about.message" xml:space="preserve"><value>Windows 및 macOS용 Snapboard v{0}
+
+• Ctrl+Shift+1: 바로 클립보드로(클릭 없이)
+• Ctrl+Shift+2: 영역을 캡처하고 편집기 열기
+
+디스크에 임시 스크린샷 파일을 저장하지 않습니다.</value></data>
+  <data name="windows.error.restart" xml:space="preserve"><value>Snapboard를 종료해야 합니다. 애플리케이션을 다시 시작해 주세요.</value></data>
+  <data name="windows.error.continue" xml:space="preserve"><value>Snapboard를 계속 사용할 수 있습니다.</value></data>
+  <data name="windows.error.unexpected" xml:space="preserve"><value>예기치 않은 오류가 발생했습니다.
+{0}
+
+{1}</value></data>
+  <data name="windows.error.hotkeys" xml:space="preserve"><value>다음 키보드 단축키를 등록할 수 없습니다: {0}.
+다른 애플리케이션이 이미 사용하고 있을 수 있습니다. 알림 영역 메뉴에서 계속 캡처할 수 있습니다.</value></data>
+  <data name="windows.error.clipboardDirect" xml:space="preserve"><value>클립보드가 사용 중입니다. 3번 시도했지만 이미지를 복사할 수 없습니다. 다시 시도해 주세요.</value></data>
+  <data name="windows.error.clipboardEditor" xml:space="preserve"><value>클립보드가 사용 중입니다. 3번 시도했지만 이미지를 복사할 수 없습니다. 주석은 그대로 유지됩니다. 다시 시도해 주세요.</value></data>
+  <data name="windows.error.autostartRead" xml:space="preserve"><value>자동 시작 상태를 읽을 수 없습니다.
+
+{0}</value></data>
+  <data name="windows.error.autostartWrite" xml:space="preserve"><value>자동 시작 설정을 변경할 수 없습니다.
+
+{0}</value></data>
+  <data name="windows.error.autostartKey" xml:space="preserve"><value>자동 시작 레지스트리 키를 열 수 없습니다.</value></data>
+  <data name="windows.error.jpegEncoder" xml:space="preserve"><value>JPEG 인코더를 사용할 수 없습니다.</value></data>
+  <data name="windows.editor.undo" xml:space="preserve"><value>↩ 실행 취소 (Ctrl+Z)</value></data>
+  <data name="windows.editor.redo" xml:space="preserve"><value>↪ 다시 실행 (Ctrl+Y)</value></data>
+  <data name="windows.editor.copyToClipboard" xml:space="preserve"><value>📋 클립보드로 복사 (Ctrl+C)</value></data>
+  <data name="windows.editor.saveAs" xml:space="preserve"><value>💾 다른 이름으로 저장… (Ctrl+S)</value></data>
+  <data name="windows.editor.saveTitle" xml:space="preserve"><value>다른 이름으로 저장…</value></data>
+  <data name="windows.editor.actualSize" xml:space="preserve"><value>100 %</value></data>
+  <data name="windows.editor.actualSizeTooltip" xml:space="preserve"><value>화면에 맞추기와 스크롤 막대가 있는 100 % 보기 전환</value></data>
+  <data name="windows.editor.saveFilter" xml:space="preserve"><value>PNG 이미지 (*.png)|*.png|JPEG 이미지 (*.jpg)|*.jpg</value></data>
+  <data name="windows.editor.saveFileName" xml:space="preserve"><value>Snapboard_{0:yyyyMMdd_HHmmss}</value></data>
+  <data name="windows.capture.dimensions" xml:space="preserve"><value>{0} × {1} px</value></data>
+</root>

@@ -1,4 +1,4 @@
-# Windows regression tests — Issue #7
+# Windows regression tests — Issues #7 and #9
 
 The runner uses only the .NET SDK and the app project; no test packages or other
 dependencies are required. Run on Windows 10/11 with .NET 8:
@@ -72,3 +72,40 @@ single-instance mutex. Use test captures without sensitive contents.
    dimensions and annotation positions. Letterbox clicks must not add annotations;
    dragging out of the image clamps to its edge. Pixelation preview remains the
    existing placeholder; changing that preview is outside this issue.
+
+## Issue #9 — localization
+
+The runner additionally changes `CurrentUICulture` to en-US, de-DE, ja-JP and
+pl-PL, checks actual editor labels and annotation defaults, loads every satellite
+catalog without parent fallback, formats every resource and verifies fr-CA/zh-CN
+parent lookup. The About test reads the app assembly (not the test runner assembly)
+and verifies the displayed version. All culture changes are restored; these cases
+do not touch the Registry or clipboard.
+
+The Linux checker and its regression tests require Python 3, standard library only:
+
+```bash
+python3 -B scripts/check_windows_localizations.py
+python3 -B -m unittest discover -s scripts/tests -v
+```
+
+These tests ran red before adding resources (ten catalogs missing), then green.
+The Windows runner was extended before the UI fix, but neither its red nor green
+result was executed on the Linux host. See [the handover](../../docs/issue-9-handover.md).
+
+On Windows 10 **and** 11, set the display language to English, German, Japanese
+and Polish in turn, sign out/in if required, and restart the local app:
+
+1. Check the entire tray menu, tooltip, second-instance dialog, About dialog and
+   editor (tools, colors, Undo/Redo tooltips, zoom tooltip, Copy and Save). Polish
+   must use the English app resources. The About version must match the assembly
+   (`1.1.1` on this base).
+2. On a small screen and at 100/150/200 % DPI, resize the editor: translated labels
+   must remain readable and all toolbar actions reachable. The toolbar wraps.
+3. Open the text prompt. Check its title, prompt and OK/Cancel labels, initial
+   annotation text, Enter to accept, Escape/Cancel to discard, and retained text
+   on cancellation. Enter Japanese text and verify it is rendered in the annotation.
+4. Open Save As: check title and both format labels; cancel without writing a file.
+5. Repeat the clipboard, hotkey and startup error injections above, verifying the
+   translated app explanation and unchanged behavior. OS-provided file-dialog
+   controls, MessageBox OK and exception details use Windows/.NET's own language.

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="common.appName" xml:space="preserve"><value>Snapboard</value></data>
+  <data name="common.listSeparator" xml:space="preserve"><value>, </value></data>
+  <data name="common.ok" xml:space="preserve"><value>OK</value></data>
+  <data name="common.cancel" xml:space="preserve"><value>Annuleer</value></data>
+  <data name="menu.about" xml:space="preserve"><value>ℹ️ Over Snapboard</value></data>
+  <data name="menu.quit" xml:space="preserve"><value>Stop Snapboard</value></data>
+  <data name="editor.windowTitle" xml:space="preserve"><value>Snapboard-editor</value></data>
+  <data name="editor.defaultText" xml:space="preserve"><value>Opmerking</value></data>
+  <data name="editor.textPrompt.title" xml:space="preserve"><value>Stel annotatietekst in</value></data>
+  <data name="editor.textPrompt.placeholder" xml:space="preserve"><value>Voer tekst in…</value></data>
+  <data name="tool.rectangle" xml:space="preserve"><value>⬜ Rechthoek</value></data>
+  <data name="tool.circle" xml:space="preserve"><value>⭕ Cirkel / ellips</value></data>
+  <data name="tool.arrow" xml:space="preserve"><value>➡️ Pijl</value></data>
+  <data name="tool.pen" xml:space="preserve"><value>✏️ Pen uit de vrije hand</value></data>
+  <data name="tool.highlighter" xml:space="preserve"><value>🖍️ Markeerstift</value></data>
+  <data name="tool.blur" xml:space="preserve"><value>🌫️ Afschermen / vervagen</value></data>
+  <data name="tool.text" xml:space="preserve"><value>🔤 Tekstvak</value></data>
+  <data name="tool.stepNumber" xml:space="preserve"><value>① Stappenteller</value></data>
+  <data name="color.red" xml:space="preserve"><value>Rood</value></data>
+  <data name="color.orange" xml:space="preserve"><value>Oranje</value></data>
+  <data name="color.yellow" xml:space="preserve"><value>Geel</value></data>
+  <data name="color.green" xml:space="preserve"><value>Groen</value></data>
+  <data name="color.blue" xml:space="preserve"><value>Blauw</value></data>
+  <data name="color.purple" xml:space="preserve"><value>Paars</value></data>
+  <data name="color.black" xml:space="preserve"><value>Zwart</value></data>
+  <data name="color.white" xml:space="preserve"><value>Wit</value></data>
+  <data name="windows.menu.captureDirect" xml:space="preserve"><value>📷 Gebied vastleggen (Ctrl+Shift+1)</value></data>
+  <data name="windows.menu.captureEdit" xml:space="preserve"><value>✏️ Gebied vastleggen en bewerken (Ctrl+Shift+2)</value></data>
+  <data name="windows.menu.autostart" xml:space="preserve"><value>Uitvoeren bij het starten van Windows</value></data>
+  <data name="windows.shortcut.direct" xml:space="preserve"><value>Ctrl+Shift+1</value></data>
+  <data name="windows.shortcut.edit" xml:space="preserve"><value>Ctrl+Shift+2</value></data>
+  <data name="windows.statusItem.tooltip" xml:space="preserve"><value>Snapboard (Ctrl+Shift+1: Direct / Ctrl+Shift+2: Editor)</value></data>
+  <data name="windows.alreadyRunning" xml:space="preserve"><value>Snapboard is al actief in het systeemvak.</value></data>
+  <data name="windows.about.message" xml:space="preserve"><value>Snapboard v{0} voor Windows en macOS
+
+• Ctrl+Shift+1: direct naar het klembord (nul klikken)
+• Ctrl+Shift+2: gebied vastleggen en de editor openen
+
+Geen tijdelijke schermafbeeldingen op schijf.</value></data>
+  <data name="windows.error.restart" xml:space="preserve"><value>Snapboard moet worden afgesloten. Start de toepassing opnieuw.</value></data>
+  <data name="windows.error.continue" xml:space="preserve"><value>Je kunt Snapboard blijven gebruiken.</value></data>
+  <data name="windows.error.unexpected" xml:space="preserve"><value>Er is een onverwachte fout opgetreden.
+{0}
+
+{1}</value></data>
+  <data name="windows.error.hotkeys" xml:space="preserve"><value>Deze toetscombinaties konden niet worden geregistreerd: {0}.
+Een andere toepassing gebruikt ze mogelijk al. Vastleggen blijft beschikbaar via het menu in het systeemvak.</value></data>
+  <data name="windows.error.clipboardDirect" xml:space="preserve"><value>Het klembord is bezet. De afbeelding kon na 3 pogingen niet worden gekopieerd. Probeer het opnieuw.</value></data>
+  <data name="windows.error.clipboardEditor" xml:space="preserve"><value>Het klembord is bezet. De afbeelding kon na 3 pogingen niet worden gekopieerd. Je annotaties zijn nog beschikbaar. Probeer het opnieuw.</value></data>
+  <data name="windows.error.autostartRead" xml:space="preserve"><value>De status van automatisch starten kon niet worden gelezen.
+
+{0}</value></data>
+  <data name="windows.error.autostartWrite" xml:space="preserve"><value>Automatisch starten kon niet worden gewijzigd.
+
+{0}</value></data>
+  <data name="windows.error.autostartKey" xml:space="preserve"><value>De registersleutel voor automatisch starten kon niet worden geopend.</value></data>
+  <data name="windows.error.jpegEncoder" xml:space="preserve"><value>De JPEG-encoder is niet beschikbaar.</value></data>
+  <data name="windows.editor.undo" xml:space="preserve"><value>↩ Herstel (Ctrl+Z)</value></data>
+  <data name="windows.editor.redo" xml:space="preserve"><value>↪ Opnieuw (Ctrl+Y)</value></data>
+  <data name="windows.editor.copyToClipboard" xml:space="preserve"><value>📋 Kopieer naar klembord (Ctrl+C)</value></data>
+  <data name="windows.editor.saveAs" xml:space="preserve"><value>💾 Bewaar als… (Ctrl+S)</value></data>
+  <data name="windows.editor.saveTitle" xml:space="preserve"><value>Bewaar als…</value></data>
+  <data name="windows.editor.actualSize" xml:space="preserve"><value>100 %</value></data>
+  <data name="windows.editor.actualSizeTooltip" xml:space="preserve"><value>Wissel tussen passend en 100 % met schuifbalken</value></data>
+  <data name="windows.editor.saveFilter" xml:space="preserve"><value>PNG-afbeelding (*.png)|*.png|JPEG-afbeelding (*.jpg)|*.jpg</value></data>
+  <data name="windows.editor.saveFileName" xml:space="preserve"><value>Snapboard_{0:yyyyMMdd_HHmmss}</value></data>
+  <data name="windows.capture.dimensions" xml:space="preserve"><value>{0} × {1} px</value></data>
+</root>

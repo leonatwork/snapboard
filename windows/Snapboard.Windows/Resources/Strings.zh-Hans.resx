@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="common.appName" xml:space="preserve"><value>Snapboard</value></data>
+  <data name="common.listSeparator" xml:space="preserve"><value>、</value></data>
+  <data name="common.ok" xml:space="preserve"><value>好</value></data>
+  <data name="common.cancel" xml:space="preserve"><value>取消</value></data>
+  <data name="menu.about" xml:space="preserve"><value>ℹ️ 关于 Snapboard</value></data>
+  <data name="menu.quit" xml:space="preserve"><value>退出 Snapboard</value></data>
+  <data name="editor.windowTitle" xml:space="preserve"><value>Snapboard 编辑器</value></data>
+  <data name="editor.defaultText" xml:space="preserve"><value>注释</value></data>
+  <data name="editor.textPrompt.title" xml:space="preserve"><value>设置标注文字</value></data>
+  <data name="editor.textPrompt.placeholder" xml:space="preserve"><value>输入文字…</value></data>
+  <data name="tool.rectangle" xml:space="preserve"><value>⬜ 矩形</value></data>
+  <data name="tool.circle" xml:space="preserve"><value>⭕ 圆形 / 椭圆</value></data>
+  <data name="tool.arrow" xml:space="preserve"><value>➡️ 箭头</value></data>
+  <data name="tool.pen" xml:space="preserve"><value>✏️ 手绘笔</value></data>
+  <data name="tool.highlighter" xml:space="preserve"><value>🖍️ 荧光笔</value></data>
+  <data name="tool.blur" xml:space="preserve"><value>🌫️ 遮挡 / 模糊</value></data>
+  <data name="tool.text" xml:space="preserve"><value>🔤 文本框</value></data>
+  <data name="tool.stepNumber" xml:space="preserve"><value>① 步骤编号</value></data>
+  <data name="color.red" xml:space="preserve"><value>红色</value></data>
+  <data name="color.orange" xml:space="preserve"><value>橙色</value></data>
+  <data name="color.yellow" xml:space="preserve"><value>黄色</value></data>
+  <data name="color.green" xml:space="preserve"><value>绿色</value></data>
+  <data name="color.blue" xml:space="preserve"><value>蓝色</value></data>
+  <data name="color.purple" xml:space="preserve"><value>紫色</value></data>
+  <data name="color.black" xml:space="preserve"><value>黑色</value></data>
+  <data name="color.white" xml:space="preserve"><value>白色</value></data>
+  <data name="windows.menu.captureDirect" xml:space="preserve"><value>📷 截取区域 (Ctrl+Shift+1)</value></data>
+  <data name="windows.menu.captureEdit" xml:space="preserve"><value>✏️ 截取并编辑区域 (Ctrl+Shift+2)</value></data>
+  <data name="windows.menu.autostart" xml:space="preserve"><value>Windows 启动时运行</value></data>
+  <data name="windows.shortcut.direct" xml:space="preserve"><value>Ctrl+Shift+1</value></data>
+  <data name="windows.shortcut.edit" xml:space="preserve"><value>Ctrl+Shift+2</value></data>
+  <data name="windows.statusItem.tooltip" xml:space="preserve"><value>Snapboard (Ctrl+Shift+1: 直接 / Ctrl+Shift+2: 编辑器)</value></data>
+  <data name="windows.alreadyRunning" xml:space="preserve"><value>Snapboard 已在通知区域（系统托盘）运行。</value></data>
+  <data name="windows.about.message" xml:space="preserve"><value>适用于 Windows 和 macOS 的 Snapboard v{0}
+
+• Ctrl+Shift+1：直接存入剪贴板（无需点击）
+• Ctrl+Shift+2：截取区域并打开编辑器
+
+不在磁盘上保存临时截屏文件。</value></data>
+  <data name="windows.error.restart" xml:space="preserve"><value>Snapboard 必须关闭。请重新启动应用程序。</value></data>
+  <data name="windows.error.continue" xml:space="preserve"><value>你可以继续使用 Snapboard。</value></data>
+  <data name="windows.error.unexpected" xml:space="preserve"><value>发生了意外错误。
+{0}
+
+{1}</value></data>
+  <data name="windows.error.hotkeys" xml:space="preserve"><value>无法注册以下键盘快捷键：{0}。
+其他应用程序可能已在使用这些快捷键。仍可通过通知区域的菜单截屏。</value></data>
+  <data name="windows.error.clipboardDirect" xml:space="preserve"><value>剪贴板正忙。尝试 3 次后仍无法拷贝图像。请重试。</value></data>
+  <data name="windows.error.clipboardEditor" xml:space="preserve"><value>剪贴板正忙。尝试 3 次后仍无法拷贝图像。你的标注仍然保留。请重试。</value></data>
+  <data name="windows.error.autostartRead" xml:space="preserve"><value>无法读取自动启动状态。
+
+{0}</value></data>
+  <data name="windows.error.autostartWrite" xml:space="preserve"><value>无法更改自动启动设置。
+
+{0}</value></data>
+  <data name="windows.error.autostartKey" xml:space="preserve"><value>无法打开自动启动的注册表项。</value></data>
+  <data name="windows.error.jpegEncoder" xml:space="preserve"><value>JPEG 编码器不可用。</value></data>
+  <data name="windows.editor.undo" xml:space="preserve"><value>↩ 撤销 (Ctrl+Z)</value></data>
+  <data name="windows.editor.redo" xml:space="preserve"><value>↪ 重做 (Ctrl+Y)</value></data>
+  <data name="windows.editor.copyToClipboard" xml:space="preserve"><value>📋 拷贝到剪贴板 (Ctrl+C)</value></data>
+  <data name="windows.editor.saveAs" xml:space="preserve"><value>💾 另存为… (Ctrl+S)</value></data>
+  <data name="windows.editor.saveTitle" xml:space="preserve"><value>另存为…</value></data>
+  <data name="windows.editor.actualSize" xml:space="preserve"><value>100 %</value></data>
+  <data name="windows.editor.actualSizeTooltip" xml:space="preserve"><value>在适应窗口和带滚动条的 100 % 显示之间切换</value></data>
+  <data name="windows.editor.saveFilter" xml:space="preserve"><value>PNG 图像 (*.png)|*.png|JPEG 图像 (*.jpg)|*.jpg</value></data>
+  <data name="windows.editor.saveFileName" xml:space="preserve"><value>Snapboard_{0:yyyyMMdd_HHmmss}</value></data>
+  <data name="windows.capture.dimensions" xml:space="preserve"><value>{0} × {1} px</value></data>
+</root>

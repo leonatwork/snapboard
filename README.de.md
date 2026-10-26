@@ -68,7 +68,7 @@ Du kannst Snapboard direkt von GitHub herunterladen und ohne Terminal nutzen:
 - 🛡️ **Kein Festplattenmüll**: Arbeitet direkt im RAM, keine temporären oder dauerhaften Screenshot-Dateien auf der Festplatte.
 - 🪶 **Nativ & Leichtgewichtig**: Läuft dezent in der Menüleiste (macOS) bzw. im System Tray (Windows).
 - 🚀 **Autostart-Unterstützung**: Mit einem Klick beim Systemstart ausführen.
-- 🌍 **10 Sprachen**: Englisch, Deutsch, Französisch, Spanisch, Italienisch, Portugiesisch (Brasilien), Niederländisch, Japanisch, vereinfachtes Chinesisch und Koreanisch. Die macOS-App folgt der Systemsprache (die Windows-App ist derzeit nur auf Deutsch).
+- 🌍 **10 Sprachen auf macOS und Windows**: Englisch, Deutsch, Französisch, Spanisch, Italienisch, Portugiesisch (Brasilien), Niederländisch, Japanisch, vereinfachtes Chinesisch und Koreanisch. Beide Apps folgen der System-Anzeigesprache; Windows verwendet bei nicht unterstützten Sprachen Englisch.
 
 ---
 
@@ -111,6 +111,20 @@ Du kannst Snapboard direkt von GitHub herunterladen und ohne Terminal nutzen:
 cd windows
 dotnet publish Snapboard.Windows\Snapboard.Windows.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o bin\Release
 ```
+
+Die Windows-Übersetzungen liegen in `windows/Snapboard.Windows/Resources/Strings*.resx`.
+Benötigte macOS-Texte wurden einmalig übertragen; die Windows-Ressourcen werden
+danach unabhängig gepflegt, mit eigenen Keys für Windows-Kürzel und den Infobereich.
+Alle zehn Sprachdateien, Keys und .NET-Platzhalter lassen sich unter Linux oder
+Windows mit Python 3 (nur Standardbibliothek) vom Repository-Verzeichnis aus prüfen:
+
+```bash
+python3 -B scripts/check_windows_localizations.py
+python3 -B -m unittest discover -s scripts/tests -v
+```
+
+Bei Fehlern liefert die Prüfung einen Exitcode ungleich 0. Windows-Laufzeittests
+und manuelle Sprachprüfungen stehen in [windows/Tests/README.md](windows/Tests/README.md).
 
 ---
 

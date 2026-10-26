@@ -68,7 +68,7 @@ You can download Snapboard straight from GitHub and use it without touching a te
 - 🛡️ **No disk clutter**: works entirely in memory — no temporary or leftover screenshot files.
 - 🪶 **Native & lightweight**: sits quietly in the menu bar (macOS) or system tray (Windows).
 - 🚀 **Launch at login**: one click to start with the system.
-- 🌍 **10 languages**: English, German, French, Spanish, Italian, Portuguese (Brazil), Dutch, Japanese, Simplified Chinese and Korean. The macOS app follows your system language (the Windows app is currently German only).
+- 🌍 **10 languages on macOS and Windows**: English, German, French, Spanish, Italian, Portuguese (Brazil), Dutch, Japanese, Simplified Chinese and Korean. Both apps follow your system display language; Windows falls back to English for unsupported languages.
 
 ---
 
@@ -111,6 +111,20 @@ You can download Snapboard straight from GitHub and use it without touching a te
 cd windows
 dotnet publish Snapboard.Windows\Snapboard.Windows.csproj -c Release -r win-x64 --self-contained false -p:PublishSingleFile=true -o bin\Release
 ```
+
+Windows translations live in `windows/Snapboard.Windows/Resources/Strings*.resx`.
+Used macOS strings were transferred once; the Windows catalogs are now maintained
+independently, with separate keys for Windows shortcuts and the notification area.
+Validate all ten catalogs, keys and .NET placeholders on Linux or Windows with
+Python 3 (standard library only), from the repository root:
+
+```bash
+python3 -B scripts/check_windows_localizations.py
+python3 -B -m unittest discover -s scripts/tests -v
+```
+
+The checker exits nonzero on errors. Windows runtime regression tests and manual
+language checks are documented in [windows/Tests/README.md](windows/Tests/README.md).
 
 ---
 

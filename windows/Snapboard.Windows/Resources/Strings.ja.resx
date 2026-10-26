@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="common.appName" xml:space="preserve"><value>Snapboard</value></data>
+  <data name="common.listSeparator" xml:space="preserve"><value>、</value></data>
+  <data name="common.ok" xml:space="preserve"><value>OK</value></data>
+  <data name="common.cancel" xml:space="preserve"><value>キャンセル</value></data>
+  <data name="menu.about" xml:space="preserve"><value>ℹ️ Snapboardについて</value></data>
+  <data name="menu.quit" xml:space="preserve"><value>Snapboardを終了</value></data>
+  <data name="editor.windowTitle" xml:space="preserve"><value>Snapboard エディタ</value></data>
+  <data name="editor.defaultText" xml:space="preserve"><value>メモ</value></data>
+  <data name="editor.textPrompt.title" xml:space="preserve"><value>注釈テキストを設定</value></data>
+  <data name="editor.textPrompt.placeholder" xml:space="preserve"><value>テキストを入力…</value></data>
+  <data name="tool.rectangle" xml:space="preserve"><value>⬜ 四角形</value></data>
+  <data name="tool.circle" xml:space="preserve"><value>⭕ 円 / 楕円</value></data>
+  <data name="tool.arrow" xml:space="preserve"><value>➡️ 矢印</value></data>
+  <data name="tool.pen" xml:space="preserve"><value>✏️ フリーハンドペン</value></data>
+  <data name="tool.highlighter" xml:space="preserve"><value>🖍️ 蛍光ペン</value></data>
+  <data name="tool.blur" xml:space="preserve"><value>🌫️ 黒塗り / ぼかし</value></data>
+  <data name="tool.text" xml:space="preserve"><value>🔤 テキストボックス</value></data>
+  <data name="tool.stepNumber" xml:space="preserve"><value>① ステップ番号</value></data>
+  <data name="color.red" xml:space="preserve"><value>赤</value></data>
+  <data name="color.orange" xml:space="preserve"><value>オレンジ</value></data>
+  <data name="color.yellow" xml:space="preserve"><value>黄</value></data>
+  <data name="color.green" xml:space="preserve"><value>緑</value></data>
+  <data name="color.blue" xml:space="preserve"><value>青</value></data>
+  <data name="color.purple" xml:space="preserve"><value>紫</value></data>
+  <data name="color.black" xml:space="preserve"><value>黒</value></data>
+  <data name="color.white" xml:space="preserve"><value>白</value></data>
+  <data name="windows.menu.captureDirect" xml:space="preserve"><value>📷 範囲を撮影 (Ctrl+Shift+1)</value></data>
+  <data name="windows.menu.captureEdit" xml:space="preserve"><value>✏️ 範囲を撮影して編集 (Ctrl+Shift+2)</value></data>
+  <data name="windows.menu.autostart" xml:space="preserve"><value>Windows起動時に実行</value></data>
+  <data name="windows.shortcut.direct" xml:space="preserve"><value>Ctrl+Shift+1</value></data>
+  <data name="windows.shortcut.edit" xml:space="preserve"><value>Ctrl+Shift+2</value></data>
+  <data name="windows.statusItem.tooltip" xml:space="preserve"><value>Snapboard (Ctrl+Shift+1: 直接 / Ctrl+Shift+2: エディタ)</value></data>
+  <data name="windows.alreadyRunning" xml:space="preserve"><value>Snapboardは既に通知領域（システムトレイ）で実行中です。</value></data>
+  <data name="windows.about.message" xml:space="preserve"><value>WindowsとmacOS用 Snapboard v{0}
+
+• Ctrl+Shift+1: 直接クリップボードへ（クリック不要）
+• Ctrl+Shift+2: 範囲を撮影してエディタを開く
+
+一時的なスクリーンショットファイルはディスクに保存しません。</value></data>
+  <data name="windows.error.restart" xml:space="preserve"><value>Snapboardを終了する必要があります。アプリケーションを再起動してください。</value></data>
+  <data name="windows.error.continue" xml:space="preserve"><value>Snapboardを引き続き使用できます。</value></data>
+  <data name="windows.error.unexpected" xml:space="preserve"><value>予期しないエラーが発生しました。
+{0}
+
+{1}</value></data>
+  <data name="windows.error.hotkeys" xml:space="preserve"><value>次のキーボードショートカットを登録できませんでした: {0}。
+別のアプリケーションが使用している可能性があります。通知領域のメニューから引き続き撮影できます。</value></data>
+  <data name="windows.error.clipboardDirect" xml:space="preserve"><value>クリップボードは使用中です。3回試行しましたが画像をコピーできませんでした。もう一度お試しください。</value></data>
+  <data name="windows.error.clipboardEditor" xml:space="preserve"><value>クリップボードは使用中です。3回試行しましたが画像をコピーできませんでした。注釈は保持されています。もう一度お試しください。</value></data>
+  <data name="windows.error.autostartRead" xml:space="preserve"><value>自動起動の状態を読み取れませんでした。
+
+{0}</value></data>
+  <data name="windows.error.autostartWrite" xml:space="preserve"><value>自動起動の設定を変更できませんでした。
+
+{0}</value></data>
+  <data name="windows.error.autostartKey" xml:space="preserve"><value>自動起動のレジストリキーを開けませんでした。</value></data>
+  <data name="windows.error.jpegEncoder" xml:space="preserve"><value>JPEGエンコーダーを利用できません。</value></data>
+  <data name="windows.editor.undo" xml:space="preserve"><value>↩ 元に戻す (Ctrl+Z)</value></data>
+  <data name="windows.editor.redo" xml:space="preserve"><value>↪ やり直す (Ctrl+Y)</value></data>
+  <data name="windows.editor.copyToClipboard" xml:space="preserve"><value>📋 クリップボードにコピー (Ctrl+C)</value></data>
+  <data name="windows.editor.saveAs" xml:space="preserve"><value>💾 名前を付けて保存… (Ctrl+S)</value></data>
+  <data name="windows.editor.saveTitle" xml:space="preserve"><value>名前を付けて保存…</value></data>
+  <data name="windows.editor.actualSize" xml:space="preserve"><value>100 %</value></data>
+  <data name="windows.editor.actualSizeTooltip" xml:space="preserve"><value>全体表示とスクロールバー付き100 %表示を切り替え</value></data>
+  <data name="windows.editor.saveFilter" xml:space="preserve"><value>PNG画像 (*.png)|*.png|JPEG画像 (*.jpg)|*.jpg</value></data>
+  <data name="windows.editor.saveFileName" xml:space="preserve"><value>Snapboard_{0:yyyyMMdd_HHmmss}</value></data>
+  <data name="windows.capture.dimensions" xml:space="preserve"><value>{0} × {1} px</value></data>
+</root>

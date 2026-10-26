@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- Neutral English. One-time transfer of used macOS strings; maintained independently. -->
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="common.appName" xml:space="preserve"><value>Snapboard</value></data>
+  <data name="common.listSeparator" xml:space="preserve"><value>, </value></data>
+  <data name="common.ok" xml:space="preserve"><value>OK</value></data>
+  <data name="common.cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="menu.about" xml:space="preserve"><value>ℹ️ About Snapboard</value></data>
+  <data name="menu.quit" xml:space="preserve"><value>Quit Snapboard</value></data>
+  <data name="editor.windowTitle" xml:space="preserve"><value>Snapboard Editor</value></data>
+  <data name="editor.defaultText" xml:space="preserve"><value>Note</value></data>
+  <data name="editor.textPrompt.title" xml:space="preserve"><value>Set Annotation Text</value></data>
+  <data name="editor.textPrompt.placeholder" xml:space="preserve"><value>Enter text…</value></data>
+  <data name="tool.rectangle" xml:space="preserve"><value>⬜ Rectangle</value></data>
+  <data name="tool.circle" xml:space="preserve"><value>⭕ Circle / Ellipse</value></data>
+  <data name="tool.arrow" xml:space="preserve"><value>➡️ Arrow</value></data>
+  <data name="tool.pen" xml:space="preserve"><value>✏️ Freehand Pen</value></data>
+  <data name="tool.highlighter" xml:space="preserve"><value>🖍️ Highlighter</value></data>
+  <data name="tool.blur" xml:space="preserve"><value>🌫️ Redact / Blur</value></data>
+  <data name="tool.text" xml:space="preserve"><value>🔤 Text Box</value></data>
+  <data name="tool.stepNumber" xml:space="preserve"><value>① Step Counter</value></data>
+  <data name="color.red" xml:space="preserve"><value>Red</value></data>
+  <data name="color.orange" xml:space="preserve"><value>Orange</value></data>
+  <data name="color.yellow" xml:space="preserve"><value>Yellow</value></data>
+  <data name="color.green" xml:space="preserve"><value>Green</value></data>
+  <data name="color.blue" xml:space="preserve"><value>Blue</value></data>
+  <data name="color.purple" xml:space="preserve"><value>Purple</value></data>
+  <data name="color.black" xml:space="preserve"><value>Black</value></data>
+  <data name="color.white" xml:space="preserve"><value>White</value></data>
+  <data name="windows.menu.captureDirect" xml:space="preserve"><value>📷 Capture Area (Ctrl+Shift+1)</value></data>
+  <data name="windows.menu.captureEdit" xml:space="preserve"><value>✏️ Capture &amp; Edit Area (Ctrl+Shift+2)</value></data>
+  <data name="windows.menu.autostart" xml:space="preserve"><value>Run at Windows startup</value></data>
+  <data name="windows.shortcut.direct" xml:space="preserve"><value>Ctrl+Shift+1</value></data>
+  <data name="windows.shortcut.edit" xml:space="preserve"><value>Ctrl+Shift+2</value></data>
+  <data name="windows.statusItem.tooltip" xml:space="preserve"><value>Snapboard (Ctrl+Shift+1: Direct / Ctrl+Shift+2: Editor)</value></data>
+  <data name="windows.alreadyRunning" xml:space="preserve"><value>Snapboard is already running in the notification area (system tray).</value></data>
+  <data name="windows.about.message" xml:space="preserve"><value>Snapboard v{0} for Windows &amp; macOS
+
+• Ctrl+Shift+1: Straight to the clipboard (zero clicks)
+• Ctrl+Shift+2: Capture an area and open the editor
+
+No temporary screenshot files on disk.</value><comment>{0}: app assembly version</comment></data>
+  <data name="windows.error.restart" xml:space="preserve"><value>Snapboard must close. Please restart the application.</value></data>
+  <data name="windows.error.continue" xml:space="preserve"><value>You can continue using Snapboard.</value></data>
+  <data name="windows.error.unexpected" xml:space="preserve"><value>An unexpected error occurred.
+{0}
+
+{1}</value><comment>{0}: consequence; {1}: system exception message</comment></data>
+  <data name="windows.error.hotkeys" xml:space="preserve"><value>These keyboard shortcuts could not be registered: {0}.
+Another application may already be using them. Capture is still available from the notification area menu.</value></data>
+  <data name="windows.error.clipboardDirect" xml:space="preserve"><value>The clipboard is busy. The image could not be copied after 3 attempts. Please try again.</value></data>
+  <data name="windows.error.clipboardEditor" xml:space="preserve"><value>The clipboard is busy. The image could not be copied after 3 attempts. Your annotations are still available. Please try again.</value></data>
+  <data name="windows.error.autostartRead" xml:space="preserve"><value>Could not read the startup status.
+
+{0}</value></data>
+  <data name="windows.error.autostartWrite" xml:space="preserve"><value>Could not change the startup setting.
+
+{0}</value></data>
+  <data name="windows.error.autostartKey" xml:space="preserve"><value>Could not open the startup Registry key.</value></data>
+  <data name="windows.error.jpegEncoder" xml:space="preserve"><value>The JPEG encoder is not available.</value></data>
+  <data name="windows.editor.undo" xml:space="preserve"><value>↩ Undo (Ctrl+Z)</value></data>
+  <data name="windows.editor.redo" xml:space="preserve"><value>↪ Redo (Ctrl+Y)</value></data>
+  <data name="windows.editor.copyToClipboard" xml:space="preserve"><value>📋 Copy to Clipboard (Ctrl+C)</value></data>
+  <data name="windows.editor.saveAs" xml:space="preserve"><value>💾 Save As… (Ctrl+S)</value></data>
+  <data name="windows.editor.saveTitle" xml:space="preserve"><value>Save As…</value></data>
+  <data name="windows.editor.actualSize" xml:space="preserve"><value>100 %</value></data>
+  <data name="windows.editor.actualSizeTooltip" xml:space="preserve"><value>Switch between fit and 100 % with scrollbars</value></data>
+  <data name="windows.editor.saveFilter" xml:space="preserve"><value>PNG Image (*.png)|*.png|JPEG Image (*.jpg)|*.jpg</value></data>
+  <data name="windows.editor.saveFileName" xml:space="preserve"><value>Snapboard_{0:yyyyMMdd_HHmmss}</value></data>
+  <data name="windows.capture.dimensions" xml:space="preserve"><value>{0} × {1} px</value></data>
+</root>
