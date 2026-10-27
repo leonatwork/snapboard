@@ -2,7 +2,6 @@ import AppKit
 import XCTest
 @testable import Snapboard
 
-@MainActor
 final class OCRTests: XCTestCase {
     private func line(_ text: String, _ x: CGFloat, _ y: CGFloat) -> OCRTextLine {
         OCRTextLine(text: text, bounds: CGRect(x: x, y: y, width: 0.2, height: 0.1))
@@ -21,6 +20,7 @@ final class OCRTests: XCTestCase {
             excluding: [CGRect(x: 0.1, y: 0.1, width: 0.1, height: 0.1)]), "visible")
     }
 
+    @MainActor
     func testEmptyAndFailedOCRPreserveClipboardAndShowNotice() async throws {
         let pasteboard = NSPasteboard.withUniqueName()
         defer { pasteboard.releaseGlobally() }
@@ -42,6 +42,7 @@ final class OCRTests: XCTestCase {
         }
     }
 
+    @MainActor
     func testEditorPreventsDuplicateRecognitionUntilPendingRequestFinishes() async throws {
         let pasteboard = NSPasteboard.withUniqueName()
         defer { pasteboard.releaseGlobally() }
@@ -73,6 +74,7 @@ final class OCRTests: XCTestCase {
         XCTAssertEqual(pasteboard.string(forType: .string), "recognized")
     }
 
+    @MainActor
     func testEditorRenderFailureDoesNotStartOCRAndPreservesClipboard() async {
         let pasteboard = NSPasteboard.withUniqueName()
         defer { pasteboard.releaseGlobally() }
@@ -90,6 +92,7 @@ final class OCRTests: XCTestCase {
         XCTAssertFalse(model.isRecognizingText)
     }
 
+    @MainActor
     func testEditorOCRReceivesRenderedPixelsAndCopiesOnlyPlainTextWithoutClosing() async throws {
         let pasteboard = NSPasteboard.withUniqueName()
         defer { pasteboard.releaseGlobally() }
@@ -125,6 +128,7 @@ final class OCRTests: XCTestCase {
         XCTAssertFalse(model.isRecognizingText)
     }
 
+    @MainActor
     private func makeImage() throws -> CGImage {
         let context = try XCTUnwrap(CGContext(data: nil, width: 320, height: 180,
             bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(),

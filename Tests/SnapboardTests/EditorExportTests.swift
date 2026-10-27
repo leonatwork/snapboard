@@ -3,11 +3,11 @@ import ImageIO
 import XCTest
 @testable import Snapboard
 
-@MainActor
 final class EditorExportTests: XCTestCase {
     private let pixelWidth = 320
     private let pixelHeight = 180
 
+    @MainActor
     private var annotation: AnnotationItem {
         AnnotationItem(
             tool: .rectangle,
@@ -18,6 +18,7 @@ final class EditorExportTests: XCTestCase {
         )
     }
 
+    @MainActor
     private func sourceImage(scale: CGFloat) throws -> NSImage {
         let context = try XCTUnwrap(CGContext(
             data: nil, width: pixelWidth, height: pixelHeight,
@@ -34,7 +35,7 @@ final class EditorExportTests: XCTestCase {
     }
 
     private func assertEncodedImage(
-        _ data: Data, scale: CGFloat,
+        _ data: Data, scale: CGFloat, verticalScale: CGFloat? = nil,
         file: StaticString = #filePath, line: UInt = #line
     ) throws {
         let source = try XCTUnwrap(CGImageSourceCreateWithData(data as CFData, nil), file: file, line: line)
@@ -48,9 +49,29 @@ final class EditorExportTests: XCTestCase {
         let dpiWidth = try XCTUnwrap(properties[kCGImagePropertyDPIWidth as String] as? NSNumber, file: file, line: line)
         let dpiHeight = try XCTUnwrap(properties[kCGImagePropertyDPIHeight as String] as? NSNumber, file: file, line: line)
         XCTAssertEqual(dpiWidth.doubleValue, Double(72 * scale), accuracy: 0.02, file: file, line: line)
-        XCTAssertEqual(dpiHeight.doubleValue, Double(72 * scale), accuracy: 0.02, file: file, line: line)
+        XCTAssertEqual(dpiHeight.doubleValue, Double(72 * (verticalScale ?? scale)), accuracy: 0.02, file: file, line: line)
     }
 
+    @MainActor
+    func testEncodingPreservesIndependentAxisResolutionInPNGAndTIFF() async throws {
+        for scale in [CGFloat(1), CGFloat(2)] {
+            let image = try sourceImage(scale: scale)
+            image.size = NSSize(width: image.size.width, height: image.size.height / 1.5)
+            let export = try ImageExport(image: image)
+            let item = try export.pasteboardItem()
+            let png = try export.pngData()
+            let clipboardPNG = try XCTUnwrap(item.data(forType: .png))
+            let tiff = try XCTUnwrap(item.data(forType: .tiff))
+
+            for (data, type) in [(png, "public.png"), (clipboardPNG, "public.png"), (tiff, "public.tiff")] {
+                let source = try XCTUnwrap(CGImageSourceCreateWithData(data as CFData, nil))
+                XCTAssertEqual(CGImageSourceGetType(source) as String?, type)
+                try assertEncodedImage(data, scale: scale, verticalScale: scale * 1.5)
+            }
+        }
+    }
+
+    @MainActor
     func testRenderPreservesSourcePointSizeAndPixelsAtRetinaAnd1x() async throws {
         for scale in [CGFloat(1), CGFloat(2)] {
             let image = try sourceImage(scale: scale)
@@ -64,6 +85,7 @@ final class EditorExportTests: XCTestCase {
         }
     }
 
+    @MainActor
     func testCopyPublishesPNGFirstAndTIFFFallbackWithSourceResolution() async throws {
         let pasteboard = NSPasteboard.withUniqueName()
         defer { pasteboard.releaseGlobally() }
@@ -94,6 +116,7 @@ final class EditorExportTests: XCTestCase {
         }
     }
 
+    @MainActor
     func testSaveWritesPNGWithSourcePixelsAndResolution() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -120,6 +143,7 @@ final class EditorExportTests: XCTestCase {
         }
     }
 
+    @MainActor
     func testCopyRenderFailureReportsErrorAndPreservesEditorAndClipboard() async throws {
         let pasteboard = NSPasteboard.withUniqueName()
         defer { pasteboard.releaseGlobally() }
@@ -144,6 +168,7 @@ final class EditorExportTests: XCTestCase {
         XCTAssertEqual(pasteboard.string(forType: .string), "existing clipboard")
     }
 
+    @MainActor
     func testSaveRenderFailureReportsErrorBeforeOpeningSavePanel() async {
         var errors: [Error] = []
         var choseURL = false
@@ -165,6 +190,7 @@ final class EditorExportTests: XCTestCase {
         XCTAssertEqual(model.annotations.count, 1)
     }
 
+    @MainActor
     func testWriteFailureReportsSystemErrorAndPreservesAnnotationsAndUndo() async throws {
         // A missing parent fails even when the tests run with elevated filesystem permissions.
         let url = FileManager.default.temporaryDirectory
@@ -192,6 +218,7 @@ final class EditorExportTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: url.path))
     }
 
+    @MainActor
     func testCancelSaveDoesNotReportErrorOrClose() async throws {
         var errors: [Error] = []
         var closed = false
