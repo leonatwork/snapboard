@@ -208,7 +208,11 @@ internal static class RegressionTests
         // This assertion uses only pre-existing APIs and fails on the original gray box.
         var canvas = (Panel)Field(editor, "canvasPanel");
         canvas.Dock = DockStyle.None;
+        editor.Show();
+        Application.DoEvents();
         canvas.Size = image.Size;
+        Equal(true, canvas.Created);
+        Equal(true, canvas.Visible);
         using var painted = new Bitmap(image.Width, image.Height);
         canvas.DrawToBitmap(painted, new Rectangle(Point.Empty, image.Size));
         AssertPixels(exported, painted);
@@ -323,6 +327,8 @@ internal static class RegressionTests
                 g.DrawString("Account 1234", font, Brushes.Black, size.Width * 0.3f, size.Height * 0.5f);
             }
             using var editor = new EditorForm(image);
+            editor.Show();
+            Application.DoEvents();
             var items = (List<Annotation>)Field(editor, "annotations");
             foreach (int width in new[] { 2, 4, 7 })
                 foreach (ToolType tool in Enum.GetValues<ToolType>())
@@ -352,6 +358,8 @@ internal static class RegressionTests
                         var canvas = (Panel)Field(editor, "canvasPanel");
                         canvas.Dock = DockStyle.None;
                         canvas.Size = new Size(200, 150);
+                        Equal(true, canvas.Created);
+                        Equal(true, canvas.Visible);
                         using var painted = new Bitmap(canvas.Width, canvas.Height);
                         canvas.DrawToBitmap(painted, new Rectangle(Point.Empty, canvas.Size));
                         using var fittedExport = new Bitmap(canvas.Width, canvas.Height);

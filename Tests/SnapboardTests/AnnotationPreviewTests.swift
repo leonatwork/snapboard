@@ -76,21 +76,61 @@ final class AnnotationPreviewTests: XCTestCase {
         XCTAssertNil(model.pixelatedPreview)
     }
 
-    private func sourceImage(inverted: Bool = false) throws -> NSImage {
+    func testOverlappingPixelationsUseExportSourceAndKeepVectorsOutOfCache() async throws {
+        let image = try sourceImage(width: 400, height: 300)
+        let model = EditorViewModel(image: image)
+        let first = AnnotationItem(tool: .blur, startPoint: CGPoint(x: 0.1, y: 0.1),
+                                   endPoint: CGPoint(x: 0.7, y: 0.8), color: .red, lineWidth: 4)
+        let second = AnnotationItem(tool: .blur, startPoint: CGPoint(x: 0.35, y: 0.3),
+                                    endPoint: CGPoint(x: 0.95, y: 0.95), color: .red, lineWidth: 4)
+        let vector = AnnotationItem(tool: .highlighter, startPoint: first.startPoint,
+                                    endPoint: second.endPoint,
+                                    points: [first.startPoint, second.endPoint],
+                                    color: .yellow, lineWidth: 7)
+        func assertCachedExport(_ blurs: [AnnotationItem]) throws {
+            let expected = try XCTUnwrap(ImageRendererService.shared.render(image: image, annotations: blurs))
+            XCTAssertEqual(try pixels(XCTUnwrap(model.pixelatedPreview)), try pixels(expected))
+        }
+
+        // Export applies every blur to the original source, below vectors, even when
+        // the user added a vector before the last blur. Differently sized overlapping
+        // regions also exercise distinct block sizes and cache ordering.
+        model.annotations = [first, vector, second]
+        try assertCachedExport([first, second])
+        let cached = try XCTUnwrap(model.pixelatedPreview)
+        model.annotations = [vector, first, second]
+        XCTAssertTrue(model.pixelatedPreview === cached)
+        model.saveForUndo()
+        model.annotations = [second, vector, first]
+        try assertCachedExport([second, first])
+        XCTAssertNotEqual(try pixels(XCTUnwrap(model.pixelatedPreview)), try pixels(cached),
+                          "Fixture must expose the different overlapping block sizes")
+        model.undo()
+        try assertCachedExport([first, second])
+        model.redo()
+        try assertCachedExport([second, first])
+        model.clearAll()
+        XCTAssertNil(model.pixelatedPreview)
+        model.undo()
+        try assertCachedExport([second, first])
+    }
+
+    private func sourceImage(inverted: Bool = false, width: Int = 80, height: Int = 60) throws -> NSImage {
         let context = try XCTUnwrap(CGContext(
-            data: nil, width: 80, height: 60, bitsPerComponent: 8, bytesPerRow: 0,
+            data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
             space: CGColorSpace(name: CGColorSpace.sRGB)!,
             bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
         ))
-        for y in 0..<60 {
-            for x in 0..<80 {
+        for y in 0..<height {
+            for x in 0..<width {
                 let value = CGFloat((x * 17 + y * 31) % 256) / 255
                 context.setFillColor(NSColor(srgbRed: inverted ? 1 - value : value,
-                                            green: CGFloat(x) / 80, blue: CGFloat(y) / 60, alpha: 1).cgColor)
+                                            green: CGFloat(x) / CGFloat(width), blue: CGFloat(y) / CGFloat(height), alpha: 1).cgColor)
                 context.fill(CGRect(x: x, y: y, width: 1, height: 1))
             }
         }
-        return NSImage(cgImage: try XCTUnwrap(context.makeImage()), size: CGSize(width: 40, height: 30))
+        return NSImage(cgImage: try XCTUnwrap(context.makeImage()),
+                       size: CGSize(width: CGFloat(width) / 2, height: CGFloat(height) / 2))
     }
 
     private func pixels(_ image: NSImage) throws -> Data {

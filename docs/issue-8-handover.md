@@ -6,8 +6,9 @@ Basis der vorhandenen Lösung: lokales `origin/main`,
 `2306fc6e8e357a64980c9674b273825f52e8844f`.
 Dieser Fortsetzungslauf startete sauber auf dem bereits ausgecheckten Branch
 `agent/bearbeite-github-issue-8-vollst-ndig-und-1026-2301`, Commit
-`46f2210d93b2f1e2dcdcc0f3d7cccf3d05ee8301` (laut Auftrag der eigene Stand von PR #17).
-Der vorhandene Commit und sein Diff gegen `origin/main` wurden geprüft und beibehalten.
+`094905c8ee6bfea04b74a0a406da79c46c0c146d` (laut Auftrag der eigene Stand von PR #17).
+Die beiden vorhandenen Commits `46f2210` und `094905c` und ihr Diff gegen `origin/main`
+wurden geprüft und beibehalten.
 Die spätere ausdrückliche Anweisung zur Fortsetzung auf diesem Branch konkretisiert die
 ursprüngliche Main-only-Vorgabe. Kein Branchwechsel, Cherry-Pick, neuer Commit oder Push
 in diesem Lauf; kein fremder offener PR als Grundlage.
@@ -53,7 +54,7 @@ am Export erfordern. Dieses Teilkriterium wird deshalb nicht als erfüllt behaup
 
 Der vorherige Handover beschreibt eine test-first-Erstellung der vorhandenen Lösung;
 die genaue Editierreihenfolge ist aus dem einzelnen übernommenen Commit nicht belegbar.
-In diesem Fortsetzungslauf wurden zuerst Windows-Paint-Regressionen für native,
+Im vorherigen Fortsetzungslauf wurden zuerst Windows-Paint-Regressionen für native,
 eingepasste und gescrollte Ansicht ergänzt. Danach wurde das macOS-Exportoracle für
 Text von `TextAnnotationLayout` entkoppelt: Es enthält jetzt die aus `origin/main`
 übernommenen Textwerte und Zeichenoperationen, damit der Before/After-Vergleich nicht
@@ -63,6 +64,21 @@ sechs Vektorwerkzeuge bei 2/4/7 ab; ihre Fehlerbewertung verwendet nur tatsächl
 veränderte Pixel, damit falsche Pfeilspitzen/Badges nicht durch unveränderten Hintergrund
 im Mittelwert verborgen werden. Im Produktionscode ergab der statische Review keinen
 zusätzlichen erforderlichen Fix; der vorhandene Stand wurde beibehalten.
+
+Im aktuellen Fortsetzungslauf wurden zuerst Assertions für erstellte und sichtbare
+Windows-Canvas-Controls zu den beiden noch versteckt laufenden Paint-Prüfungen hinzugefügt.
+Danach wurde ihr Aufbau korrigiert: `PixelationPreview` und `AnnotationExports` zeigen
+das Editorformular an und verarbeiten die initialen UI-Ereignisse vor dem Einstellen der
+Canvas-Größe und `DrawToBitmap`. So prüft auch der native Rotnachweis den sichtbaren
+Paint-Pfad mit tatsächlich erstellten Handles. Die vorhandene native/fitted/scrolled-
+Prüfung hatte diesen Aufbau bereits.
+
+Zusätzlich prüft ein macOS-Cache-Regressionstest überlappende Pixelungen mit verschiedenen
+Blockgrößen auf einer synthetischen 400×300-Aufnahme: Abgleich mit dem Export, Vektoren
+zwischen Pixelungen, unveränderter Cache beim Umsortieren nur der Vektoren, geänderte
+Pixelungsreihenfolge, Undo/Redo sowie Clear/Undo. Eine Fixture-Assertion fordert einen
+tatsächlichen Pixelunterschied zwischen beiden Überlappungsreihenfolgen. Der Produktions-
+Rendercode benötigte im aktuellen statischen Review keine weitere Änderung.
 
 Der Server ist Linux; der Auftrag verbietet Build und Plattformausführung. Deshalb wurde
 **kein Test vor oder nach dem Fix ausgeführt**, und insbesondere kein korrektes rotes
@@ -128,7 +144,7 @@ Manuell abgeschlossene Pixelung mit dem kopierten Bild vergleichen, inklusive
 ## Lieferung / Abhängigkeiten
 
 Die Ergänzungen dieses Laufs liegen uncommitted im bestehenden Workspace; die bisherige
-Lösung ist bereits im übernommenen Commit enthalten. Keine App-Abhängigkeiten
+Lösung ist bereits in den beiden übernommenen Commits enthalten. Keine App-Abhängigkeiten
 und keine neuen UI-Texte. Kein PR erstellt oder gemergt, kein Release/Deployment und keine
 Produktionsdaten oder Supabase-Instanzen angefasst.
 
