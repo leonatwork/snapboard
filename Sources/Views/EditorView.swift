@@ -448,12 +448,15 @@ struct AnnotationCanvas: NSViewRepresentable {
     }
 }
 
-/// Draw directly into the destination context, rather than independently rasterizing
-/// SwiftUI Image/Canvas layers at the screen's backing scale. Offscreen/Retina drawing
-/// then uses the same pixel geometry, color conversion and antialiasing as export.
+/// Rasterize in the source image's color space, like export, then draw the tagged
+/// result on the destination's pixel grid. Screen and offscreen contexts can have
+/// different color spaces and scales, and SwiftUI can position the view fractionally.
 @MainActor
 final class AnnotationCanvasView: NSView {
-    var viewModel: EditorViewModel?
+    var viewModel: EditorViewModel? {
+        didSet { renderedPreview = nil }
+    }
+    private var renderedPreview: NSImage?
 
     override var isFlipped: Bool { true }
 
@@ -464,8 +467,18 @@ final class AnnotationCanvasView: NSView {
         guard let viewModel, let cgContext = NSGraphicsContext.current?.cgContext else { return }
         let pixelSize = viewModel.imagePixelSize
         let image = viewModel.pixelatedPreview ?? viewModel.image
+        if renderedPreview == nil {
+            var vectors = viewModel.annotations.filter { $0.tool != .blur }
+            if let draft = viewModel.currentDraft, draft.tool != .blur {
+                vectors.append(draft)
+            }
+            // Reuse the completed pixelation cache. Compose vectors (including drafts)
+            // against it in source pixels/color space before destination conversion;
+            // direct drawing changes both antialiasing and translucent marker blending.
+            renderedPreview = vectors.isEmpty ? image : ImageRendererService.shared.render(image: image, annotations: vectors)
+        }
         guard pixelSize.width > 0, pixelSize.height > 0,
-              let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
+              let cgImage = renderedPreview?.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
 
         cgContext.saveGState()
         NSGraphicsContext.saveGraphicsState()
@@ -473,8 +486,16 @@ final class AnnotationCanvasView: NSView {
             NSGraphicsContext.restoreGraphicsState()
             cgContext.restoreGState()
         }
-        cgContext.clip(to: bounds)
-        cgContext.translateBy(x: bounds.minX, y: bounds.minY)
+        // Centered SwiftUI layout can leave the canvas between destination pixels.
+        // Even at native image resolution, that resamples the source texture and
+        // shifts every annotation edge relative to export. Snap the shared origin in
+        // the actual drawing context (also correct for offscreen snapshots whose
+        // scale differs from the window's backingScaleFactor). Preserve the fitted
+        // size so this translation does not change annotation geometry or widths.
+        let deviceOrigin = cgContext.convertToDeviceSpace(bounds.origin)
+        let origin = cgContext.convertToUserSpace(CGPoint(x: deviceOrigin.x.rounded(), y: deviceOrigin.y.rounded()))
+        cgContext.clip(to: CGRect(origin: origin, size: bounds.size))
+        cgContext.translateBy(x: origin.x, y: origin.y)
         cgContext.scaleBy(x: bounds.width / pixelSize.width, y: bounds.height / pixelSize.height)
         cgContext.translateBy(x: 0, y: pixelSize.height)
         cgContext.scaleBy(x: 1, y: -1)
@@ -482,27 +503,16 @@ final class AnnotationCanvasView: NSView {
         cgContext.draw(cgImage, in: CGRect(origin: .zero, size: pixelSize))
         NSGraphicsContext.current = NSGraphicsContext(cgContext: cgContext, flipped: false)
 
-        for item in viewModel.annotations where item.tool != .blur {
-            ImageRendererService.shared.drawAnnotation(
-                item, pixelWidth: Int(pixelSize.width), pixelHeight: Int(pixelSize.height)
-            )
-        }
-        if let draft = viewModel.currentDraft {
-            if draft.tool == .blur {
-                let rect = draft.cgRectInPixelSpace(width: Int(pixelSize.width), height: Int(pixelSize.height))
-                NSColor.gray.withAlphaComponent(0.7).setFill()
-                NSBezierPath(rect: rect).fill()
-                NSColor.white.withAlphaComponent(0.9).setStroke()
-                let border = NSBezierPath(rect: rect)
-                let previewScale = pixelSize.width / max(1, bounds.width)
-                border.lineWidth = 1.5 * previewScale
-                border.setLineDash([4 * previewScale, 4 * previewScale], count: 2, phase: 0)
-                border.stroke()
-            } else {
-                ImageRendererService.shared.drawAnnotation(
-                    draft, pixelWidth: Int(pixelSize.width), pixelHeight: Int(pixelSize.height)
-                )
-            }
+        if let draft = viewModel.currentDraft, draft.tool == .blur {
+            let rect = draft.cgRectInPixelSpace(width: Int(pixelSize.width), height: Int(pixelSize.height))
+            NSColor.gray.withAlphaComponent(0.7).setFill()
+            NSBezierPath(rect: rect).fill()
+            NSColor.white.withAlphaComponent(0.9).setStroke()
+            let border = NSBezierPath(rect: rect)
+            let previewScale = pixelSize.width / max(1, bounds.width)
+            border.lineWidth = 1.5 * previewScale
+            border.setLineDash([4 * previewScale, 4 * previewScale], count: 2, phase: 0)
+            border.stroke()
         }
     }
 }
