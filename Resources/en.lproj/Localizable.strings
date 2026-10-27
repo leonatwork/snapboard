@@ -1,5 +1,16 @@
 /* Snapboard – Localizable.strings (en) */
 
+/* Local, automatic-language OCR: actions, settings and notices */
+"menu.captureText" = "Recognize Text";
+"editor.copyText" = "Copy Text";
+"settings.ocr.title" = "Recognize Text:";
+"settings.ocr.detail" = "Select an area → recognize locally and copy plain text";
+"ocr.title" = "Recognize Text";
+"ocr.noText" = "No text recognized. The clipboard is unchanged.";
+"ocr.failed" = "Local text recognition failed. The clipboard is unchanged. Please try again.";
+"ocr.clipboardFailed" = "The text could not be copied to the clipboard. Please try again.";
+"ocr.shortcutUnavailable" = "⌘⇧6 could not be registered. Another application may be using it. Recognize Text remains available in the menu.";
+
 /* Generic OK button */
 "common.ok" = "OK";
 

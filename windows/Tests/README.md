@@ -1,7 +1,7 @@
-# Windows regression tests — Issue #7
+# Windows regression tests — Issues #7 and #10
 
 The runner uses only the .NET SDK and the app project; no test packages or other
-dependencies are required. Run on Windows 10/11 with .NET 8:
+dependencies are required. Run on Windows 10 build 19041+ / Windows 11 with .NET 8:
 
 ```powershell
 dotnet build windows/Snapboard.Windows/Snapboard.Windows.csproj -c Release
@@ -15,6 +15,14 @@ Registry. The editor test opens a temporary form, exercises fit/100% scrolling,
 simulates mouse drawing in both views and verifies full-resolution annotation
 export in memory. Encoded PNG/JPEG data
 also stays in memory.
+
+Issue #10 adds OCR regression cases for reading order and line breaks, redaction
+exclusion, empty results, missing language packs, recognition errors, Unicode-only
+text data, clipboard retries, asynchronous capture gating and rendered editor
+input. Recognition and clipboard writes are injected; these cases do not require
+an installed OCR language pack and do not exercise the real OCR engine. See
+[`docs/issue-10-handover.md`](../../docs/issue-10-handover.md) for test-first evidence,
+platform execution limits and the OCR manual checks.
 
 ## Test-first evidence and execution limits
 

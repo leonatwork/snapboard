@@ -1,5 +1,16 @@
 /* Snapboard – Localizable.strings (nl) */
 
+/* Local, automatic-language OCR: actions, settings and notices */
+"menu.captureText" = "Tekst herkennen";
+"editor.copyText" = "Tekst kopiëren";
+"settings.ocr.title" = "Tekst herkennen:";
+"settings.ocr.detail" = "Selecteer een gebied → lokaal herkennen en platte tekst kopiëren";
+"ocr.title" = "Tekst herkennen";
+"ocr.noText" = "Geen tekst herkend. Het klembord blijft ongewijzigd.";
+"ocr.failed" = "Lokale tekstherkenning is mislukt. Het klembord blijft ongewijzigd. Probeer het opnieuw.";
+"ocr.clipboardFailed" = "De tekst kon niet naar het klembord worden gekopieerd. Probeer het opnieuw.";
+"ocr.shortcutUnavailable" = "⌘⇧6 kon niet worden geregistreerd. Een andere app gebruikt deze sneltoets mogelijk al. Tekst herkennen blijft beschikbaar in het menu.";
+
 /* Generic OK button */
 "common.ok" = "OK";
 

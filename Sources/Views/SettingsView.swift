@@ -63,6 +63,23 @@ struct SettingsView: View {
                             .background(Color(NSColor.quaternaryLabelColor))
                             .cornerRadius(6)
                     }
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(L10n.tr("settings.ocr.title"))
+                                .fontWeight(.medium)
+                            Text(L10n.tr("settings.ocr.detail"))
+                                .font(.caption)
+                                .foregroundColor(.secondary)
+                        }
+                        Spacer()
+                        Text(verbatim: "⌘ ⇧ 6")
+                            .font(.system(.body, design: .monospaced))
+                            .fontWeight(.semibold)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(Color(NSColor.quaternaryLabelColor))
+                            .cornerRadius(6)
+                    }
                 } header: {
                     Text(L10n.tr("settings.section.shortcuts"))
                 }
@@ -105,7 +122,7 @@ struct SettingsView: View {
         }
         // Tall enough for the whole form plus its bottom inset in every language,
         // so the last row never touches the footer divider.
-        .frame(width: 520, height: 490)
+        .frame(width: 520, height: 550)
         .onAppear {
             appState.checkLaunchAtLoginStatus()
         }

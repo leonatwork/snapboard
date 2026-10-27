@@ -1,5 +1,16 @@
 /* Snapboard – Localizable.strings (it) */
 
+/* Local, automatic-language OCR: actions, settings and notices */
+"menu.captureText" = "Riconosci testo";
+"editor.copyText" = "Copia testo";
+"settings.ocr.title" = "Riconosci testo:";
+"settings.ocr.detail" = "Seleziona un’area → riconosci localmente e copia testo semplice";
+"ocr.title" = "Riconosci testo";
+"ocr.noText" = "Nessun testo riconosciuto. Gli appunti restano invariati.";
+"ocr.failed" = "Il riconoscimento locale del testo non è riuscito. Gli appunti restano invariati. Riprova.";
+"ocr.clipboardFailed" = "Impossibile copiare il testo negli appunti. Riprova.";
+"ocr.shortcutUnavailable" = "Impossibile registrare ⌘⇧6. Un’altra applicazione potrebbe usarlo. Riconosci testo resta disponibile nel menu.";
+
 /* Generic OK button */
 "common.ok" = "OK";
 

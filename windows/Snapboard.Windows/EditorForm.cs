@@ -4,6 +4,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Media;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Snapboard
@@ -50,10 +52,18 @@ namespace Snapboard
 
         private CanvasPanel canvasPanel = null!;
         private ToolStrip mainToolbar = null!;
+        private bool isRecognizingText;
+        private readonly Func<Bitmap, Task<IReadOnlyList<OcrTextLine>>>? recognizeText;
+        private readonly Func<string, bool>? setClipboardText;
+        private readonly Action<string>? presentOcrNotice;
 
-        public EditorForm(Bitmap image)
+        public EditorForm(Bitmap image, Func<Bitmap, Task<IReadOnlyList<OcrTextLine>>>? recognizeText = null,
+            Func<string, bool>? setClipboardText = null, Action<string>? presentOcrNotice = null)
         {
             this.baseImage = new Bitmap(image);
+            this.recognizeText = recognizeText;
+            this.setClipboardText = setClipboardText;
+            this.presentOcrNotice = presentOcrNotice;
             this.DoubleBuffered = true;
             this.KeyPreview = true;
             this.Text = "Snapboard Editor";
@@ -127,6 +137,12 @@ namespace Snapboard
             };
             actualSizeButton.CheckedChanged += (s, e) => canvasPanel.SetActualSize(actualSizeButton.Checked);
             mainToolbar.Items.Add(actualSizeButton);
+
+            mainToolbar.Items.Add(new ToolStripButton("Text kopieren", null, async (s, e) => await CopyTextAsync())
+            {
+                Name = "copyTextButton",
+                ToolTipText = "Text im bearbeiteten Bild lokal erkennen und als Klartext kopieren"
+            });
 
             var copyBtn = new ToolStripButton("📋 In Zwischenablage kopieren (Strg+C)", null, (s, e) => CopyAndClose());
             copyBtn.Font = new Font(mainToolbar.Font, FontStyle.Bold);
@@ -397,6 +413,25 @@ namespace Snapboard
                 SystemSounds.Asterisk.Play();
             }
             this.Close();
+        }
+
+        public async Task CopyTextAsync()
+        {
+            if (isRecognizingText) return;
+            isRecognizingText = true;
+            mainToolbar.Items["copyTextButton"]!.Enabled = false;
+            try
+            {
+                using var rendered = RenderFinalImage();
+                var redactions = annotations.Where(item => item.Tool == ToolType.Blur)
+                    .Select(item => (RectangleF)GetRect(item.Start, item.End)).ToArray();
+                await OcrService.CopyTextAsync(rendered, redactions, recognizeText, setClipboardText, presentOcrNotice);
+            }
+            finally
+            {
+                isRecognizingText = false;
+                if (!IsDisposed) mainToolbar.Items["copyTextButton"]!.Enabled = true;
+            }
         }
 
         private void SaveToFile()

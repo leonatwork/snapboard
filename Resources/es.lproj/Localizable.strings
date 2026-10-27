@@ -1,5 +1,16 @@
 /* Snapboard – Localizable.strings (es) */
 
+/* Local, automatic-language OCR: actions, settings and notices */
+"menu.captureText" = "Reconocer texto";
+"editor.copyText" = "Copiar texto";
+"settings.ocr.title" = "Reconocer texto:";
+"settings.ocr.detail" = "Seleccionar un área → reconocer localmente y copiar texto sin formato";
+"ocr.title" = "Reconocer texto";
+"ocr.noText" = "No se reconoció ningún texto. El portapapeles no cambia.";
+"ocr.failed" = "Falló el reconocimiento local de texto. El portapapeles no cambia. Inténtalo de nuevo.";
+"ocr.clipboardFailed" = "No se pudo copiar el texto al portapapeles. Inténtalo de nuevo.";
+"ocr.shortcutUnavailable" = "No se pudo registrar ⌘⇧6. Puede que otra aplicación lo esté usando. Reconocer texto sigue disponible en el menú.";
+
 /* Generic OK button */
 "common.ok" = "Aceptar";
 

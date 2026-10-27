@@ -43,13 +43,16 @@ final class HotKeyManager {
     private var eventHandler: EventHandlerRef?
     private var hotKeyRef1: EventHotKeyRef?
     private var hotKeyRef2: EventHotKeyRef?
+    private var textHotKeyRef: EventHotKeyRef?
 
     private let directHotKeyID: UInt32 = 1
     private let editHotKeyID: UInt32 = 2
+    private let textHotKeyID: UInt32 = 3
     private let signature: OSType = 0x5343524E // "SCRN"
 
     var onTriggerDirect: (@MainActor () -> Void)?
     var onTriggerEdit: (@MainActor () -> Void)?
+    var onTriggerText: (@MainActor () -> Void)?
 
     private init() {
         setupEventHandler()
@@ -102,6 +105,15 @@ final class HotKeyManager {
             &hotKeyRef2
         )
 
+        // Key code 22 = '6' (Cmd + Shift + 6 -> OCR), not a system screenshot key.
+        let textStatus = RegisterEventHotKey(
+            22, modifiers, EventHotKeyID(signature: signature, id: textHotKeyID),
+            GetApplicationEventTarget(), 0, &textHotKeyRef
+        )
+        if textStatus != noErr {
+            OCRService.showNotice(L10n.tr("ocr.shortcutUnavailable"))
+        }
+
         if status1 == noErr && status2 == noErr {
             logger.info("Successfully registered global shortcuts: ⌘⇧1 & ⌘⇧2")
         } else {
@@ -118,6 +130,10 @@ final class HotKeyManager {
             UnregisterEventHotKey(ref2)
             self.hotKeyRef2 = nil
         }
+        if let ref = textHotKeyRef {
+            UnregisterEventHotKey(ref)
+            textHotKeyRef = nil
+        }
     }
 
     func handleHotKeyTriggered(id: UInt32) {
@@ -127,6 +143,8 @@ final class HotKeyManager {
         } else if id == editHotKeyID {
             logger.info("Cmd + Shift + 2 triggered")
             onTriggerEdit?()
+        } else if id == textHotKeyID {
+            onTriggerText?()
         }
     }
 }

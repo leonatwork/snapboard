@@ -1,5 +1,16 @@
 /* Snapboard – Localizable.strings (ko) */
 
+/* Local, automatic-language OCR: actions, settings and notices */
+"menu.captureText" = "텍스트 인식";
+"editor.copyText" = "텍스트 복사";
+"settings.ocr.title" = "텍스트 인식:";
+"settings.ocr.detail" = "영역 선택 → 로컬에서 인식하여 일반 텍스트 복사";
+"ocr.title" = "텍스트 인식";
+"ocr.noText" = "인식된 텍스트가 없습니다. 클립보드는 변경되지 않습니다.";
+"ocr.failed" = "로컬 텍스트 인식에 실패했습니다. 클립보드는 변경되지 않습니다. 다시 시도하세요.";
+"ocr.clipboardFailed" = "텍스트를 클립보드에 복사할 수 없습니다. 다시 시도하세요.";
+"ocr.shortcutUnavailable" = "⌘⇧6을 등록할 수 없습니다. 다른 앱에서 사용 중일 수 있습니다. 메뉴에서 텍스트 인식을 계속 사용할 수 있습니다.";
+
 /* Generic OK button */
 "common.ok" = "확인";
 

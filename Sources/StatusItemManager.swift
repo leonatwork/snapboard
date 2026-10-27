@@ -50,6 +50,12 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
         editItem.target = self
         menu.addItem(editItem)
 
+        let textItem = NSMenuItem(title: L10n.tr("menu.captureText"),
+                                  action: #selector(captureTextAction), keyEquivalent: "6")
+        textItem.keyEquivalentModifierMask = [.command, .shift]
+        textItem.target = self
+        menu.addItem(textItem)
+
         menu.addItem(NSMenuItem.separator())
 
         // Toggles
@@ -156,6 +162,10 @@ final class StatusItemManager: NSObject, NSMenuDelegate {
 
     @objc private func captureEditAction() {
         CaptureService.shared.captureForEdit()
+    }
+
+    @objc private func captureTextAction() {
+        CaptureService.shared.captureForText()
     }
 
     @objc private func toggleSoundAction() {

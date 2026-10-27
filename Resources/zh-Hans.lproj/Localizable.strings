@@ -1,5 +1,16 @@
 /* Snapboard – Localizable.strings (zh-Hans) */
 
+/* Local, automatic-language OCR: actions, settings and notices */
+"menu.captureText" = "识别文本";
+"editor.copyText" = "复制文本";
+"settings.ocr.title" = "识别文本：";
+"settings.ocr.detail" = "选择区域 → 本地识别并复制纯文本";
+"ocr.title" = "识别文本";
+"ocr.noText" = "未识别到文本。剪贴板保持不变。";
+"ocr.failed" = "本地文本识别失败。剪贴板保持不变。请重试。";
+"ocr.clipboardFailed" = "无法将文本复制到剪贴板。请重试。";
+"ocr.shortcutUnavailable" = "无法注册⌘⇧6。其他应用可能正在使用此快捷键。仍可通过菜单识别文本。";
+
 /* Generic OK button */
 "common.ok" = "好";
 
