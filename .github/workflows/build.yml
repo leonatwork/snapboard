@@ -15,6 +15,10 @@ jobs:
       - name: Build macOS App
         run: |
           ./scripts/build_app.sh
+      - name: Check macOS localizations
+        run: ./scripts/check-localizations.sh
+      - name: Run macOS OCR and editor regression tests
+        run: swift test --filter 'OCRTests|EditorExportTests'
 
   build-windows:
     name: Build Windows (.NET 8)

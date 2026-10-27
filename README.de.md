@@ -56,6 +56,7 @@ Du kannst Snapboard direkt von GitHub herunterladen und ohne Terminal nutzen:
 ## ✨ Features
 
 - ⚡ **Zero-Click Clipboard Capture**: Bereich auswählen und sofort mit `⌘ V` / `Ctrl + V` in jede beliebige App einfügen.
+- 🔎 **Lokale OCR**: Text in einem ausgewählten Bereich erkennen oder im Editor **Text kopieren** wählen. Kopiert Klartext mit Zeilenumbrüchen bei automatischer Sprachauswahl ohne Netzwerkzugriff. Editor-OCR verwendet das gerenderte Bild; Zeilen, die Verpixelungen überlappen, werden ausgelassen. Leere Ergebnisse lassen die Zwischenablage unverändert.
 - 🎨 **Integriertes Bearbeitungsstudio**:
   - ⭕ **Kreise & Ellipsen**
   - ⬜ **Rechtecke & Rahmen**
@@ -79,6 +80,7 @@ Du kannst Snapboard direkt von GitHub herunterladen und ohne Terminal nutzen:
 | :--- | :--- | :--- |
 | **`⌘ + ⇧ + 1`** | **Direkt-Capture** | Bereich markieren → **Sofort in die Zwischenablage** (0 Klicks) |
 | **`⌘ + ⇧ + 2`** | **Capture & Edit** | Bereich markieren → **Öffnet den Snapboard-Editor** |
+| **`⌘ + ⇧ + 6`** | **Text erkennen** | Bereich markieren → **Klartext in die Zwischenablage** |
 | `Leertaste` | Fenstermodus | Spezifisches Fenster während der Auswahl erfassen |
 | `ESC` | Abbrechen | Aufnahme beenden ohne Clipboard zu verändern |
 | `⌘ + C` / `Enter` | Export (im Editor) | Bearbeitetes Bild kopieren & Editor schließen |
@@ -89,11 +91,14 @@ Du kannst Snapboard direkt von GitHub herunterladen und ohne Terminal nutzen:
 | :--- | :--- | :--- |
 | **`Ctrl + Shift + 1`** | **Direkt-Capture** | Bereich markieren → **Sofort in die Zwischenablage** (0 Klicks) |
 | **`Ctrl + Shift + 2`** | **Capture & Edit** | Bereich markieren → **Öffnet den Snapboard-Editor** |
+| **`Ctrl + Shift + 3`** | **Text erkennen** | Bereich markieren → **Klartext in die Zwischenablage** |
 | `ESC` | Abbrechen | Aufnahme abbrechen |
 | `Ctrl + C` | Export (im Editor) | Bearbeitetes Bild kopieren & Editor schließen |
 | `Ctrl + S` | Speichern als... | Optional als PNG-Datei exportieren |
 
 ---
+
+Windows-OCR benötigt Windows 10 Version 2004 (Build 19041) oder neuer und ein OCR-Sprachpaket für eine Benutzerprofil-Sprache. Fehlt dieses, erklärt die App die Installation. Bei belegtem Kürzel sind die Aufnahmemodi weiterhin im Menü verfügbar. **Text kopieren** lässt den Editor geöffnet; bestehende Kürzel zum Kopieren von Bildern bleiben unverändert.
 
 ## 🛠️ Aus dem Quellcode bauen
 

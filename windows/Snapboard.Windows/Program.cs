@@ -54,6 +54,7 @@ namespace Snapboard
         private MessageWindow messageWindow;
         private const int HOTKEY_DIRECT_ID = 1;
         private const int HOTKEY_EDIT_ID = 2;
+        private const int HOTKEY_TEXT_ID = 3;
         private readonly CaptureGate captureGate = new CaptureGate();
 
         public SnapboardAppContext()
@@ -64,6 +65,7 @@ namespace Snapboard
             ContextMenuStrip contextMenu = new ContextMenuStrip();
             contextMenu.Items.Add("📷 Bereich aufnehmen (Strg+Umschalt+1)", null, (s, e) => CaptureDirect());
             contextMenu.Items.Add("✏️ Bereich aufnehmen & bearbeiten (Strg+Umschalt+2)", null, (s, e) => CaptureForEdit());
+            contextMenu.Items.Add("Text erkennen (Strg+Umschalt+3)", null, (s, e) => CaptureForText());
             contextMenu.Items.Add(new ToolStripSeparator());
 
             var autostartItem = new ToolStripMenuItem("Beim Windows-Start ausführen");
@@ -80,7 +82,7 @@ namespace Snapboard
             contextMenu.Items.Add(new ToolStripSeparator());
             contextMenu.Items.Add("ℹ️ Über Snapboard", null, (s, e) =>
             {
-                MessageBox.Show("Snapboard v1.1 für Windows & macOS\n\n• Strg+Umschalt+1: Direkt in Zwischenablage (0 Klicks)\n• Strg+Umschalt+2: Bereich markieren & Editor öffnen\n\nKeine Dateien auf der Festplatte gespeichert.", "Über Snapboard", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                MessageBox.Show("Snapboard v1.1 für Windows & macOS\n\n• Strg+Umschalt+1: Direkt in Zwischenablage (0 Klicks)\n• Strg+Umschalt+2: Bereich markieren & Editor öffnen\n• Strg+Umschalt+3: Text lokal erkennen und kopieren\n\nKeine Dateien auf der Festplatte gespeichert.", "Über Snapboard", MessageBoxButtons.OK, MessageBoxIcon.Information);
             });
             contextMenu.Items.Add("Beenden", null, (s, e) => Exit());
 
@@ -100,6 +102,8 @@ namespace Snapboard
                 unavailableHotkeys.Add("Strg+Umschalt+1");
             if (!HotKeyHelper.RegisterHotKey(messageWindow.Handle, HOTKEY_EDIT_ID, modifiers, 0x32))
                 unavailableHotkeys.Add("Strg+Umschalt+2");
+            if (!HotKeyHelper.RegisterHotKey(messageWindow.Handle, HOTKEY_TEXT_ID, modifiers, 0x33))
+                unavailableHotkeys.Add("Strg+Umschalt+3");
             if (unavailableHotkeys.Count > 0)
             {
                 MessageBox.Show($"Diese Tastenkürzel konnten nicht registriert werden: {string.Join(", ", unavailableHotkeys)}.\n" +
@@ -116,6 +120,17 @@ namespace Snapboard
         public void CaptureForEdit()
         {
             captureGate.TryRun(() => Capture(true));
+        }
+
+        public async void CaptureForText()
+        {
+            await captureGate.TryRunAsync(async () =>
+            {
+                using var snipper = new SnippingOverlay();
+                if (snipper.ShowDialog() != DialogResult.OK || snipper.SelectedImage == null) return;
+                using var image = snipper.SelectedImage;
+                await OcrService.CopyTextAsync(image, Array.Empty<RectangleF>());
+            });
         }
 
         private void Capture(bool edit)
@@ -207,12 +222,17 @@ namespace Snapboard
             {
                 CaptureForEdit();
             }
+            else if (id == HOTKEY_TEXT_ID)
+            {
+                CaptureForText();
+            }
         }
 
         private void Exit()
         {
             HotKeyHelper.UnregisterHotKey(messageWindow.Handle, HOTKEY_DIRECT_ID);
             HotKeyHelper.UnregisterHotKey(messageWindow.Handle, HOTKEY_EDIT_ID);
+            HotKeyHelper.UnregisterHotKey(messageWindow.Handle, HOTKEY_TEXT_ID);
             trayIcon.Visible = false;
             trayIcon.Dispose();
             messageWindow.DestroyHandle();

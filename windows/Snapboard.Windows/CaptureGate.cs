@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 
 namespace Snapboard
 {
@@ -12,6 +13,14 @@ namespace Snapboard
             if (active) return false;
             active = true;
             try { capture(); return true; }
+            finally { active = false; }
+        }
+
+        public async Task<bool> TryRunAsync(Func<Task> capture)
+        {
+            if (active) return false;
+            active = true;
+            try { await capture(); return true; }
             finally { active = false; }
         }
     }

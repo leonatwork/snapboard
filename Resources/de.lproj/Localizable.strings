@@ -1,5 +1,16 @@
 /* Snapboard – Localizable.strings (de) */
 
+/* Local, automatic-language OCR: actions, settings and notices */
+"menu.captureText" = "Text erkennen";
+"editor.copyText" = "Text kopieren";
+"settings.ocr.title" = "Text erkennen:";
+"settings.ocr.detail" = "Bereich auswählen → lokal erkennen und Klartext kopieren";
+"ocr.title" = "Text erkennen";
+"ocr.noText" = "Kein Text erkannt. Die Zwischenablage bleibt unverändert.";
+"ocr.failed" = "Die lokale Texterkennung ist fehlgeschlagen. Die Zwischenablage bleibt unverändert. Bitte versuchen Sie es erneut.";
+"ocr.clipboardFailed" = "Der Text konnte nicht in die Zwischenablage kopiert werden. Bitte versuchen Sie es erneut.";
+"ocr.shortcutUnavailable" = "⌘⇧6 konnte nicht registriert werden. Möglicherweise verwendet eine andere Anwendung das Kürzel. Text erkennen ist weiterhin im Menü verfügbar.";
+
 /* Generic OK button */
 "common.ok" = "OK";
 

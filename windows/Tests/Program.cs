@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 using Snapboard;
 
 namespace Snapboard.Tests;
@@ -25,7 +26,12 @@ internal static class RegressionTests
             ("PNG/JPEG filters produce actual signatures and full dimensions", ExportFormats),
             ("Window bounds respect small and negative-origin working areas", WindowBounds),
             ("Fit and scrolled 100% coordinates reach all image corners", ViewCoordinates),
-            ("Large editor fits screen, scrolls, and exports annotations at full size", LargeEditor)
+            ("Large editor fits screen, scrolls, and exports annotations at full size", LargeEditor),
+            ("OCR reading order, newlines, and redaction exclusion", OcrReadingOrder),
+            ("OCR capture gate stays closed across asynchronous recognition", OcrCaptureReentry),
+            ("OCR empty, missing language, and errors preserve clipboard", OcrFailures),
+            ("OCR text clipboard uses Unicode without an image and retries", OcrClipboard),
+            ("Editor OCR receives rendered annotations, excludes redactions, stays open", EditorOcr)
         };
         int failed = 0;
         foreach (var test in tests)
@@ -177,6 +183,109 @@ internal static class RegressionTests
         Equal(Color.FromArgb(255, 59, 48).ToArgb(), exported.GetPixel(start.X + 10, start.Y).ToArgb());
         Equal(Color.FromArgb(255, 59, 48).ToArgb(), exported.GetPixel(fittedStart.X + 10, fittedStart.Y).ToArgb());
         Equal(Color.White.ToArgb(), exported.GetPixel(10, 10).ToArgb());
+        editor.Close();
+    }
+
+    private static OcrTextLine OcrLine(string text, float x, float y) =>
+        new OcrTextLine(text, new RectangleF(x, y, 20, 10));
+
+    private static void OcrReadingOrder()
+    {
+        var lines = new[] { OcrLine("last", 0, 70), OcrLine("right", 40, 12),
+            OcrLine("left", 0, 10), OcrLine("middle", 0, 40), OcrLine("  ", 0, 0) };
+        Equal("left right\nmiddle\nlast", OcrTextLayout.PlainText(lines));
+        Array.Reverse(lines);
+        Equal("left right\nmiddle\nlast", OcrTextLayout.PlainText(lines));
+        Equal("", OcrTextLayout.PlainText(Array.Empty<OcrTextLine>()));
+        Equal("visible", OcrTextLayout.PlainText(new[] { OcrLine("secret", 0, 10), OcrLine("visible", 0, 40) },
+            new[] { new RectangleF(10, 10, 10, 10) }));
+    }
+
+    private static void OcrFailures()
+    {
+        using var image = new Bitmap(10, 10);
+        foreach (int failure in new[] { 0, 1, 2 })
+        {
+            int writes = 0;
+            var notices = new List<string>();
+            Equal(false, OcrService.CopyTextAsync(image, Array.Empty<RectangleF>(), _ => failure switch
+            {
+                1 => Task.FromException<IReadOnlyList<OcrTextLine>>(new OcrLanguageUnavailableException()),
+                2 => Task.FromException<IReadOnlyList<OcrTextLine>>(new InvalidOperationException("OCR failed")),
+                _ => Task.FromResult<IReadOnlyList<OcrTextLine>>(Array.Empty<OcrTextLine>())
+            }, _ => { writes++; return true; }, notices.Add).GetAwaiter().GetResult());
+            Equal(0, writes);
+            Equal(1, notices.Count);
+            if (failure == 1) Equal(true, notices[0].Contains("Sprachpaket"));
+        }
+    }
+
+    private static void OcrCaptureReentry()
+    {
+        var gate = new CaptureGate();
+        var pending = new TaskCompletionSource();
+        Task<bool> capture = gate.TryRunAsync(() => pending.Task);
+        Equal(false, gate.TryRun(() => throw new Exception("Must not capture")));
+        Equal(false, gate.TryRunAsync(() => Task.CompletedTask).GetAwaiter().GetResult());
+        pending.SetResult();
+        Equal(true, capture.GetAwaiter().GetResult());
+        Equal(true, gate.TryRun(() => { }));
+        Throws<InvalidOperationException>(() => gate.TryRunAsync(() =>
+            Task.FromException(new InvalidOperationException())).GetAwaiter().GetResult());
+        Equal(true, gate.TryRun(() => { }));
+    }
+
+    private static void OcrClipboard()
+    {
+        var data = ClipboardRetry.TextData("Deutsch\nEnglish");
+        Equal(true, data.GetDataPresent(DataFormats.UnicodeText, false));
+        Equal("Deutsch\nEnglish", (string)data.GetData(DataFormats.UnicodeText)!);
+        Equal(false, data.GetDataPresent(DataFormats.Bitmap));
+        int attempts = 0;
+        var delays = new List<int>();
+        Equal(true, ClipboardRetry.TrySetText("text", text =>
+        {
+            Equal("text", text);
+            if (++attempts < 3) throw new ExternalException();
+        }, delays.Add));
+        Equal(3, attempts);
+        Equal("100,100", string.Join(",", delays));
+        attempts = 0;
+        Equal(false, ClipboardRetry.TrySetText("text", _ =>
+        {
+            attempts++;
+            throw new ExternalException();
+        }, _ => { }));
+        Equal(3, attempts);
+        Throws<InvalidOperationException>(() => ClipboardRetry.TrySetText("text",
+            _ => throw new InvalidOperationException(), _ => throw new Exception("Must not retry")));
+    }
+
+    private static void EditorOcr()
+    {
+        using var image = new Bitmap(320, 180);
+        using (var g = Graphics.FromImage(image)) g.Clear(Color.White);
+        string copied = "";
+        var notices = new List<string>();
+        using var editor = new EditorForm(image, rendered =>
+        {
+            Equal(image.Size, rendered.Size);
+            Equal(Color.FromArgb(255, 59, 48).ToArgb(), rendered.GetPixel(74, 36).ToArgb());
+            return Task.FromResult<IReadOnlyList<OcrTextLine>>(new[] {
+                OcrLine("secret", 0, 10), OcrLine("annotation", 0, 40) });
+        }, text => { copied = text; return true; }, notices.Add);
+        editor.Show();
+        Application.DoEvents();
+        ((List<Annotation>)Field(editor, "annotations")).Add(new Annotation {
+            Tool = ToolType.Rectangle, Start = new Point(64, 36), End = new Point(256, 144),
+            Color = Color.FromArgb(255, 59, 48), LineWidth = 4 });
+        ((List<Annotation>)Field(editor, "annotations")).Add(new Annotation {
+            Tool = ToolType.Blur, Start = new Point(0, 10), End = new Point(20, 20) });
+        editor.CopyTextAsync().GetAwaiter().GetResult();
+        Equal("annotation", copied);
+        Equal(0, notices.Count);
+        Equal(true, editor.Visible);
+        Equal(true, ((ToolStrip)Field(editor, "mainToolbar")).Items["copyTextButton"]!.Enabled);
         editor.Close();
     }
 

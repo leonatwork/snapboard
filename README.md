@@ -56,6 +56,7 @@ You can download Snapboard straight from GitHub and use it without touching a te
 ## ✨ Features
 
 - ⚡ **Zero-click clipboard capture**: select an area and paste it straight into any app with `⌘ V` / `Ctrl + V`.
+- 🔎 **Local OCR**: recognize text in a selected area or use **Copy Text** in the editor. Copies plain text with line breaks, using automatic language selection, without network access. Editor OCR uses the rendered image; lines overlapping redactions are omitted. Empty results leave the clipboard unchanged.
 - 🎨 **Built-in annotation studio**:
   - ⭕ **Circles & ellipses**
   - ⬜ **Rectangles & frames**
@@ -79,6 +80,7 @@ You can download Snapboard straight from GitHub and use it without touching a te
 | :--- | :--- | :--- |
 | **`⌘ + ⇧ + 1`** | **Direct capture** | Select an area → **straight to the clipboard** (zero clicks) |
 | **`⌘ + ⇧ + 2`** | **Capture & edit** | Select an area → **opens the Snapboard editor** |
+| **`⌘ + ⇧ + 6`** | **Recognize text** | Select an area → **plain text to the clipboard** |
 | `Space` | Window mode | Capture a specific window during selection |
 | `ESC` | Cancel | Abort the capture without touching the clipboard |
 | `⌘ + C` / `Enter` | Export (in editor) | Copy the edited image and close the editor |
@@ -89,11 +91,14 @@ You can download Snapboard straight from GitHub and use it without touching a te
 | :--- | :--- | :--- |
 | **`Ctrl + Shift + 1`** | **Direct capture** | Select an area → **straight to the clipboard** (zero clicks) |
 | **`Ctrl + Shift + 2`** | **Capture & edit** | Select an area → **opens the Snapboard editor** |
+| **`Ctrl + Shift + 3`** | **Recognize text** | Select an area → **plain text to the clipboard** |
 | `ESC` | Cancel | Abort the capture |
 | `Ctrl + C` | Export (in editor) | Copy the edited image and close the editor |
 | `Ctrl + S` | Save as… | Optionally export as a PNG file |
 
 ---
+
+Windows OCR requires Windows 10 version 2004 (build 19041) or later and an OCR language pack for a user-profile language. If none is available, the app explains how to install one. Capture modes are also available in the menu if a shortcut is occupied. **Copy Text** keeps the editor open; existing image-copy shortcuts are unchanged.
 
 ## 🛠️ Building from source
 

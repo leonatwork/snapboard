@@ -10,10 +10,12 @@ final class CaptureService {
     static let shared = CaptureService()
 
     private var activeProcess: Process?
+    private var isRecognizingText = false
 
     private init() {}
 
     func captureDirect() {
+        guard !isRecognizingText else { return }
         if let process = activeProcess, process.isRunning {
             logger.info("Capture process is already running.")
             return
@@ -46,6 +48,25 @@ final class CaptureService {
     }
 
     func captureForEdit() {
+        captureImage { EditorWindowController.shared.show(image: $0) }
+    }
+
+    func captureForText() {
+        captureImage { image in
+            guard let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else {
+                OCRService.showNotice(L10n.tr("ocr.failed"))
+                return
+            }
+            self.isRecognizingText = true
+            Task {
+                defer { self.isRecognizingText = false }
+                await OCRService.shared.copyText(from: cgImage)
+            }
+        }
+    }
+
+    private func captureImage(onCapture: @escaping @MainActor (NSImage) -> Void) {
+        guard !isRecognizingText else { return }
         if let process = activeProcess, process.isRunning {
             logger.info("Capture process is already running.")
             return
@@ -74,8 +95,8 @@ final class CaptureService {
                    let image = NSImage(data: imageData) {
                     // Clean up temp file immediately (0 files on disk)
                     try? FileManager.default.removeItem(at: tempFileURL)
-                    logger.info("Capture loaded into memory. Opening Editor...")
-                    EditorWindowController.shared.show(image: image)
+                    logger.info("Capture loaded into memory.")
+                    onCapture(image)
                 } else {
                     try? FileManager.default.removeItem(at: tempFileURL)
                     logger.error("Failed to load captured image from memory.")

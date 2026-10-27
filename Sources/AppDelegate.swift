@@ -32,6 +32,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             CaptureService.shared.captureForEdit()
         }
 
+        HotKeyManager.shared.onTriggerText = {
+            CaptureService.shared.captureForText()
+        }
+
         // Register global shortcuts
         HotKeyManager.shared.registerHotKeys()
 
