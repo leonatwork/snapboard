@@ -211,11 +211,24 @@ internal static class RegressionTests
         editor.Show();
         Application.DoEvents();
         canvas.Size = image.Size;
+        Application.DoEvents();
         Equal(true, canvas.Created);
         Equal(true, canvas.Visible);
+        Equal(image.Size, canvas.ClientSize);
         using var painted = new Bitmap(image.Width, image.Height);
         canvas.DrawToBitmap(painted, new Rectangle(Point.Empty, image.Size));
-        AssertPixels(exported, painted);
+        // The UI composites the exported pixels onto its background (including
+        // interpolation/alpha at image edges). Compare that paint operation exactly;
+        // the independent full bitmap comparison below still checks every export byte.
+        using var expectedPaint = new Bitmap(image.Width, image.Height);
+        using (var g = Graphics.FromImage(expectedPaint))
+        {
+            g.Clear(canvas.BackColor);
+            g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+            g.DrawImage(exported, new RectangleF(PointF.Empty, image.Size),
+                new RectangleF(PointF.Empty, image.Size), GraphicsUnit.Pixel);
+        }
+        AssertPixels(expectedPaint, painted);
 
         Bitmap Preview() => (Bitmap)Invoke(editor, "GetPixelatedPreview")!;
         Bitmap cached = Preview();

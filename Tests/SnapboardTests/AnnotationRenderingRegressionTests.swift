@@ -5,16 +5,18 @@ import XCTest
 
 /// Uses only APIs already present on origin/main, so these behavioral regressions can
 /// also be run against 2306fc6 without introducing the new layout/cache implementation.
-@MainActor
 final class AnnotationRenderingRegressionTests: XCTestCase {
+    @MainActor
     func testSmallRetinaRectanglePreviewHasExportStrokeWidth() async throws {
         try assertEditorMatchesExport(tool: .rectangle)
     }
 
+    @MainActor
     func testCompletedPixelationPreviewShowsExportPixelsInsteadOfGrayBox() async throws {
         try assertEditorMatchesExport(tool: .blur)
     }
 
+    @MainActor
     func testSmallRetinaVectorToolsMatchExportAtEverySelectableWidth() async throws {
         for tool in [AnnotationTool.rectangle, .circle, .arrow, .pen, .highlighter, .stepNumber] {
             for width in [CGFloat(2), 4, 7] {
@@ -23,7 +25,26 @@ final class AnnotationRenderingRegressionTests: XCTestCase {
         }
     }
 
-    private func assertEditorMatchesExport(tool: AnnotationTool, lineWidth: CGFloat = 4) throws {
+    @MainActor
+    func testRetinaPreviewMatchesExportIndependentlyOfScreenBackingScale() async throws {
+        for displayScale in [CGFloat(1), 2] {
+            for tool in [AnnotationTool.rectangle, .highlighter, .stepNumber, .blur] {
+                try assertEditorMatchesExport(tool: tool, displayScale: displayScale)
+            }
+        }
+    }
+
+    @MainActor
+    func testVectorDraftUsesTheSameRenderingAsCompletedAnnotations() async throws {
+        for tool in [AnnotationTool.arrow, .pen, .highlighter] {
+            try assertEditorMatchesExport(tool: tool, isDraft: true)
+        }
+    }
+
+    @MainActor
+    private func assertEditorMatchesExport(
+        tool: AnnotationTool, lineWidth: CGFloat = 4, displayScale: CGFloat? = nil, isDraft: Bool = false
+    ) throws {
         _ = NSApplication.shared
         let context = try XCTUnwrap(CGContext(
             data: nil, width: 400, height: 300, bitsPerComponent: 8, bytesPerRow: 0,
@@ -44,8 +65,14 @@ final class AnnotationRenderingRegressionTests: XCTestCase {
                                            CGPoint(x: 0.4, y: 0.4)],
                                   color: .red, lineWidth: lineWidth, stepNumber: 12)
         let model = EditorViewModel(image: image)
-        model.annotations = [item]
-        let hosting = NSHostingController(rootView: EditorView(viewModel: model))
+        if isDraft {
+            model.currentDraft = item
+        } else {
+            model.annotations = [item]
+        }
+        let editor = EditorView(viewModel: model)
+        let root = displayScale.map { AnyView(editor.environment(\.displayScale, $0)) } ?? AnyView(editor)
+        let hosting = NSHostingController(rootView: root)
         let window = NSWindow(contentViewController: hosting)
         window.isReleasedWhenClosed = false
         defer { window.close() }

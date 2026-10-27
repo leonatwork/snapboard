@@ -2,8 +2,8 @@ import AppKit
 import XCTest
 @testable import Snapboard
 
-@MainActor
 final class AnnotationPreviewTests: XCTestCase {
+    @MainActor
     func testPixelGeometryUsesExistingExportConstantsAtEverySizeAndWidth() async {
         for size in [CGSize(width: 400, height: 300), CGSize(width: 3000, height: 2000)] {
             for width in [CGFloat(2), 4, 7] {
@@ -39,6 +39,7 @@ final class AnnotationPreviewTests: XCTestCase {
         }
     }
 
+    @MainActor
     func testCompletedPixelationCacheMatchesExportAndTracksUndoRedoAndSource() async throws {
         let image = try sourceImage()
         let model = EditorViewModel(image: image)
@@ -76,6 +77,7 @@ final class AnnotationPreviewTests: XCTestCase {
         XCTAssertNil(model.pixelatedPreview)
     }
 
+    @MainActor
     func testOverlappingPixelationsUseExportSourceAndKeepVectorsOutOfCache() async throws {
         let image = try sourceImage(width: 400, height: 300)
         let model = EditorViewModel(image: image)
@@ -115,6 +117,7 @@ final class AnnotationPreviewTests: XCTestCase {
         try assertCachedExport([second, first])
     }
 
+    @MainActor
     private func sourceImage(inverted: Bool = false, width: Int = 80, height: Int = 60) throws -> NSImage {
         let context = try XCTUnwrap(CGContext(
             data: nil, width: width, height: height, bitsPerComponent: 8, bytesPerRow: 0,
@@ -133,6 +136,7 @@ final class AnnotationPreviewTests: XCTestCase {
                        size: CGSize(width: CGFloat(width) / 2, height: CGFloat(height) / 2))
     }
 
+    @MainActor
     private func pixels(_ image: NSImage) throws -> Data {
         let cg = try XCTUnwrap(image.cgImage(forProposedRect: nil, context: nil, hints: nil))
         let context = try XCTUnwrap(CGContext(

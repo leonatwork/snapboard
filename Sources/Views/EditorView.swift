@@ -435,60 +435,74 @@ struct EditorView: View {
 
 /// The editor's fitted canvas, also rendered directly by the annotation harness.
 @MainActor
-struct AnnotationCanvas: View {
+struct AnnotationCanvas: NSViewRepresentable {
     @ObservedObject var viewModel: EditorViewModel
 
-    var body: some View {
-        ZStack {
-            Image(nsImage: viewModel.pixelatedPreview ?? viewModel.image)
-                .resizable()
-                .interpolation(.high)
-            Canvas { context, size in
-                for item in viewModel.annotations where item.tool != .blur {
-                    draw(item: item, in: &context, size: size)
-                }
-                if let draft = viewModel.currentDraft {
-                    if draft.tool == .blur {
-                        let rect = CGRect(
-                            x: min(draft.startPoint.x, draft.endPoint.x) * size.width,
-                            y: min(draft.startPoint.y, draft.endPoint.y) * size.height,
-                            width: abs(draft.endPoint.x - draft.startPoint.x) * size.width,
-                            height: abs(draft.endPoint.y - draft.startPoint.y) * size.height
-                        )
-                        context.fill(Path(rect), with: .color(Color.gray.opacity(0.7)))
-                        context.stroke(Path(rect), with: .color(Color.white.opacity(0.9)),
-                                       style: StrokeStyle(lineWidth: 1.5, dash: [4, 4]))
-                    } else {
-                        draw(item: draft, in: &context, size: size)
-                    }
-                }
-            }
-        }
+    func makeNSView(context: Context) -> AnnotationCanvasView {
+        AnnotationCanvasView(frame: .zero)
     }
 
-    private func draw(item: AnnotationItem, in context: inout GraphicsContext, size: CGSize) {
+    func updateNSView(_ view: AnnotationCanvasView, context: Context) {
+        view.viewModel = viewModel
+        view.needsDisplay = true
+    }
+}
+
+/// Draw directly into the destination context, rather than independently rasterizing
+/// SwiftUI Image/Canvas layers at the screen's backing scale. Offscreen/Retina drawing
+/// then uses the same pixel geometry, color conversion and antialiasing as export.
+@MainActor
+final class AnnotationCanvasView: NSView {
+    var viewModel: EditorViewModel?
+
+    override var isFlipped: Bool { true }
+
+    // Drawing gestures belong to the enclosing SwiftUI canvas container.
+    override func hitTest(_ point: NSPoint) -> NSView? { nil }
+
+    override func draw(_ dirtyRect: NSRect) {
+        guard let viewModel, let cgContext = NSGraphicsContext.current?.cgContext else { return }
         let pixelSize = viewModel.imagePixelSize
-        guard pixelSize.width > 0, pixelSize.height > 0 else { return }
-        // Preserve the existing text preview path exactly.
-        if item.tool == .text {
-            guard let layout = TextAnnotationLayout(item: item, imagePixelSize: pixelSize) else { return }
-            context.withCGContext { cgContext in
-                cgContext.scaleBy(x: size.width / pixelSize.width, y: size.height / pixelSize.height)
-                NSGraphicsContext.saveGraphicsState()
-                NSGraphicsContext.current = NSGraphicsContext(cgContext: cgContext, flipped: true)
-                layout.draw(flipped: true)
-                NSGraphicsContext.restoreGraphicsState()
-            }
-            return
-        }
-        context.withCGContext { cgContext in
-            cgContext.scaleBy(x: size.width / pixelSize.width, y: size.height / pixelSize.height)
-            cgContext.translateBy(x: 0, y: pixelSize.height)
-            cgContext.scaleBy(x: 1, y: -1)
-            NSGraphicsContext.saveGraphicsState()
-            NSGraphicsContext.current = NSGraphicsContext(cgContext: cgContext, flipped: false)
-            ImageRendererService.shared.drawAnnotation(item, pixelWidth: Int(pixelSize.width), pixelHeight: Int(pixelSize.height))
+        let image = viewModel.pixelatedPreview ?? viewModel.image
+        guard pixelSize.width > 0, pixelSize.height > 0,
+              let cgImage = image.cgImage(forProposedRect: nil, context: nil, hints: nil) else { return }
+
+        cgContext.saveGState()
+        NSGraphicsContext.saveGraphicsState()
+        defer {
             NSGraphicsContext.restoreGraphicsState()
+            cgContext.restoreGState()
+        }
+        cgContext.clip(to: bounds)
+        cgContext.translateBy(x: bounds.minX, y: bounds.minY)
+        cgContext.scaleBy(x: bounds.width / pixelSize.width, y: bounds.height / pixelSize.height)
+        cgContext.translateBy(x: 0, y: pixelSize.height)
+        cgContext.scaleBy(x: 1, y: -1)
+        cgContext.interpolationQuality = .high
+        cgContext.draw(cgImage, in: CGRect(origin: .zero, size: pixelSize))
+        NSGraphicsContext.current = NSGraphicsContext(cgContext: cgContext, flipped: false)
+
+        for item in viewModel.annotations where item.tool != .blur {
+            ImageRendererService.shared.drawAnnotation(
+                item, pixelWidth: Int(pixelSize.width), pixelHeight: Int(pixelSize.height)
+            )
+        }
+        if let draft = viewModel.currentDraft {
+            if draft.tool == .blur {
+                let rect = draft.cgRectInPixelSpace(width: Int(pixelSize.width), height: Int(pixelSize.height))
+                NSColor.gray.withAlphaComponent(0.7).setFill()
+                NSBezierPath(rect: rect).fill()
+                NSColor.white.withAlphaComponent(0.9).setStroke()
+                let border = NSBezierPath(rect: rect)
+                let previewScale = pixelSize.width / max(1, bounds.width)
+                border.lineWidth = 1.5 * previewScale
+                border.setLineDash([4 * previewScale, 4 * previewScale], count: 2, phase: 0)
+                border.stroke()
+            } else {
+                ImageRendererService.shared.drawAnnotation(
+                    draft, pixelWidth: Int(pixelSize.width), pixelHeight: Int(pixelSize.height)
+                )
+            }
         }
     }
 }
