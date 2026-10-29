@@ -1,5 +1,4 @@
 import AppKit
-import UserNotifications
 import os.log
 
 private let logger = Logger(subsystem: "com.leon.snapboard", category: "AppDelegate")
@@ -34,13 +33,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         // Register global shortcuts
         HotKeyManager.shared.registerHotKeys()
-
-        // Request notification authorization
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound]) { granted, error in
-            if let error = error {
-                logger.error("Notification permission error: \(error.localizedDescription)")
-            }
-        }
     }
 
     func applicationWillTerminate(_ notification: Notification) {

@@ -54,6 +54,15 @@
 /* Notification body after a direct capture */
 "notification.copied" = "Istantanea dello schermo copiata negli appunti.";
 
+/* Permessi per acquisizione e notifiche; errore di sistema (%@). */
+"capture.permission.title" = "Permesso di registrazione dello schermo richiesto";
+"capture.permission.message" = "Snapboard richiede il permesso di registrare lo schermo. Abilita Snapboard in Impostazioni di Sistema → Privacy e sicurezza → Registrazione schermo e audio di sistema. Potrebbe essere necessario chiudere e riaprire Snapboard, quindi riprovare l’acquisizione.";
+"capture.permission.openSettings" = "Apri Impostazioni di Sistema";
+"capture.startError.title" = "Impossibile avviare l’acquisizione";
+"capture.startError.message" = "Impossibile avviare lo strumento di acquisizione dello schermo di macOS. Riprova.\n\n%@";
+"notification.permissionDenied.title" = "Notifiche non consentite";
+"notification.permissionDenied.message" = "Le notifiche restano disattivate perché il permesso non è stato concesso. Consenti le notifiche di Snapboard in Impostazioni di Sistema → Notifiche, quindi riattiva le notifiche dopo l’acquisizione.";
+
 /* Title of the settings window */
 "settings.windowTitle" = "Impostazioni di Snapboard";
 
