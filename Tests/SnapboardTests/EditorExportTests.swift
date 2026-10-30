@@ -3,11 +3,11 @@ import ImageIO
 import XCTest
 @testable import Snapboard
 
-@MainActor
 final class EditorExportTests: XCTestCase {
     private let pixelWidth = 320
     private let pixelHeight = 180
 
+    @MainActor
     private var annotation: AnnotationItem {
         AnnotationItem(
             tool: .rectangle,
@@ -18,6 +18,7 @@ final class EditorExportTests: XCTestCase {
         )
     }
 
+    @MainActor
     private func sourceImage(scale: CGFloat) throws -> NSImage {
         let context = try XCTUnwrap(CGContext(
             data: nil, width: pixelWidth, height: pixelHeight,
@@ -33,6 +34,7 @@ final class EditorExportTests: XCTestCase {
         )
     }
 
+    @MainActor
     private func assertEncodedImage(
         _ data: Data, scale: CGFloat,
         file: StaticString = #filePath, line: UInt = #line
@@ -51,6 +53,22 @@ final class EditorExportTests: XCTestCase {
         XCTAssertEqual(dpiHeight.doubleValue, Double(72 * scale), accuracy: 0.02, file: file, line: line)
     }
 
+    @MainActor
+    func testPNGEncodingIncludesResolutionForEachSourceAxis() async throws {
+        let image = try sourceImage(scale: 2)
+        image.size.height = CGFloat(pixelHeight) / 3
+        let data = try ImageExport(image: image).pngData()
+        let source = try XCTUnwrap(CGImageSourceCreateWithData(data as CFData, nil))
+        let properties = try XCTUnwrap(CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [String: Any])
+        let dpiWidth = try XCTUnwrap(properties[kCGImagePropertyDPIWidth as String] as? NSNumber)
+        let dpiHeight = try XCTUnwrap(properties[kCGImagePropertyDPIHeight as String] as? NSNumber)
+        XCTAssertEqual(dpiWidth.doubleValue, 144, accuracy: 0.02)
+        XCTAssertEqual(dpiHeight.doubleValue, 216, accuracy: 0.02)
+        XCTAssertEqual((properties[kCGImagePropertyPixelWidth as String] as? NSNumber)?.intValue, pixelWidth)
+        XCTAssertEqual((properties[kCGImagePropertyPixelHeight as String] as? NSNumber)?.intValue, pixelHeight)
+    }
+
+    @MainActor
     func testRenderPreservesSourcePointSizeAndPixelsAtRetinaAnd1x() async throws {
         for scale in [CGFloat(1), CGFloat(2)] {
             let image = try sourceImage(scale: scale)
@@ -64,6 +82,7 @@ final class EditorExportTests: XCTestCase {
         }
     }
 
+    @MainActor
     func testCopyPublishesPNGFirstAndTIFFFallbackWithSourceResolution() async throws {
         let pasteboard = NSPasteboard.withUniqueName()
         defer { pasteboard.releaseGlobally() }
@@ -94,6 +113,7 @@ final class EditorExportTests: XCTestCase {
         }
     }
 
+    @MainActor
     func testSaveWritesPNGWithSourcePixelsAndResolution() async throws {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
@@ -120,6 +140,7 @@ final class EditorExportTests: XCTestCase {
         }
     }
 
+    @MainActor
     func testCopyRenderFailureReportsErrorAndPreservesEditorAndClipboard() async throws {
         let pasteboard = NSPasteboard.withUniqueName()
         defer { pasteboard.releaseGlobally() }
@@ -144,6 +165,7 @@ final class EditorExportTests: XCTestCase {
         XCTAssertEqual(pasteboard.string(forType: .string), "existing clipboard")
     }
 
+    @MainActor
     func testSaveRenderFailureReportsErrorBeforeOpeningSavePanel() async {
         var errors: [Error] = []
         var choseURL = false
@@ -165,6 +187,7 @@ final class EditorExportTests: XCTestCase {
         XCTAssertEqual(model.annotations.count, 1)
     }
 
+    @MainActor
     func testWriteFailureReportsSystemErrorAndPreservesAnnotationsAndUndo() async throws {
         // A missing parent fails even when the tests run with elevated filesystem permissions.
         let url = FileManager.default.temporaryDirectory
@@ -192,6 +215,7 @@ final class EditorExportTests: XCTestCase {
         XCTAssertFalse(FileManager.default.fileExists(atPath: url.path))
     }
 
+    @MainActor
     func testCancelSaveDoesNotReportErrorOrClose() async throws {
         var errors: [Error] = []
         var closed = false
