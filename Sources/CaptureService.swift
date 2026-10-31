@@ -1,4 +1,5 @@
 import AppKit
+import CoreGraphics
 import Foundation
 import UserNotifications
 import os.log
@@ -10,14 +11,61 @@ final class CaptureService {
     static let shared = CaptureService()
 
     private var activeProcess: Process?
+    private var hasRequestedScreenCapture = false
+    private var isPresentingPermissionDialog = false
+    private let preflightScreenCapture: () -> Bool
+    private let requestScreenCapture: () -> Void
+    private let presentScreenCapturePermission: () -> Bool
+    private let openScreenCaptureSettings: (URL) -> Void
+    private let runProcess: (Process) throws -> Void
+    private let presentCaptureStartError: (Error) -> Void
 
-    private init() {}
+    var hasActiveCapture: Bool { activeProcess != nil }
 
-    func captureDirect() {
+    init(
+        preflightScreenCapture: @escaping () -> Bool = { CGPreflightScreenCaptureAccess() },
+        requestScreenCapture: @escaping () -> Void = { _ = CGRequestScreenCaptureAccess() },
+        presentScreenCapturePermission: (() -> Bool)? = nil,
+        openScreenCaptureSettings: ((URL) -> Void)? = nil,
+        runProcess: @escaping (Process) throws -> Void = { try $0.run() },
+        presentCaptureStartError: ((Error) -> Void)? = nil
+    ) {
+        self.preflightScreenCapture = preflightScreenCapture
+        self.requestScreenCapture = requestScreenCapture
+        self.presentScreenCapturePermission = presentScreenCapturePermission ?? Self.showScreenCapturePermission
+        self.openScreenCaptureSettings = openScreenCaptureSettings ?? { _ = NSWorkspace.shared.open($0) }
+        self.runProcess = runProcess
+        self.presentCaptureStartError = presentCaptureStartError ?? Self.showCaptureStartError
+    }
+
+    // All entry points (shortcuts, menu, settings buttons) pass through this gate.
+    private func canStartCapture() -> Bool {
+        guard !isPresentingPermissionDialog else { return false }
         if let process = activeProcess, process.isRunning {
             logger.info("Capture process is already running.")
-            return
+            return false
         }
+        guard preflightScreenCapture() else {
+            isPresentingPermissionDialog = true
+            defer { isPresentingPermissionDialog = false }
+            if presentScreenCapturePermission() {
+                // Register Snapboard in the privacy list, at most once per app session.
+                // Even if granted here, this attempt stops; the user retries after granting access.
+                if !hasRequestedScreenCapture {
+                    hasRequestedScreenCapture = true
+                    requestScreenCapture()
+                }
+                if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture") {
+                    openScreenCaptureSettings(url)
+                }
+            }
+            return false
+        }
+        return true
+    }
+
+    func captureDirect() {
+        guard canStartCapture() else { return }
 
         let process = Process()
         process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
@@ -38,18 +86,16 @@ final class CaptureService {
         }
 
         do {
-            try process.run()
+            try runProcess(process)
             self.activeProcess = process
         } catch {
             logger.error("Failed to run screencapture: \(error.localizedDescription)")
+            presentCaptureStartError(error)
         }
     }
 
     func captureForEdit() {
-        if let process = activeProcess, process.isRunning {
-            logger.info("Capture process is already running.")
-            return
-        }
+        guard canStartCapture() else { return }
 
         let tempFileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("snapboard_capture_\(UUID().uuidString).png")
 
@@ -84,11 +130,34 @@ final class CaptureService {
         }
 
         do {
-            try process.run()
+            try runProcess(process)
             self.activeProcess = process
         } catch {
             logger.error("Failed to start screencapture for edit: \(error.localizedDescription)")
+            try? FileManager.default.removeItem(at: tempFileURL)
+            presentCaptureStartError(error)
         }
+    }
+
+    private static func showScreenCapturePermission() -> Bool {
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = L10n.tr("capture.permission.title")
+        alert.informativeText = L10n.tr("capture.permission.message")
+        alert.addButton(withTitle: L10n.tr("capture.permission.openSettings"))
+        alert.addButton(withTitle: L10n.tr("common.cancel"))
+        NSApp.activate(ignoringOtherApps: true)
+        return alert.runModal() == .alertFirstButtonReturn
+    }
+
+    private static func showCaptureStartError(_ error: Error) {
+        let alert = NSAlert()
+        alert.alertStyle = .warning
+        alert.messageText = L10n.tr("capture.startError.title")
+        alert.informativeText = L10n.format("capture.startError.message", error.localizedDescription)
+        alert.addButton(withTitle: L10n.tr("common.ok"))
+        NSApp.activate(ignoringOtherApps: true)
+        alert.runModal()
     }
 
     private func handleCaptureSuccess() {

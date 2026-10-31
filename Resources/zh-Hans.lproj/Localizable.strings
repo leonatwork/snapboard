@@ -54,6 +54,15 @@
 /* Notification body after a direct capture */
 "notification.copied" = "截屏已拷贝到剪贴板。";
 
+/* 截屏和通知权限；启动错误包含系统错误（%@）。 */
+"capture.permission.title" = "需要屏幕录制权限";
+"capture.permission.message" = "Snapboard 需要屏幕录制权限才能截屏。请在“系统设置”→“隐私与安全性”→“屏幕与系统音频录制”中启用 Snapboard。授权后可能需要退出并重新打开 Snapboard，然后再次尝试截屏。";
+"capture.permission.openSettings" = "打开系统设置";
+"capture.startError.title" = "无法开始截屏";
+"capture.startError.message" = "无法启动 macOS 截屏工具。请重试。\n\n%@";
+"notification.permissionDenied.title" = "通知未获允许";
+"notification.permissionDenied.message" = "由于未获得授权，通知保持关闭。请在“系统设置”→“通知”中允许 Snapboard 发送通知，然后重新开启截屏后通知。";
+
 /* Title of the settings window */
 "settings.windowTitle" = "Snapboard 设置";
 

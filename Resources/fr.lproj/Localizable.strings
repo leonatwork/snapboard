@@ -54,6 +54,15 @@
 /* Notification body after a direct capture */
 "notification.copied" = "Capture d’écran copiée dans le presse-papiers.";
 
+/* Autorisations de capture et de notifications ; erreur système (%@). */
+"capture.permission.title" = "Autorisation d’enregistrement de l’écran requise";
+"capture.permission.message" = "Snapboard a besoin de l’autorisation d’enregistrement de l’écran. Activez Snapboard dans Réglages Système → Confidentialité et sécurité → Enregistrement de l’écran et de l’audio système. Vous devrez peut-être quitter et rouvrir Snapboard, puis réessayer la capture.";
+"capture.permission.openSettings" = "Ouvrir Réglages Système";
+"capture.startError.title" = "Impossible de démarrer la capture";
+"capture.startError.message" = "L’outil de capture d’écran de macOS n’a pas pu démarrer. Veuillez réessayer.\n\n%@";
+"notification.permissionDenied.title" = "Notifications non autorisées";
+"notification.permissionDenied.message" = "Les notifications restent désactivées car l’autorisation n’a pas été accordée. Autorisez Snapboard dans Réglages Système → Notifications, puis réactivez les notifications après capture.";
+
 /* Title of the settings window */
 "settings.windowTitle" = "Réglages de Snapboard";
 

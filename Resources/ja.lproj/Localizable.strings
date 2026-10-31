@@ -54,6 +54,15 @@
 /* Notification body after a direct capture */
 "notification.copied" = "スクリーンショットをクリップボードにコピーしました。";
 
+/* 画面収録と通知の権限。開始エラーにはシステムエラー（%@）を含む。 */
+"capture.permission.title" = "画面収録の許可が必要です";
+"capture.permission.message" = "Snapboardで画面を撮影するには、画面収録の許可が必要です。「システム設定」→「プライバシーとセキュリティ」→「画面収録とシステムオーディオ録音」でSnapboardを有効にしてください。許可後、Snapboardを終了して再度開く必要がある場合があります。その後、撮影をやり直してください。";
+"capture.permission.openSettings" = "システム設定を開く";
+"capture.startError.title" = "撮影を開始できませんでした";
+"capture.startError.message" = "macOSのスクリーンショットツールを起動できませんでした。もう一度お試しください。\n\n%@";
+"notification.permissionDenied.title" = "通知が許可されていません";
+"notification.permissionDenied.message" = "許可が得られなかったため、通知はオフのままです。「システム設定」→「通知」でSnapboardの通知を許可し、撮影後の通知をもう一度オンにしてください。";
+
 /* Title of the settings window */
 "settings.windowTitle" = "Snapboard 設定";
 

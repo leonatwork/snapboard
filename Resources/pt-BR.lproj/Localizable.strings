@@ -54,6 +54,15 @@
 /* Notification body after a direct capture */
 "notification.copied" = "Captura de tela copiada para a Área de Transferência.";
 
+/* Permissões de captura e notificações; erro do sistema (%@). */
+"capture.permission.title" = "Permissão de gravação da tela necessária";
+"capture.permission.message" = "O Snapboard precisa de permissão para gravar a tela. Ative o Snapboard em Ajustes do Sistema → Privacidade e Segurança → Gravação de Tela e Áudio do Sistema. Talvez seja necessário encerrar e reabrir o Snapboard e tentar a captura novamente.";
+"capture.permission.openSettings" = "Abrir Ajustes do Sistema";
+"capture.startError.title" = "Não foi possível iniciar a captura";
+"capture.startError.message" = "Não foi possível iniciar a ferramenta de captura de tela do macOS. Tente novamente.\n\n%@";
+"notification.permissionDenied.title" = "Notificações não permitidas";
+"notification.permissionDenied.message" = "As notificações continuam desativadas porque a permissão não foi concedida. Permita notificações do Snapboard em Ajustes do Sistema → Notificações e ative novamente as notificações após a captura.";
+
 /* Title of the settings window */
 "settings.windowTitle" = "Ajustes do Snapboard";
 

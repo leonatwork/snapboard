@@ -54,6 +54,15 @@
 /* Notification body after a direct capture */
 "notification.copied" = "스크린샷을 클립보드에 복사했습니다.";
 
+/* 화면 캡처 및 알림 권한. 시작 오류에는 시스템 오류(%@)가 포함됩니다. */
+"capture.permission.title" = "화면 기록 권한이 필요합니다";
+"capture.permission.message" = "Snapboard에서 화면을 캡처하려면 화면 기록 권한이 필요합니다. 시스템 설정 → 개인정보 보호 및 보안 → 화면 및 시스템 오디오 녹음에서 Snapboard를 활성화하세요. 권한을 부여한 뒤 Snapboard를 종료하고 다시 열어야 할 수 있습니다. 그런 다음 캡처를 다시 시도하세요.";
+"capture.permission.openSettings" = "시스템 설정 열기";
+"capture.startError.title" = "캡처를 시작할 수 없습니다";
+"capture.startError.message" = "macOS 스크린샷 도구를 시작할 수 없습니다. 다시 시도하세요.\n\n%@";
+"notification.permissionDenied.title" = "알림이 허용되지 않았습니다";
+"notification.permissionDenied.message" = "권한이 부여되지 않아 알림이 꺼진 상태로 유지됩니다. 시스템 설정 → 알림에서 Snapboard 알림을 허용한 다음 캡처 후 알림을 다시 켜세요.";
+
 /* Title of the settings window */
 "settings.windowTitle" = "Snapboard 설정";
 
