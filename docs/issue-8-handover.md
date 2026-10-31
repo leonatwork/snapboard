@@ -2,13 +2,15 @@
 
 ## Ausgangsstand und verbindlicher Umfang
 
-Basis der vorhandenen Lösung: lokales `origin/main`,
-`2306fc6e8e357a64980c9674b273825f52e8844f`.
-Dieser Fortsetzungslauf startete sauber auf dem bereits ausgecheckten Branch
-`agent/bearbeite-github-issue-8-vollst-ndig-und-1026-2301`, Commit
-`094905c8ee6bfea04b74a0a406da79c46c0c146d` (laut Auftrag der eigene Stand von PR #17).
-Die beiden vorhandenen Commits `46f2210` und `094905c` und ihr Diff gegen `origin/main`
-wurden geprüft und beibehalten.
+Stand dieses Fortsetzungslaufs (2026-10-31): sauber ausgecheckter eigener Branch
+`agent/bearbeite-github-issue-8-vollst-ndig-und-1026-2301`, HEAD `ac8632b`.
+Das lokale `origin/main` ist `644e5458eb76`; es ist durch den bereits vorhandenen
+Merge `ac8632b` enthalten. Die eigene Umsetzung (`46f2210`, `094905c`, `728580b`)
+und die CI-Nacharbeiten (`d346eb8`, `90ad362`) wurden anhand von Log und Diff geprüft.
+Der eingefrorene Exportvergleich basiert weiter auf `2306fc6`; zwischen diesem Stand
+und dem aktuellen `origin/main` sind die beiden Annotationsrenderer unverändert
+(`git diff 2306fc6 origin/main -- Sources/Models/AnnotationModel.swift windows/Snapboard.Windows/EditorForm.cs`
+ist leer).
 Die spätere ausdrückliche Anweisung zur Fortsetzung auf diesem Branch konkretisiert die
 ursprüngliche Main-only-Vorgabe. Kein Branchwechsel, Cherry-Pick, neuer Commit oder Push
 in diesem Lauf; kein fremder offener PR als Grundlage.
@@ -37,7 +39,7 @@ Strichstärkenauswahl. `--verify-annotations` ist ein eigener Modus; die bestehe
 | AC-4 | Abgeschlossene macOS-Pixelungen verwenden den unveränderten Exportpfad mit CIPixellate, Blockgröße und Quellbild; eine gecachte Bildlage liegt unter allen Vektoren. Entwürfe dürfen weiterhin vereinfacht sein. | Optische Übereinstimmung implementiert, Plattform-/Sichtprüfung offen; Unlesbarkeitsgarantie siehe unten |
 | AC-5 | Windows cached eine mit `ApplyBlur` erzeugte Bildlage, einschließlich Reihenfolge überlappender Bereiche. Native/fitted/scrolled Paint-, Cache-, Geometrieänderungs-, Undo-/Redo- und Randfalltests. | Implementiert, Windows-Lauf offen |
 | AC-6 | Beide Plattformen vergleichen alle acht Werkzeuge auf beiden Größen mit 2/4/7 gegen eingefrorene, unabhängige Exportrenderer des Ausgangsstands. macOS speichert Before/Export/Preview-PNGs; Windows optional ebenso. Windows-Exportmethoden sind im Diff unverändert. | Vergleich vorbereitet, nicht ausgeführt |
-| AC-7 | Bestehendes Textlayout und Textpreview-Zeichenweg unverändert; eigener All-Tool-Harness mit 48 Fällen und je zwei macOS-Canvas-Größen. | Beide Harness-Läufe offen |
+| AC-7 | Bestehendes Textlayout und Export-Zeichenoperationen unverändert; die Vorschau rasterisiert jetzt gemeinsam mit den Vektoren in Quellbildpixeln. Eigener All-Tool-Harness mit 48 Fällen und je zwei macOS-Canvas-Größen; `--verify-text` unverändert. | Beide Harness-Läufe offen |
 | AC-8 | `build-macos` enthält jetzt relevante Swift-Tests und beide Harness-Prüfungen; die neuen Windows-Tests laufen über den vorhandenen Regression-Runner in `build-windows`. | Kein CI-Lauf gestartet oder eingesehen; Grünstatus nicht bestätigt |
 
 ### Konflikt innerhalb AC-4
@@ -65,7 +67,7 @@ veränderte Pixel, damit falsche Pfeilspitzen/Badges nicht durch unveränderten 
 im Mittelwert verborgen werden. Im Produktionscode ergab der statische Review keinen
 zusätzlichen erforderlichen Fix; der vorhandene Stand wurde beibehalten.
 
-Im aktuellen Fortsetzungslauf wurden zuerst Assertions für erstellte und sichtbare
+Im früheren Fortsetzungslauf wurden zuerst Assertions für erstellte und sichtbare
 Windows-Canvas-Controls zu den beiden noch versteckt laufenden Paint-Prüfungen hinzugefügt.
 Danach wurde ihr Aufbau korrigiert: `PixelationPreview` und `AnnotationExports` zeigen
 das Editorformular an und verarbeiten die initialen UI-Ereignisse vor dem Einstellen der
@@ -78,7 +80,33 @@ Blockgrößen auf einer synthetischen 400×300-Aufnahme: Abgleich mit dem Export
 zwischen Pixelungen, unveränderter Cache beim Umsortieren nur der Vektoren, geänderte
 Pixelungsreihenfolge, Undo/Redo sowie Clear/Undo. Eine Fixture-Assertion fordert einen
 tatsächlichen Pixelunterschied zwischen beiden Überlappungsreihenfolgen. Der Produktions-
-Rendercode benötigte im aktuellen statischen Review keine weitere Änderung.
+Rendercode benötigte dabei keine weitere Änderung.
+
+### Ergänzungen vom 2026-10-31
+
+Zuerst wurde die fehlende Verhaltensregression für eine abgeschlossene Pixelung mit
+überlagerndem transparentem Marker ergänzt (Vektor sowohl vor als auch nach der Pixelung
+eingefügt). Danach wurde der gemeinsame Editor-Snapshot-Helfer um diese Annotationslisten
+erweitert. Er vergleicht weiterhin den tatsächlichen Editor mit dem unabhängigen Export;
+Fehlerschwellen und bestehende Assertions wurden nicht gelockert.
+
+Der vorgesehene macOS-Vorher-Lauf war inzwischen nicht mehr kompilierbar: Die dafür
+genannte Datei enthielt einen Test mit der erst im Fix eingeführten `AnnotationCanvasView`.
+Dieser Test wurde unverändert nach `AnnotationCanvasRegressionTests.swift` verschoben,
+als Extension derselben XCTest-Klasse. Damit bleibt er im bestehenden CI-Testfilter,
+während **nur** `AnnotationRenderingRegressionTests.swift` wieder ausschließlich APIs
+des Ausgangsstands verwendet. Beim Vorher-Lauf die Extension-Datei nicht übernehmen.
+
+Die Kernumsetzung wurde beibehalten; dieser Lauf ändert keinen Produktionscode.
+Der bestehende PR enthält auch einen PNG-DPI-Fix in `ImageExport.swift` samt Test aus
+`d346eb8`. Das gehört fachlich zum Editor-Export (außerhalb Issue #8), wurde damals aber
+zur Reparatur der bereits vorhandenen `EditorExportTests` aufgenommen. Es wurde gemäß
+Fortsetzungsauftrag beibehalten und hier nicht erweitert. AC-6 vergleicht Bildpixel,
+nicht identische PNG-Dateibytes oder deren DPI-Metadaten.
+
+Die historischen Committexte der CI-Nacharbeiten enthalten fehlgeschlagene macOS-
+Regressionen und einen Windows-Pixelvergleich; sie sind kein Nachweis für den aktuellen
+Stand. Ein erfolgreicher Folgelauf ist ohne GitHub-Zugriff nicht feststellbar.
 
 Der Server ist Linux; der Auftrag verbietet Build und Plattformausführung. Deshalb wurde
 **kein Test vor oder nach dem Fix ausgeführt**, und insbesondere kein korrektes rotes
@@ -91,9 +119,11 @@ bevor auf die neue Cache-API zugegriffen wird; sie soll am grauen Platzhalter sc
 Ausgeführt und erfolgreich:
 
 - `git diff --check`
+- `git diff --no-index --check /dev/null Tests/SnapboardTests/AnnotationCanvasRegressionTests.swift`
+  (Whitespace-Prüfung auch für die neue, noch ungetrackte Datei)
 - `bash -n scripts/screenshots/render.sh` (nur Syntax, keine Harness-Ausführung)
 - Statischer Diff-/Quellreview: unveränderte Exportarithmetik und Stile, unveränderte
-  Textimplementierung, Plattform-spezifische Pixelungsquellen/Überlappungsreihenfolge,
+  Textlayout/Export-Zeichenoperationen, Plattform-spezifische Pixelungsquellen/Überlappungsreihenfolge,
   wertbasierte Cache-Schlüssel und Windows-Bitmap-Freigabe.
 
 ## Plattform-QS für den Reviewer
@@ -114,7 +144,8 @@ dass der Vergleich wieder in Quellbildpixeln erfolgt. Keine Bildschirmaufnahme o
 Nutzerdaten; die PNGs enthalten ausschließlich synthetischen Inhalt.
 
 Für den noch fehlenden Rotnachweis in einem separaten, sauberen Workspace auf exakt
-`2306fc6` ausschließlich `AnnotationRenderingRegressionTests.swift` hinzufügen und
+`2306fc6` ausschließlich `AnnotationRenderingRegressionTests.swift` hinzufügen (ohne
+`AnnotationCanvasRegressionTests.swift` und ohne die Cache-/Layout-Tests) und
 `swift test --filter AnnotationRenderingRegressionTests` ausführen. Erwartet sind
 Bildabweichungen für das kleine Retina-Rechteck und die abgeschlossene Pixelung; ein
 Buildfehler wäre **kein** korrekter Verhaltensnachweis. Danach dieselben Tests mit dem Fix
@@ -144,7 +175,7 @@ Manuell abgeschlossene Pixelung mit dem kopierten Bild vergleichen, inklusive
 ## Lieferung / Abhängigkeiten
 
 Die Ergänzungen dieses Laufs liegen uncommitted im bestehenden Workspace; die bisherige
-Lösung ist bereits in den beiden übernommenen Commits enthalten. Keine App-Abhängigkeiten
+Lösung ist bereits in den oben genannten übernommenen Commits enthalten. Keine App-Abhängigkeiten
 und keine neuen UI-Texte. Kein PR erstellt oder gemergt, kein Release/Deployment und keine
 Produktionsdaten oder Supabase-Instanzen angefasst.
 

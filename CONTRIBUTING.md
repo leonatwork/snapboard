@@ -55,6 +55,11 @@ dotnet run --project windows/Tests/Snapboard.Windows.Tests.csproj -c Release -- 
 ```
 The frozen renderers in `scripts/screenshots/` and `windows/Tests/` are test oracles from
 `2306fc6`; do not update their geometry or styles when changing the production renderer.
+For a macOS pre-fix behavioral run in a separate workspace at `2306fc6`, copy only
+`Tests/SnapboardTests/AnnotationRenderingRegressionTests.swift` and run
+`swift test --filter AnnotationRenderingRegressionTests`. Do not copy
+`AnnotationCanvasRegressionTests.swift` or the cache/layout tests into that workspace:
+they use APIs introduced by the fix. The fixed build runs all of them with the filter above.
 
 ## Pull Requests & Issues
 - Keep PRs focused and well-scoped.

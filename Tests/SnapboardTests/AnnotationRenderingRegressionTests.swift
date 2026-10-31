@@ -13,75 +13,6 @@ final class AnnotationRenderingRegressionTests: XCTestCase {
     }
 
     @MainActor
-    func testFractionalCanvasOriginDoesNotResampleNativeRetinaPixels() async throws {
-        _ = NSApplication.shared
-        let space = try XCTUnwrap(CGColorSpace(name: CGColorSpace.sRGB))
-        let source = try XCTUnwrap(CGContext(
-            data: nil, width: 400, height: 300, bitsPerComponent: 8, bytesPerRow: 0,
-            space: space, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-        ))
-        source.setFillColor(NSColor.white.cgColor)
-        source.fill(CGRect(x: 0, y: 0, width: 400, height: 300))
-        source.setFillColor(NSColor.black.cgColor)
-        for x in stride(from: 0, to: 400, by: 6) {
-            source.fill(CGRect(x: x, y: 0, width: 2, height: 300))
-        }
-        let image = NSImage(cgImage: try XCTUnwrap(source.makeImage()), size: CGSize(width: 200, height: 150))
-        let model = EditorViewModel(image: image)
-        let canvas = AnnotationCanvasView(frame: CGRect(origin: .zero, size: image.size))
-        let destinationSpaces = [space, try XCTUnwrap(CGColorSpace(name: CGColorSpace.displayP3))]
-        for destinationSpace in destinationSpaces {
-            for tool in [AnnotationTool.rectangle, .highlighter, .stepNumber, .blur] {
-                model.annotations = [AnnotationItem(
-                    tool: tool, startPoint: CGPoint(x: 0.1, y: 0.1), endPoint: CGPoint(x: 0.4, y: 0.4),
-                    points: [CGPoint(x: 0.1, y: 0.1), CGPoint(x: 0.4, y: 0.4)],
-                    color: .red, lineWidth: 4, stepNumber: 12
-                )]
-                // Mirrors updateNSView, including invalidation when the same model changes.
-                canvas.viewModel = model
-                let destination = try XCTUnwrap(CGContext(
-                    data: nil, width: 408, height: 308, bitsPerComponent: 8, bytesPerRow: 0,
-                    space: destinationSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-                ))
-                // Simulate a 2x snapshot with a SwiftUI layout origin an eighth device pixel
-                // off the grid. The source and annotation must share the snapped pixel grid.
-                destination.translateBy(x: 0, y: 308)
-                destination.scaleBy(x: 1, y: -1)
-                destination.translateBy(x: 2.125, y: 2.125)
-                destination.scaleBy(x: 2, y: 2)
-                NSGraphicsContext.saveGraphicsState()
-                NSGraphicsContext.current = NSGraphicsContext(cgContext: destination, flipped: true)
-                canvas.draw(canvas.bounds)
-                NSGraphicsContext.restoreGraphicsState()
-
-                // Translation precedes the 2x scale, so the snapped bitmap offset is (2, 2).
-                let previewCG = try XCTUnwrap(destination.makeImage()?.cropping(to: CGRect(x: 2, y: 2, width: 400, height: 300)))
-                let preview = NSBitmapImageRep(cgImage: previewCG)
-                let exported = try XCTUnwrap(ImageRendererService.shared.render(image: image, annotations: model.annotations))
-                let exportCG = try XCTUnwrap(exported.cgImage(forProposedRect: nil, context: nil, hints: nil))
-                // Color-manage the independent export into the same destination. Rendering
-                // translucent vectors directly there would blend in a different color space.
-                let reference = try XCTUnwrap(CGContext(
-                    data: nil, width: 400, height: 300, bitsPerComponent: 8, bytesPerRow: 0,
-                    space: destinationSpace, bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-                ))
-                reference.draw(exportCG, in: CGRect(x: 0, y: 0, width: 400, height: 300))
-                let expected = NSBitmapImageRep(cgImage: try XCTUnwrap(reference.makeImage()))
-                var maximumDifference: CGFloat = 0
-                for y in 0..<300 {
-                    for x in 0..<400 {
-                        let a = try XCTUnwrap(expected.colorAt(x: x, y: y)?.usingColorSpace(.sRGB))
-                        let b = try XCTUnwrap(preview.colorAt(x: x, y: y)?.usingColorSpace(.sRGB))
-                        maximumDifference = max(maximumDifference, max(abs(a.redComponent - b.redComponent),
-                            max(abs(a.greenComponent - b.greenComponent), abs(a.blueComponent - b.blueComponent))))
-                    }
-                }
-                XCTAssertLessThan(maximumDifference, 4.0 / 255, "Fractional origin must preserve every \(tool.rawValue) pixel")
-            }
-        }
-    }
-
-    @MainActor
     func testSmallRetinaRectanglePreviewHasExportStrokeWidth() async throws {
         try assertEditorMatchesExport(tool: .rectangle)
     }
@@ -89,6 +20,20 @@ final class AnnotationRenderingRegressionTests: XCTestCase {
     @MainActor
     func testCompletedPixelationPreviewShowsExportPixelsInsteadOfGrayBox() async throws {
         try assertEditorMatchesExport(tool: .blur)
+    }
+
+    @MainActor
+    func testCompletedPixelationStaysBelowVectorsRegardlessOfInsertionOrder() async throws {
+        let marker = AnnotationItem(
+            tool: .highlighter, startPoint: CGPoint(x: 0.15, y: 0.15),
+            endPoint: CGPoint(x: 0.35, y: 0.35),
+            points: [CGPoint(x: 0.15, y: 0.15), CGPoint(x: 0.35, y: 0.35)],
+            color: .yellow, lineWidth: 7
+        )
+        // Export always redacts the source before drawing vectors, even if the
+        // vector was added first. Compare the real editor, not just its blur cache.
+        try assertEditorMatchesExport(tool: .blur, precedingAnnotations: [marker])
+        try assertEditorMatchesExport(tool: .blur, followingAnnotations: [marker])
     }
 
     @MainActor
@@ -119,7 +64,8 @@ final class AnnotationRenderingRegressionTests: XCTestCase {
     @MainActor
     private func assertEditorMatchesExport(
         tool: AnnotationTool?, lineWidth: CGFloat = 4, displayScale: CGFloat? = nil, isDraft: Bool = false,
-        windowSize: CGSize = CGSize(width: 900, height: 700)
+        windowSize: CGSize = CGSize(width: 900, height: 700),
+        precedingAnnotations: [AnnotationItem] = [], followingAnnotations: [AnnotationItem] = []
     ) throws {
         _ = NSApplication.shared
         let context = try XCTUnwrap(CGContext(
@@ -141,12 +87,10 @@ final class AnnotationRenderingRegressionTests: XCTestCase {
                                            CGPoint(x: 0.4, y: 0.4)],
                                   color: .red, lineWidth: lineWidth, stepNumber: 12)
         let model = EditorViewModel(image: image)
-        if tool == nil {
-            model.annotations = []
-        } else if isDraft {
+        let completed = precedingAnnotations + (tool == nil || isDraft ? [] : [item]) + followingAnnotations
+        model.annotations = completed
+        if tool != nil && isDraft {
             model.currentDraft = item
-        } else {
-            model.annotations = [item]
         }
         let editor = EditorView(viewModel: model)
         let root = displayScale.map { AnyView(editor.environment(\.displayScale, $0)) } ?? AnyView(editor)
@@ -177,7 +121,9 @@ final class AnnotationRenderingRegressionTests: XCTestCase {
         while top > 0 && !isDark(x: cx, y: top - 1) { top -= 1 }
         let crop = try XCTUnwrap(rep.cgImage?.cropping(to: CGRect(x: left, y: top, width: 400, height: 300)))
         let preview = NSBitmapImageRep(cgImage: crop)
-        let exported = try XCTUnwrap(ImageRendererService.shared.render(image: image, annotations: tool == nil ? [] : [item]))
+        let exported = try XCTUnwrap(ImageRendererService.shared.render(
+            image: image, annotations: completed + (tool != nil && isDraft ? [item] : [])
+        ))
         let exportCG = try XCTUnwrap(exported.cgImage(forProposedRect: nil, context: nil, hints: nil))
         let expected = NSBitmapImageRep(cgImage: exportCG)
         let source = NSBitmapImageRep(cgImage: try XCTUnwrap(image.cgImage(forProposedRect: nil, context: nil, hints: nil)))
