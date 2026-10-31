@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Reflection;
+using System.Resources;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Snapboard;
@@ -25,7 +27,10 @@ internal static class RegressionTests
             ("PNG/JPEG filters produce actual signatures and full dimensions", ExportFormats),
             ("Window bounds respect small and negative-origin working areas", WindowBounds),
             ("Fit and scrolled 100% coordinates reach all image corners", ViewCoordinates),
-            ("Large editor fits screen, scrolls, and exports annotations at full size", LargeEditor)
+            ("Large editor fits screen, scrolls, and exports annotations at full size", LargeEditor),
+            ("Windows UI follows en/de/ja and falls back from pl to English", LocalizedEditor),
+            ("All ten satellite catalogs load and format every resource", LocalizedCatalogs),
+            ("About text uses the app assembly version, not the runner version", AboutVersion)
         };
         int failed = 0;
         foreach (var test in tests)
@@ -182,6 +187,83 @@ internal static class RegressionTests
 
     private static object Field(object target, string name) => target.GetType()
         .GetField(name, BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(target)!;
+
+    private static readonly ResourceManager Strings = new ResourceManager(
+        "Snapboard.Resources.Strings", typeof(EditorForm).Assembly);
+
+    private static string Localized(string key) => Strings.GetString(key, CultureInfo.CurrentUICulture)!;
+
+    private static void LocalizedEditor()
+    {
+        CultureInfo original = CultureInfo.CurrentUICulture;
+        try
+        {
+            foreach (var entry in new[] { ("en-US", "Note"), ("de-DE", "Hinweis"),
+                ("ja-JP", "メモ"), ("pl-PL", "Note") })
+            {
+                CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo(entry.Item1);
+                using var image = new Bitmap(20, 20);
+                using var editor = new EditorForm(image);
+                Equal(entry.Item2, (string)Field(editor, "currentText"));
+                Equal(Localized("editor.windowTitle"), editor.Text);
+                var toolbar = (ToolStrip)Field(editor, "mainToolbar");
+                Equal(Localized("tool.rectangle"), toolbar.Items[0].Text);
+                Equal(true, ContainsText(toolbar, Localized("windows.editor.copyToClipboard")));
+                Equal(true, ContainsText(toolbar, Localized("windows.editor.saveAs")));
+                Equal(true, Localized("windows.menu.captureDirect").Contains(
+                    Localized("windows.shortcut.direct")));
+                Equal(true, Localized("windows.statusItem.tooltip").Length <= 127);
+                if (entry.Item1 == "pl-PL")
+                    Equal(Strings.GetString("windows.about.message", CultureInfo.GetCultureInfo("en")),
+                        Localized("windows.about.message"));
+            }
+        }
+        finally { CultureInfo.CurrentUICulture = original; }
+    }
+
+    private static bool ContainsText(ToolStrip toolbar, string text)
+    {
+        foreach (ToolStripItem item in toolbar.Items) if (item.Text == text) return true;
+        return false;
+    }
+
+    private static void LocalizedCatalogs()
+    {
+        var neutral = Strings.GetResourceSet(CultureInfo.InvariantCulture, true, false)!;
+        foreach (string language in new[] { "en", "de", "fr", "es", "it", "pt-BR", "nl", "ja", "zh-Hans", "ko" })
+        {
+            var culture = CultureInfo.GetCultureInfo(language);
+            var catalog = Strings.GetResourceSet(culture, true, false);
+            Equal(true, catalog != null);
+            Equal(true, catalog!.GetString("windows.statusItem.tooltip")!.Length <= 127);
+            foreach (System.Collections.DictionaryEntry entry in neutral)
+            {
+                string value = catalog!.GetString((string)entry.Key)!;
+                Equal(true, !string.IsNullOrWhiteSpace(value));
+                Equal(false, value.Contains('⌘') || value.Contains('⇧'));
+                // The catalog checker validates exact argument indices and multiplicity.
+                object[] arguments = (string)entry.Key == "windows.editor.saveFileName"
+                    ? new object[] { new DateTime(2026, 10, 26, 12, 34, 56) }
+                    : new object[] { 12, 34, 56 };
+                _ = string.Format(culture, value, arguments);
+            }
+        }
+        // Parent-culture lookup and unsupported-language fallback use .NET ResourceManager.
+        Equal(Strings.GetString("editor.defaultText", CultureInfo.GetCultureInfo("fr")),
+            Strings.GetString("editor.defaultText", CultureInfo.GetCultureInfo("fr-CA")));
+        Equal(Strings.GetString("editor.defaultText", CultureInfo.GetCultureInfo("zh-Hans")),
+            Strings.GetString("editor.defaultText", CultureInfo.GetCultureInfo("zh-CN")));
+    }
+
+    private static void AboutVersion()
+    {
+        var helper = typeof(EditorForm).Assembly.GetType("Snapboard.L10n")!;
+        string actual = (string)helper.GetProperty("AboutMessage", BindingFlags.Static | BindingFlags.Public)!
+            .GetValue(null)!;
+        string version = typeof(EditorForm).Assembly.GetName().Version!.ToString(3);
+        Equal(string.Format(CultureInfo.CurrentUICulture, Localized("windows.about.message"), version), actual);
+        Equal(true, actual.Contains(version));
+    }
 
     private static void DrawWithMouse(Panel canvas, Point start, Point end)
     {

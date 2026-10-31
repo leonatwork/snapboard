@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="common.appName" xml:space="preserve"><value>Snapboard</value></data>
+  <data name="common.listSeparator" xml:space="preserve"><value>, </value></data>
+  <data name="common.ok" xml:space="preserve"><value>OK</value></data>
+  <data name="common.cancel" xml:space="preserve"><value>Annuler</value></data>
+  <data name="menu.about" xml:space="preserve"><value>ℹ️ À propos de Snapboard</value></data>
+  <data name="menu.quit" xml:space="preserve"><value>Quitter Snapboard</value></data>
+  <data name="editor.windowTitle" xml:space="preserve"><value>Éditeur Snapboard</value></data>
+  <data name="editor.defaultText" xml:space="preserve"><value>Remarque</value></data>
+  <data name="editor.textPrompt.title" xml:space="preserve"><value>Définir le texte de l’annotation</value></data>
+  <data name="editor.textPrompt.placeholder" xml:space="preserve"><value>Saisissez du texte…</value></data>
+  <data name="tool.rectangle" xml:space="preserve"><value>⬜ Rectangle</value></data>
+  <data name="tool.circle" xml:space="preserve"><value>⭕ Cercle / ellipse</value></data>
+  <data name="tool.arrow" xml:space="preserve"><value>➡️ Flèche</value></data>
+  <data name="tool.pen" xml:space="preserve"><value>✏️ Stylo à main levée</value></data>
+  <data name="tool.highlighter" xml:space="preserve"><value>🖍️ Surligneur</value></data>
+  <data name="tool.blur" xml:space="preserve"><value>🌫️ Masquer / flouter</value></data>
+  <data name="tool.text" xml:space="preserve"><value>🔤 Zone de texte</value></data>
+  <data name="tool.stepNumber" xml:space="preserve"><value>① Compteur d’étapes</value></data>
+  <data name="color.red" xml:space="preserve"><value>Rouge</value></data>
+  <data name="color.orange" xml:space="preserve"><value>Orange</value></data>
+  <data name="color.yellow" xml:space="preserve"><value>Jaune</value></data>
+  <data name="color.green" xml:space="preserve"><value>Vert</value></data>
+  <data name="color.blue" xml:space="preserve"><value>Bleu</value></data>
+  <data name="color.purple" xml:space="preserve"><value>Violet</value></data>
+  <data name="color.black" xml:space="preserve"><value>Noir</value></data>
+  <data name="color.white" xml:space="preserve"><value>Blanc</value></data>
+  <data name="windows.menu.captureDirect" xml:space="preserve"><value>📷 Capturer une zone (Ctrl+Maj+1)</value></data>
+  <data name="windows.menu.captureEdit" xml:space="preserve"><value>✏️ Capturer et modifier une zone (Ctrl+Maj+2)</value></data>
+  <data name="windows.menu.autostart" xml:space="preserve"><value>Exécuter au démarrage de Windows</value></data>
+  <data name="windows.shortcut.direct" xml:space="preserve"><value>Ctrl+Maj+1</value></data>
+  <data name="windows.shortcut.edit" xml:space="preserve"><value>Ctrl+Maj+2</value></data>
+  <data name="windows.statusItem.tooltip" xml:space="preserve"><value>Snapboard (Ctrl+Maj+1 : Direct / Ctrl+Maj+2 : Éditeur)</value></data>
+  <data name="windows.alreadyRunning" xml:space="preserve"><value>Snapboard est déjà en cours d’exécution dans la zone de notification.</value></data>
+  <data name="windows.about.message" xml:space="preserve"><value>Snapboard v{0} pour Windows et macOS
+
+• Ctrl+Maj+1 : directement dans le presse-papiers (zéro clic)
+• Ctrl+Maj+2 : capturer une zone et ouvrir l’éditeur
+
+Aucun fichier de capture temporaire sur le disque.</value></data>
+  <data name="windows.error.restart" xml:space="preserve"><value>Snapboard doit se fermer. Veuillez redémarrer l’application.</value></data>
+  <data name="windows.error.continue" xml:space="preserve"><value>Vous pouvez continuer à utiliser Snapboard.</value></data>
+  <data name="windows.error.unexpected" xml:space="preserve"><value>Une erreur inattendue s’est produite.
+{0}
+
+{1}</value></data>
+  <data name="windows.error.hotkeys" xml:space="preserve"><value>Ces raccourcis clavier n’ont pas pu être enregistrés : {0}.
+Une autre application les utilise peut-être déjà. La capture reste disponible dans le menu de la zone de notification.</value></data>
+  <data name="windows.error.clipboardDirect" xml:space="preserve"><value>Le presse-papiers est occupé. L’image n’a pas pu être copiée après 3 tentatives. Veuillez réessayer.</value></data>
+  <data name="windows.error.clipboardEditor" xml:space="preserve"><value>Le presse-papiers est occupé. L’image n’a pas pu être copiée après 3 tentatives. Vos annotations sont toujours disponibles. Veuillez réessayer.</value></data>
+  <data name="windows.error.autostartRead" xml:space="preserve"><value>Impossible de lire l’état du démarrage automatique.
+
+{0}</value></data>
+  <data name="windows.error.autostartWrite" xml:space="preserve"><value>Impossible de modifier le démarrage automatique.
+
+{0}</value></data>
+  <data name="windows.error.autostartKey" xml:space="preserve"><value>Impossible d’ouvrir la clé de registre du démarrage automatique.</value></data>
+  <data name="windows.error.jpegEncoder" xml:space="preserve"><value>L’encodeur JPEG n’est pas disponible.</value></data>
+  <data name="windows.editor.undo" xml:space="preserve"><value>↩ Annuler (Ctrl+Z)</value></data>
+  <data name="windows.editor.redo" xml:space="preserve"><value>↪ Rétablir (Ctrl+Y)</value></data>
+  <data name="windows.editor.copyToClipboard" xml:space="preserve"><value>📋 Copier dans le presse-papiers (Ctrl+C)</value></data>
+  <data name="windows.editor.saveAs" xml:space="preserve"><value>💾 Enregistrer sous… (Ctrl+S)</value></data>
+  <data name="windows.editor.saveTitle" xml:space="preserve"><value>Enregistrer sous…</value></data>
+  <data name="windows.editor.actualSize" xml:space="preserve"><value>100 %</value></data>
+  <data name="windows.editor.actualSizeTooltip" xml:space="preserve"><value>Basculer entre l’ajustement et 100 % avec barres de défilement</value></data>
+  <data name="windows.editor.saveFilter" xml:space="preserve"><value>Image PNG (*.png)|*.png|Image JPEG (*.jpg)|*.jpg</value></data>
+  <data name="windows.editor.saveFileName" xml:space="preserve"><value>Snapboard_{0:yyyyMMdd_HHmmss}</value></data>
+  <data name="windows.capture.dimensions" xml:space="preserve"><value>{0} × {1} px</value></data>
+</root>

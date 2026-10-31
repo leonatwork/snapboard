@@ -43,7 +43,7 @@ namespace Snapboard
         private Color currentColor = Color.FromArgb(255, 59, 48); // Red
         private int currentLineWidth = 4;
         private int nextStepNumber = 1;
-        private string currentText = "Hinweis";
+        private string currentText = L10n.Get("editor.defaultText");
 
         private Annotation? currentDraft;
         private bool isDrawing = false;
@@ -56,7 +56,7 @@ namespace Snapboard
             this.baseImage = new Bitmap(image);
             this.DoubleBuffered = true;
             this.KeyPreview = true;
-            this.Text = "Snapboard Editor";
+            this.Text = L10n.Get("editor.windowTitle");
             this.StartPosition = FormStartPosition.Manual;
             this.Icon = SystemIcons.Application;
 
@@ -82,59 +82,60 @@ namespace Snapboard
             {
                 GripStyle = ToolStripGripStyle.Hidden,
                 ImageScalingSize = new Size(20, 20),
+                LayoutStyle = ToolStripLayoutStyle.Flow,
                 Padding = new Padding(6)
             };
 
             // Tools
-            AddToolButton("⬜ Rechteck", ToolType.Rectangle);
-            AddToolButton("⭕ Kreis", ToolType.Circle);
-            AddToolButton("➡️ Pfeil", ToolType.Arrow);
-            AddToolButton("✏️ Stift", ToolType.Pen);
-            AddToolButton("🖍️ Marker", ToolType.Highlighter);
-            AddToolButton("🌫️ Blur", ToolType.Blur);
-            AddToolButton("🔤 Text", ToolType.Text);
-            AddToolButton("① Schritt", ToolType.StepNumber);
+            AddToolButton(L10n.Get("tool.rectangle"), ToolType.Rectangle);
+            AddToolButton(L10n.Get("tool.circle"), ToolType.Circle);
+            AddToolButton(L10n.Get("tool.arrow"), ToolType.Arrow);
+            AddToolButton(L10n.Get("tool.pen"), ToolType.Pen);
+            AddToolButton(L10n.Get("tool.highlighter"), ToolType.Highlighter);
+            AddToolButton(L10n.Get("tool.blur"), ToolType.Blur);
+            AddToolButton(L10n.Get("tool.text"), ToolType.Text);
+            AddToolButton(L10n.Get("tool.stepNumber"), ToolType.StepNumber);
 
             mainToolbar.Items.Add(new ToolStripSeparator());
 
             // Colors
-            AddColorButton(Color.FromArgb(255, 59, 48), "Rot");
-            AddColorButton(Color.FromArgb(255, 149, 0), "Orange");
-            AddColorButton(Color.FromArgb(255, 204, 0), "Gelb");
-            AddColorButton(Color.FromArgb(52, 199, 89), "Grün");
-            AddColorButton(Color.FromArgb(0, 122, 255), "Blau");
-            AddColorButton(Color.FromArgb(175, 82, 222), "Lila");
-            AddColorButton(Color.Black, "Schwarz");
-            AddColorButton(Color.White, "Weiß");
+            AddColorButton(Color.FromArgb(255, 59, 48), L10n.Get("color.red"));
+            AddColorButton(Color.FromArgb(255, 149, 0), L10n.Get("color.orange"));
+            AddColorButton(Color.FromArgb(255, 204, 0), L10n.Get("color.yellow"));
+            AddColorButton(Color.FromArgb(52, 199, 89), L10n.Get("color.green"));
+            AddColorButton(Color.FromArgb(0, 122, 255), L10n.Get("color.blue"));
+            AddColorButton(Color.FromArgb(175, 82, 222), L10n.Get("color.purple"));
+            AddColorButton(Color.Black, L10n.Get("color.black"));
+            AddColorButton(Color.White, L10n.Get("color.white"));
 
             mainToolbar.Items.Add(new ToolStripSeparator());
 
             // Undo / Redo
-            var undoBtn = new ToolStripButton("↩ Undo", null, (s, e) => Undo()) { ToolTipText = "Rückgängig (Strg+Z)" };
+            var undoBtn = new ToolStripButton(L10n.Get("windows.editor.undo"), null, (s, e) => Undo());
             mainToolbar.Items.Add(undoBtn);
 
-            var redoBtn = new ToolStripButton("↪ Redo", null, (s, e) => Redo()) { ToolTipText = "Wiederholen (Strg+Y)" };
+            var redoBtn = new ToolStripButton(L10n.Get("windows.editor.redo"), null, (s, e) => Redo());
             mainToolbar.Items.Add(redoBtn);
 
             mainToolbar.Items.Add(new ToolStripSeparator());
 
             // Actions
-            var actualSizeButton = new ToolStripButton("100 %")
+            var actualSizeButton = new ToolStripButton(L10n.Get("windows.editor.actualSize"))
             {
                 Name = "actualSizeButton",
                 CheckOnClick = true,
-                ToolTipText = "Zwischen Einpassen und 100 % mit Scrollbalken umschalten"
+                ToolTipText = L10n.Get("windows.editor.actualSizeTooltip")
             };
             actualSizeButton.CheckedChanged += (s, e) => canvasPanel.SetActualSize(actualSizeButton.Checked);
             mainToolbar.Items.Add(actualSizeButton);
 
-            var copyBtn = new ToolStripButton("📋 In Zwischenablage kopieren (Strg+C)", null, (s, e) => CopyAndClose());
+            var copyBtn = new ToolStripButton(L10n.Get("windows.editor.copyToClipboard"), null, (s, e) => CopyAndClose());
             copyBtn.Font = new Font(mainToolbar.Font, FontStyle.Bold);
             copyBtn.BackColor = Color.FromArgb(0, 122, 255);
             copyBtn.ForeColor = Color.White;
             mainToolbar.Items.Add(copyBtn);
 
-            var saveBtn = new ToolStripButton("💾 Speichern unter... (Strg+S)", null, (s, e) => SaveToFile());
+            var saveBtn = new ToolStripButton(L10n.Get("windows.editor.saveAs"), null, (s, e) => SaveToFile());
             mainToolbar.Items.Add(saveBtn);
 
             this.Controls.Add(mainToolbar);
@@ -193,7 +194,7 @@ namespace Snapboard
 
                 if (tool == ToolType.Text)
                 {
-                    string input = Microsoft.VisualBasic.Interaction.InputBox("Text für Hinweisfeld eingeben:", "Text eingeben", currentText);
+                    string input = PromptForText();
                     if (!string.IsNullOrWhiteSpace(input))
                     {
                         currentText = input;
@@ -217,6 +218,40 @@ namespace Snapboard
                 currentColor = c;
             });
             mainToolbar.Items.Add(btn);
+        }
+
+        private string PromptForText()
+        {
+            using var prompt = new Form
+            {
+                Text = L10n.Get("editor.textPrompt.title"),
+                FormBorderStyle = FormBorderStyle.FixedDialog,
+                StartPosition = FormStartPosition.CenterParent,
+                MinimizeBox = false,
+                MaximizeBox = false,
+                AutoSize = true,
+                AutoSizeMode = AutoSizeMode.GrowAndShrink
+            };
+            var layout = new FlowLayoutPanel
+            {
+                AutoSize = true,
+                FlowDirection = FlowDirection.TopDown,
+                WrapContents = false,
+                Padding = new Padding(12),
+                Dock = DockStyle.Fill
+            };
+            var label = new Label { Text = L10n.Get("editor.textPrompt.placeholder"), AutoSize = true };
+            var input = new TextBox { Text = currentText, Width = 360 };
+            var buttons = new FlowLayoutPanel { AutoSize = true };
+            var ok = new Button { Text = L10n.Get("common.ok"), AutoSize = true, DialogResult = DialogResult.OK };
+            var cancel = new Button { Text = L10n.Get("common.cancel"), AutoSize = true, DialogResult = DialogResult.Cancel };
+            buttons.Controls.AddRange(new Control[] { ok, cancel });
+            layout.Controls.AddRange(new Control[] { label, input, buttons });
+            prompt.Controls.Add(layout);
+            prompt.AcceptButton = ok;
+            prompt.CancelButton = cancel;
+            prompt.Shown += (s, e) => { input.Focus(); input.SelectAll(); };
+            return prompt.ShowDialog(this) == DialogResult.OK ? input.Text : string.Empty;
         }
 
         public void StartDrawing(Point pt)
@@ -390,8 +425,8 @@ namespace Snapboard
                 if (!ClipboardRetry.TrySetImage(finalBmp))
                 {
                     MessageBox.Show(this,
-                        "Die Zwischenablage ist belegt. Das Bild konnte nach 3 Versuchen nicht kopiert werden. Ihre Anmerkungen bleiben erhalten. Bitte versuchen Sie es erneut.",
-                        "Snapboard", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        L10n.Get("windows.error.clipboardEditor"),
+                        L10n.Get("common.appName"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
                 SystemSounds.Asterisk.Play();
@@ -403,8 +438,9 @@ namespace Snapboard
         {
             using (SaveFileDialog sfd = new SaveFileDialog())
             {
-                sfd.Filter = "PNG Image (*.png)|*.png|JPEG Image (*.jpg)|*.jpg";
-                sfd.FileName = $"Snapboard_{DateTime.Now:yyyyMMdd_HHmmss}";
+                sfd.Title = L10n.Get("windows.editor.saveTitle");
+                sfd.Filter = L10n.Get("windows.editor.saveFilter");
+                sfd.FileName = L10n.Format("windows.editor.saveFileName", DateTime.Now);
                 sfd.DefaultExt = "png";
                 sfd.AddExtension = true;
                 if (sfd.ShowDialog(this) == DialogResult.OK)

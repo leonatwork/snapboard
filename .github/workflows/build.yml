@@ -25,6 +25,10 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
+      - name: Check Windows localizations and checker regressions
+        run: |
+          python -B scripts/check_windows_localizations.py
+          python -B -m unittest discover -s scripts/tests -v
       - name: Build Windows App
         run: |
           dotnet build windows/Snapboard.Windows/Snapboard.Windows.csproj -c Release

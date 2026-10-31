@@ -140,7 +140,7 @@ namespace Snapboard
                     }
 
                     // Dimension label
-                    string dimText = $"{rect.Width} × {rect.Height} px";
+                    string dimText = L10n.Format("windows.capture.dimensions", rect.Width, rect.Height);
                     using (Font font = new Font("Segoe UI", 9, FontStyle.Bold))
                     using (SolidBrush bgBrush = new SolidBrush(Color.FromArgb(180, 0, 0, 0)))
                     using (SolidBrush textBrush = new SolidBrush(Color.White))
