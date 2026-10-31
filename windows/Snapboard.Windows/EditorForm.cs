@@ -35,6 +35,8 @@ namespace Snapboard
     public class EditorForm : Form
     {
         private Bitmap baseImage;
+        private Bitmap? pixelatedPreview;
+        private List<Rectangle> pixelationRects = new List<Rectangle>();
         private List<Annotation> annotations = new List<Annotation>();
         private Stack<List<Annotation>> undoStack = new Stack<List<Annotation>>();
         private Stack<List<Annotation>> redoStack = new Stack<List<Annotation>>();
@@ -72,7 +74,11 @@ namespace Snapboard
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing) baseImage.Dispose();
+            if (disposing)
+            {
+                pixelatedPreview?.Dispose();
+                baseImage.Dispose();
+            }
             base.Dispose(disposing);
         }
 
@@ -358,6 +364,46 @@ namespace Snapboard
             return result;
         }
 
+        // Cache the completed blur layer in image pixels, independent of fit/scroll and
+        // vector edits. Rectangle values (not annotation references) detect geometry edits.
+        private Bitmap GetPixelatedPreview()
+        {
+            var rects = new List<Rectangle>();
+            foreach (var item in annotations)
+                if (item.Tool == ToolType.Blur) rects.Add(GetRect(item.Start, item.End));
+            bool unchanged = rects.Count == pixelationRects.Count;
+            for (int i = 0; unchanged && i < rects.Count; i++)
+                unchanged = rects[i] == pixelationRects[i];
+            if (unchanged) return pixelatedPreview ?? baseImage;
+
+            Bitmap? next = null;
+            if (rects.Count > 0)
+            {
+                next = new Bitmap(baseImage.Width, baseImage.Height);
+                try
+                {
+                    using (Graphics g = Graphics.FromImage(next))
+                    {
+                        g.SmoothingMode = SmoothingMode.AntiAlias;
+                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                        g.DrawImage(baseImage, new Rectangle(Point.Empty, baseImage.Size),
+                            new Rectangle(Point.Empty, baseImage.Size), GraphicsUnit.Pixel);
+                        // Keep sequential overlap sampling identical to RenderFinalImage.
+                        foreach (var rect in rects) ApplyBlur(next, rect);
+                    }
+                }
+                catch
+                {
+                    next.Dispose();
+                    throw;
+                }
+            }
+            pixelatedPreview?.Dispose();
+            pixelatedPreview = next;
+            pixelationRects = rects;
+            return pixelatedPreview ?? baseImage;
+        }
+
         private void ApplyBlur(Bitmap bmp, Rectangle rect)
         {
             rect.Intersect(new Rectangle(0, 0, bmp.Width, bmp.Height));
@@ -572,7 +618,7 @@ namespace Snapboard
                 var state = g.Save();
                 g.SetClip(bounds, CombineMode.Intersect);
 
-                g.DrawImage(form.baseImage, bounds,
+                g.DrawImage(form.GetPixelatedPreview(), bounds,
                     new RectangleF(PointF.Empty, form.baseImage.Size), GraphicsUnit.Pixel);
 
                 g.TranslateTransform(bounds.X, bounds.Y);
@@ -580,17 +626,7 @@ namespace Snapboard
 
                 foreach (var item in form.annotations)
                 {
-                    if (item.Tool == ToolType.Blur)
-                    {
-                        Rectangle rect = GetRect(item.Start, item.End);
-                        using (SolidBrush brush = new SolidBrush(Color.FromArgb(160, 120, 120, 120)))
-                        using (Pen dashPen = new Pen(Color.White, 1) { DashStyle = DashStyle.Dash })
-                        {
-                            g.FillRectangle(brush, rect);
-                            g.DrawRectangle(dashPen, rect);
-                        }
-                    }
-                    else
+                    if (item.Tool != ToolType.Blur)
                     {
                         DrawAnnotation(g, item);
                     }

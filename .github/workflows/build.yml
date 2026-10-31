@@ -15,6 +15,12 @@ jobs:
       - name: Build macOS App
         run: |
           ./scripts/build_app.sh
+      - name: Run editor regression tests
+        run: swift test --filter 'AnnotationPreviewTests|AnnotationRenderingRegressionTests|EditorExportTests'
+      - name: Verify text preview (existing harness)
+        run: ./scripts/screenshots/render.sh --verify-text
+      - name: Verify annotations and unchanged exports
+        run: ./scripts/screenshots/render.sh --verify-annotations
 
   build-windows:
     name: Build Windows (.NET 8)
