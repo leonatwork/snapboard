@@ -71,8 +71,7 @@ final class EditorViewModel: ObservableObject {
                 lineWidth: lineWidth
             )
         case .text:
-            saveForUndo()
-            let item = AnnotationItem(
+            currentDraft = AnnotationItem(
                 tool: .text,
                 startPoint: normalized,
                 endPoint: normalized,
@@ -80,10 +79,8 @@ final class EditorViewModel: ObservableObject {
                 lineWidth: lineWidth,
                 text: currentText.isEmpty ? L10n.tr("editor.defaultText") : currentText
             )
-            annotations.append(item)
         case .stepNumber:
-            saveForUndo()
-            let item = AnnotationItem(
+            currentDraft = AnnotationItem(
                 tool: .stepNumber,
                 startPoint: normalized,
                 endPoint: normalized,
@@ -91,8 +88,6 @@ final class EditorViewModel: ObservableObject {
                 lineWidth: lineWidth,
                 stepNumber: nextStepNumber
             )
-            nextStepNumber += 1
-            annotations.append(item)
         }
     }
 
@@ -113,6 +108,9 @@ final class EditorViewModel: ObservableObject {
         guard let draft = currentDraft else { return }
         saveForUndo()
         annotations.append(draft)
+        if draft.tool == .stepNumber {
+            nextStepNumber += 1
+        }
         currentDraft = nil
     }
 
