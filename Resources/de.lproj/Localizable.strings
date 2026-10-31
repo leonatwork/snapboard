@@ -167,3 +167,12 @@
 
 /* Annotation tool name: auto-incrementing numbered badges */
 "tool.stepNumber" = "Schritt-Zähler";
+
+/* Lokale OCR: Aufnahmemenü/Einstellungen, Editor-Aktion und Hinweise. */
+"ocr.title" = "Text erkennen";
+"ocr.copyText" = "Text kopieren";
+"ocr.shortcutDetail" = "Bereich auswählen → Text lokal erkennen und als Klartext kopieren";
+"ocr.noText" = "Kein Text erkannt. Die Zwischenablage bleibt unverändert. Wählen Sie einen Bereich mit gut lesbarem Text.";
+"ocr.failed" = "Der Text konnte nicht erkannt werden. Bitte versuchen Sie es mit einem anderen Bereich erneut.";
+"ocr.clipboardFailed" = "Der Text konnte nicht in die Zwischenablage kopiert werden. Bitte versuchen Sie es erneut.";
+"ocr.hotkeyUnavailable" = "Das Kürzel ⌘⇧6 konnte nicht registriert werden. Es ist möglicherweise bereits belegt. Text erkennen bleibt über das Menü verfügbar.";

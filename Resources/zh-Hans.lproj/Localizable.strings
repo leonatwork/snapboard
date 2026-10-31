@@ -167,3 +167,12 @@
 
 /* Annotation tool name: auto-incrementing numbered badges */
 "tool.stepNumber" = "步骤编号";
+
+/* 本地文字识别（OCR）。 */
+"ocr.title" = "识别文字";
+"ocr.copyText" = "复制文字";
+"ocr.shortcutDetail" = "选择区域 → 在本地识别文字并复制为纯文本";
+"ocr.noText" = "未识别到文字。剪贴板保持不变。请选择包含清晰可读文字的区域。";
+"ocr.failed" = "无法识别文字。请尝试选择其他区域。";
+"ocr.clipboardFailed" = "无法将文字复制到剪贴板。请重试。";
+"ocr.hotkeyUnavailable" = "无法注册快捷键 ⌘⇧6，可能已被占用。您仍可通过菜单使用文字识别。";

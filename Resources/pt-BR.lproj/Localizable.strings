@@ -167,3 +167,12 @@
 
 /* Annotation tool name: auto-incrementing numbered badges */
 "tool.stepNumber" = "Contador de Passos";
+
+/* Reconhecimento local de texto (OCR). */
+"ocr.title" = "Reconhecer Texto";
+"ocr.copyText" = "Copiar Texto";
+"ocr.shortcutDetail" = "Selecionar uma área → reconhecer texto localmente e copiar como texto simples";
+"ocr.noText" = "Nenhum texto reconhecido. A área de transferência não foi alterada. Selecione uma área com texto claramente legível.";
+"ocr.failed" = "Não foi possível reconhecer o texto. Tente novamente com outra área.";
+"ocr.clipboardFailed" = "Não foi possível copiar o texto para a área de transferência. Tente novamente.";
+"ocr.hotkeyUnavailable" = "Não foi possível registrar o atalho ⌘⇧6. Ele pode já estar em uso. Reconhecer Texto continua disponível no menu.";

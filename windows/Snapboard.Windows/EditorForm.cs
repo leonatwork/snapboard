@@ -4,6 +4,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
 using System.Media;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace Snapboard
@@ -50,9 +52,13 @@ namespace Snapboard
 
         private CanvasPanel canvasPanel = null!;
         private ToolStrip mainToolbar = null!;
+        private ToolStripButton copyTextButton = null!;
+        private readonly OcrService ocrService;
+        private bool isRecognizingText;
 
-        public EditorForm(Bitmap image)
+        public EditorForm(Bitmap image, OcrService? ocrService = null)
         {
+            this.ocrService = ocrService ?? new OcrService();
             this.baseImage = new Bitmap(image);
             this.DoubleBuffered = true;
             this.KeyPreview = true;
@@ -133,6 +139,13 @@ namespace Snapboard
             copyBtn.BackColor = Color.FromArgb(0, 122, 255);
             copyBtn.ForeColor = Color.White;
             mainToolbar.Items.Add(copyBtn);
+
+            copyTextButton = new ToolStripButton("🔤 Text kopieren", null, async (s, e) => await CopyTextAsync())
+            {
+                Name = "copyTextButton",
+                ToolTipText = "Text im gerenderten Bild lokal erkennen und als Klartext kopieren"
+            };
+            mainToolbar.Items.Add(copyTextButton);
 
             var saveBtn = new ToolStripButton("💾 Speichern unter... (Strg+S)", null, (s, e) => SaveToFile());
             mainToolbar.Items.Add(saveBtn);
@@ -380,6 +393,31 @@ namespace Snapboard
                         }
                     }
                 }
+            }
+        }
+
+        public async Task CopyTextAsync()
+        {
+            if (isRecognizingText) return;
+            isRecognizingText = true;
+            copyTextButton.Enabled = false;
+            try
+            {
+                FinishDrawing();
+                using var rendered = RenderFinalImage();
+                var redactions = annotations.Where(item => item.Tool == ToolType.Blur)
+                    .Select(item => (RectangleF)GetRect(item.Start, item.End)).ToArray();
+                await ocrService.CopyTextAsync(rendered, redactions);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show(this, "Das Bild konnte nicht für die Texterkennung gerendert werden. Ihre Anmerkungen bleiben erhalten.",
+                    "Text erkennen", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            finally
+            {
+                isRecognizingText = false;
+                if (!IsDisposed) copyTextButton.Enabled = true;
             }
         }
 

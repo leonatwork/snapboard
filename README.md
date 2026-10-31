@@ -89,6 +89,7 @@ Notifications are off by default: launching Snapboard does not request notificat
 | :--- | :--- | :--- |
 | **`⌘ + ⇧ + 1`** | **Direct capture** | Select an area → **straight to the clipboard** (zero clicks) |
 | **`⌘ + ⇧ + 2`** | **Capture & edit** | Select an area → **opens the Snapboard editor** |
+| **`⌘ + ⇧ + 6`** | **Recognize text (OCR)** | Select an area → **copy plain text**, recognized locally |
 | `Space` | Window mode | Capture a specific window during selection |
 | `ESC` | Cancel | Abort the capture without touching the clipboard |
 | `⌘ + C` / `Enter` | Export (in editor) | Copy the edited image and close the editor |
@@ -99,11 +100,25 @@ Notifications are off by default: launching Snapboard does not request notificat
 | :--- | :--- | :--- |
 | **`Ctrl + Shift + 1`** | **Direct capture** | Select an area → **straight to the clipboard** (zero clicks) |
 | **`Ctrl + Shift + 2`** | **Capture & edit** | Select an area → **opens the Snapboard editor** |
+| **`Ctrl + Shift + 3`** | **Recognize text (OCR)** | Select an area → **copy plain text**, recognized locally |
 | `ESC` | Cancel | Abort the capture |
 | `Ctrl + C` | Export (in editor) | Copy the edited image and close the editor |
 | `Ctrl + S` | Save as… | Optionally export as a PNG file |
 
 ---
+
+### Local text recognition (macOS & Windows)
+
+Use the OCR shortcut or **Recognize Text** in the menu to select an area. In the editor,
+**Copy Text** recognizes the rendered image, including annotations, and keeps the editor open.
+Lines touching a redacted area are omitted, even if pixelated letters remain readable.
+Text is copied in reading order with line breaks; no image is added. When no text is found
+or selection is cancelled with Esc, the clipboard stays unchanged.
+
+OCR runs offline using macOS Vision or Windows.Media.Ocr, with automatic language selection.
+Windows needs an OCR language pack matching a user-profile language; if none is available,
+Snapboard shows a hint. Install it in **Settings → Time & language → Language**.
+If the OCR shortcut is unavailable, the menu action can still be used.
 
 ## 🛠️ Building from source
 

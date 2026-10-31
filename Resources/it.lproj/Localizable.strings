@@ -167,3 +167,12 @@
 
 /* Annotation tool name: auto-incrementing numbered badges */
 "tool.stepNumber" = "Contatore di passaggi";
+
+/* Riconoscimento locale del testo (OCR). */
+"ocr.title" = "Riconosci testo";
+"ocr.copyText" = "Copia testo";
+"ocr.shortcutDetail" = "Seleziona un’area → riconosci il testo localmente e copialo come testo semplice";
+"ocr.noText" = "Nessun testo riconosciuto. Gli appunti non sono stati modificati. Seleziona un’area con testo chiaramente leggibile.";
+"ocr.failed" = "Non è stato possibile riconoscere il testo. Riprova con un’altra area.";
+"ocr.clipboardFailed" = "Non è stato possibile copiare il testo negli appunti. Riprova.";
+"ocr.hotkeyUnavailable" = "Non è stato possibile registrare la scorciatoia ⌘⇧6. Potrebbe essere già in uso. Riconosci testo rimane disponibile nel menu.";

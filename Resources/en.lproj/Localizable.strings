@@ -167,3 +167,12 @@
 
 /* Annotation tool name: auto-incrementing numbered badges */
 "tool.stepNumber" = "Step Counter";
+
+/* Local OCR: capture menu/settings, editor action, and notices. */
+"ocr.title" = "Recognize Text";
+"ocr.copyText" = "Copy Text";
+"ocr.shortcutDetail" = "Select an area → recognize text locally and copy plain text";
+"ocr.noText" = "No text recognized. The clipboard is unchanged. Select an area with clearly readable text.";
+"ocr.failed" = "The text could not be recognized. Please try again with another area.";
+"ocr.clipboardFailed" = "The text could not be copied to the clipboard. Please try again.";
+"ocr.hotkeyUnavailable" = "The shortcut ⌘⇧6 could not be registered. It may already be in use. Recognize Text remains available from the menu.";

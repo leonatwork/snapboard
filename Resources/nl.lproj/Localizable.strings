@@ -167,3 +167,12 @@
 
 /* Annotation tool name: auto-incrementing numbered badges */
 "tool.stepNumber" = "Stappenteller";
+
+/* Lokale tekstherkenning (OCR). */
+"ocr.title" = "Tekst herkennen";
+"ocr.copyText" = "Tekst kopiëren";
+"ocr.shortcutDetail" = "Selecteer een gebied → herken tekst lokaal en kopieer als platte tekst";
+"ocr.noText" = "Geen tekst herkend. Het klembord is ongewijzigd. Selecteer een gebied met goed leesbare tekst.";
+"ocr.failed" = "De tekst kon niet worden herkend. Probeer het opnieuw met een ander gebied.";
+"ocr.clipboardFailed" = "De tekst kon niet naar het klembord worden gekopieerd. Probeer het opnieuw.";
+"ocr.hotkeyUnavailable" = "De sneltoets ⌘⇧6 kon niet worden geregistreerd. Deze is mogelijk al in gebruik. Tekst herkennen blijft beschikbaar via het menu.";

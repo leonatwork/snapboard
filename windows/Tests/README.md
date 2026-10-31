@@ -1,4 +1,4 @@
-# Windows regression tests — Issue #7
+# Windows regression tests — Issues #7 and #10
 
 The runner uses only the .NET SDK and the app project; no test packages or other
 dependencies are required. Run on Windows 10/11 with .NET 8:
@@ -10,11 +10,20 @@ dotnet run --project windows/Tests/Snapboard.Windows.Tests.csproj -c Release
 
 Each case prints PASS/FAIL; any failure returns exit code 1. The `build-windows`
 job runs both commands. Clipboard contention is injected into the same retry
-function used by both capture paths. It does not change the real clipboard or
-Registry. The editor test opens a temporary form, exercises fit/100% scrolling,
+function used by image and text capture. Those injected retry tests do not change
+the real clipboard. **The OCR integration tests do write to the test user's clipboard**
+(Unicode text and an in-memory image), so run the runner in a disposable test session.
+No tests change the Registry. The editor test opens a temporary form, exercises fit/100% scrolling,
 simulates mouse drawing in both views and verifies full-resolution annotation
 export in memory. Encoded PNG/JPEG data
 also stays in memory.
+
+The OCR tests inject recognition results instead of calling the real engine. They
+check reading order, line breaks, empty/error/missing-language handling, Unicode
+clipboard types without an image, pending-request reentry, and full-resolution
+rendered editor input with redacted lines excluded. Real Windows.Media.Ocr and
+language-pack behavior still need the platform checks in
+[`docs/issue-10-handover.md`](../../docs/issue-10-handover.md).
 
 ## Test-first evidence and execution limits
 

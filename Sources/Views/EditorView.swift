@@ -21,8 +21,10 @@ final class EditorViewModel: ObservableObject {
     @Published var nextStepNumber: Int = 1
 
     var onClose: (() -> Void)?
+    @Published private(set) var isRecognizingText = false
 
     private let pasteboard: NSPasteboard
+    private let ocrService: OCRService
     private let presentExportError: (Error) -> Void
     private let chooseSaveURL: () -> URL?
 
@@ -30,11 +32,13 @@ final class EditorViewModel: ObservableObject {
         image: NSImage,
         pasteboard: NSPasteboard = .general,
         presentExportError: ((Error) -> Void)? = nil,
-        chooseSaveURL: (() -> URL?)? = nil
+        chooseSaveURL: (() -> URL?)? = nil,
+        ocrService: OCRService? = nil
     ) {
         self.image = image
         self.imagePixelSize = Self.pixelSize(of: image)
         self.pasteboard = pasteboard
+        self.ocrService = ocrService ?? OCRService(pasteboard: pasteboard)
         self.presentExportError = presentExportError ?? Self.showExportError
         self.chooseSaveURL = chooseSaveURL ?? Self.showSavePanel
     }
@@ -164,6 +168,24 @@ final class EditorViewModel: ObservableObject {
         } catch {
             presentExportError(error)
         }
+    }
+
+    func copyText() async {
+        guard !isRecognizingText else { return }
+        isRecognizingText = true
+        defer { isRecognizingText = false }
+        finishDrawing()
+        guard let rendered = ImageRendererService.shared.render(image: image, annotations: annotations) else {
+            presentExportError(ImageExportError.renderingFailed)
+            return
+        }
+        let redactions = annotations.filter { $0.tool == .blur }.map { item in
+            CGRect(x: min(item.startPoint.x, item.endPoint.x) * imagePixelSize.width,
+                   y: min(item.startPoint.y, item.endPoint.y) * imagePixelSize.height,
+                   width: abs(item.endPoint.x - item.startPoint.x) * imagePixelSize.width,
+                   height: abs(item.endPoint.y - item.startPoint.y) * imagePixelSize.height)
+        }
+        await ocrService.copyText(from: rendered, excluding: redactions)
     }
 
     private func renderForExport() throws -> ImageExport {
@@ -366,6 +388,11 @@ struct EditorView: View {
                     }
                     .buttonStyle(.accessoryBar)
                 }
+
+                Button(L10n.tr("ocr.copyText")) {
+                    Task { await viewModel.copyText() }
+                }
+                .disabled(viewModel.isRecognizingText)
 
                 Button(L10n.tr("editor.saveAs")) {
                     viewModel.saveAsFile()

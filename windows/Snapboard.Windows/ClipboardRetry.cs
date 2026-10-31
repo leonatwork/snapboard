@@ -10,6 +10,26 @@ namespace Snapboard
     {
         public static bool TrySetImage(Image image) => TrySetImage(image, SetImageOnce, Thread.Sleep);
 
+        public static bool TrySetText(string text) => TrySetText(text, value =>
+        {
+            var data = new DataObject();
+            data.SetText(value, TextDataFormat.UnicodeText);
+            Clipboard.SetDataObject(data, true, 0, 0);
+        }, Thread.Sleep);
+
+        public static bool TrySetText(string text, Action<string> setText, Action<int> delay)
+        {
+            for (int attempt = 0; attempt < 3; attempt++)
+            {
+                try { setText(text); return true; }
+                catch (ExternalException)
+                {
+                    if (attempt < 2) delay(100);
+                }
+            }
+            return false;
+        }
+
         private static void SetImageOnce(Image image)
         {
             var data = new DataObject();
