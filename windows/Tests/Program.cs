@@ -5,6 +5,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using System.Threading.Tasks;
 using Snapboard;
 
 namespace Snapboard.Tests;
@@ -25,7 +26,11 @@ internal static class RegressionTests
             ("PNG/JPEG filters produce actual signatures and full dimensions", ExportFormats),
             ("Window bounds respect small and negative-origin working areas", WindowBounds),
             ("Fit and scrolled 100% coordinates reach all image corners", ViewCoordinates),
-            ("Large editor fits screen, scrolls, and exports annotations at full size", LargeEditor)
+            ("Large editor fits screen, scrolls, and exports annotations at full size", LargeEditor),
+            ("OCR reading order, whitespace and redaction", OcrReadingOrder),
+            ("OCR plain text, no text, missing language and clipboard retry", OcrClipboard),
+            ("Pending OCR rejects reentry and does not touch the clipboard", OcrReentry),
+            ("Editor OCR receives rendered pixels and excludes redactions", EditorOcr)
         };
         int failed = 0;
         foreach (var test in tests)
@@ -182,6 +187,110 @@ internal static class RegressionTests
 
     private static object Field(object target, string name) => target.GetType()
         .GetField(name, BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(target)!;
+
+    private static void OcrReadingOrder()
+    {
+        var lines = new[] {
+            new OcrTextLine(" Zweite Zeile ", new RectangleF(0, 30, 80, 10)),
+            new OcrTextLine("rechts", new RectangleF(100, 1, 80, 10)),
+            new OcrTextLine(" links ", new RectangleF(0, 2, 80, 10)),
+            new OcrTextLine("geheim", new RectangleF(0, 50, 80, 10)),
+            new OcrTextLine(" \n ", RectangleF.Empty) };
+        var redactions = new[] { new RectangleF(40, 50, 10, 10) };
+        Equal("links\nrechts\nZweite Zeile", OcrTextProcessing.Text(lines, redactions));
+        Array.Reverse(lines);
+        Equal("links\nrechts\nZweite Zeile", OcrTextProcessing.Text(lines, redactions));
+        Equal("", OcrTextProcessing.Text(Array.Empty<OcrTextLine>()));
+    }
+
+    private static void OcrClipboard()
+    {
+        using var image = new Bitmap(120, 60);
+        IReadOnlyList<OcrTextLine> lines = new[] { new OcrTextLine("Grüße\nHello", new RectangleF(0, 0, 80, 10)) };
+        var notices = new List<string>();
+        var service = new OcrService(_ => Task.FromResult(lines), notices.Add);
+        Clipboard.SetImage(image);
+        service.CopyTextAsync(image).GetAwaiter().GetResult();
+        Equal("Grüße\nHello", Clipboard.GetText(TextDataFormat.UnicodeText));
+        Equal(true, Clipboard.ContainsText(TextDataFormat.UnicodeText));
+        Equal(false, Clipboard.ContainsImage());
+        Equal(0, notices.Count);
+        lines = Array.Empty<OcrTextLine>();
+        service.CopyTextAsync(image).GetAwaiter().GetResult();
+        Equal("Grüße\nHello", Clipboard.GetText());
+        Equal(1, notices.Count);
+        var missing = new OcrService(_ => throw new OcrLanguageUnavailableException(), notices.Add);
+        missing.CopyTextAsync(image).GetAwaiter().GetResult();
+        Equal("Grüße\nHello", Clipboard.GetText());
+        Equal(true, notices[1].Contains("Sprachpaket"));
+        var failure = new OcrService(_ => throw new InvalidOperationException("test failure"), notices.Add);
+        Equal(false, failure.CopyTextAsync(image).GetAwaiter().GetResult());
+        Equal("Grüße\nHello", Clipboard.GetText());
+        Equal(3, notices.Count);
+        int attempts = 0;
+        var delays = new List<int>();
+        Equal(false, ClipboardRetry.TrySetText("text", _ => {
+            attempts++; throw new ExternalException();
+        }, delays.Add));
+        Equal(3, attempts);
+        Equal("100,100", string.Join(",", delays));
+    }
+
+    private static void EditorOcr()
+    {
+        using var image = new Bitmap(120, 60);
+        for (int y = 0; y < image.Height; y++)
+            for (int x = 0; x < image.Width; x++) image.SetPixel(x, y, x % 2 == 0 ? Color.White : Color.Black);
+        Bitmap? received = null;
+        var notices = new List<string>();
+        var service = new OcrService(pixels => {
+            received = new Bitmap(pixels);
+            return Task.FromResult<IReadOnlyList<OcrTextLine>>(new[] {
+                new OcrTextLine("secret", new RectangleF(10, 10, 20, 10)),
+                new OcrTextLine("visible", new RectangleF(80, 10, 20, 10)) });
+        }, notices.Add);
+        using var editor = new EditorForm(image, service);
+        editor.Show();
+        Application.DoEvents();
+        var annotations = (List<Annotation>)Field(editor, "annotations");
+        annotations.Add(new Annotation { Tool = ToolType.Blur, Start = Point.Empty, End = new Point(60, 60) });
+        editor.CopyTextAsync().GetAwaiter().GetResult();
+        using var expected = (Bitmap)typeof(EditorForm).GetMethod("RenderFinalImage", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(editor, null)!;
+        using (received) {
+            Equal(image.Size, received!.Size);
+            for (int y = 0; y < image.Height; y++)
+                for (int x = 0; x < image.Width; x++) Equal(expected.GetPixel(x, y), received.GetPixel(x, y));
+        }
+        Equal("visible", Clipboard.GetText());
+        Equal(0, notices.Count);
+        Equal(true, editor.Visible);
+        Equal(1, annotations.Count);
+        editor.Close();
+    }
+
+    private static void OcrReentry()
+    {
+        using var image = new Bitmap(120, 60);
+        var pending = new TaskCompletionSource<IReadOnlyList<OcrTextLine>>();
+        int requests = 0;
+        var notices = new List<string>();
+        var service = new OcrService(_ => { requests++; return pending.Task; }, notices.Add);
+        Clipboard.SetText("unchanged", TextDataFormat.UnicodeText);
+        var first = service.CopyTextAsync(image);
+        Equal(false, first.IsCompleted);
+        Equal(false, service.CopyTextAsync(image).GetAwaiter().GetResult());
+        Equal(1, requests);
+        Equal("unchanged", Clipboard.GetText());
+        pending.SetResult(new[] { new OcrTextLine("recognized", new RectangleF(0, 0, 80, 10)) });
+        for (int i = 0; i < 100 && !first.IsCompleted; i++) {
+            Application.DoEvents();
+            System.Threading.Thread.Sleep(10);
+        }
+        Equal(true, first.IsCompleted);
+        Equal(true, first.GetAwaiter().GetResult());
+        Equal("recognized", Clipboard.GetText());
+        Equal(0, notices.Count);
+    }
 
     private static void DrawWithMouse(Panel canvas, Point start, Point end)
     {

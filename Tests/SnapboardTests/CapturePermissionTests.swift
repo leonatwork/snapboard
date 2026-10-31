@@ -4,7 +4,7 @@ import XCTest
 
 @MainActor
 final class CapturePermissionTests: XCTestCase {
-    func testBothCaptureModesStopWhenPermissionIsMissingAndOpenPrivacyPane() async {
+    func testAllCaptureModesStopWhenPermissionIsMissingAndOpenPrivacyPane() async {
         var preflights = 0
         var requests = 0
         var dialogs = 0
@@ -21,13 +21,14 @@ final class CapturePermissionTests: XCTestCase {
 
         service.captureDirect()
         service.captureForEdit()
+        service.captureForText()
 
-        XCTAssertEqual(preflights, 2)
-        XCTAssertEqual(dialogs, 2)
+        XCTAssertEqual(preflights, 3)
+        XCTAssertEqual(dialogs, 3)
         XCTAssertEqual(requests, 1)
         XCTAssertEqual(launches, 0)
         XCTAssertEqual(openedURLs.map(\.absoluteString), Array(repeating:
-            "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture", count: 2))
+            "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture", count: 3))
     }
 
     func testDismissPermissionDialogDoesNotRequestOrOpenSettings() async {
@@ -97,10 +98,11 @@ final class CapturePermissionTests: XCTestCase {
         XCTAssertTrue(errors.allSatisfy { $0.domain == failure.domain && $0.code == failure.code })
     }
 
-    func testCancelledCaptureShowsNoErrorForBothModes() async throws {
+    func testCancelledCaptureShowsNoErrorForAllModesAndPreservesClipboard() async throws {
         // A short-lived child models Esc: nonzero exit, no clipboard change or output file.
         // Never invoke screencapture or touch real privacy permissions from a unit test.
-        for edit in [false, true] {
+        for mode in 0..<3 {
+            let initialClipboardCount = NSPasteboard.general.changeCount
             var process: Process?
             var errors: [Error] = []
             let service = CaptureService(
@@ -115,7 +117,11 @@ final class CapturePermissionTests: XCTestCase {
                 },
                 presentCaptureStartError: { errors.append($0) }
             )
-            if edit { service.captureForEdit() } else { service.captureDirect() }
+            switch mode {
+            case 0: service.captureDirect()
+            case 1: service.captureForEdit()
+            default: service.captureForText()
+            }
             let child = try XCTUnwrap(process)
             child.waitUntilExit()
             // Wait for the actual production termination handler's main-actor task.
@@ -124,6 +130,7 @@ final class CapturePermissionTests: XCTestCase {
             }
             XCTAssertFalse(service.hasActiveCapture)
             XCTAssertTrue(errors.isEmpty)
+            XCTAssertEqual(NSPasteboard.general.changeCount, initialClipboardCount)
         }
     }
 }

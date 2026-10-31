@@ -95,6 +95,15 @@ final class CaptureService {
     }
 
     func captureForEdit() {
+        captureImage(forText: false)
+    }
+
+    func captureForText() {
+        guard !OCRService.shared.isRecognizing else { return }
+        captureImage(forText: true)
+    }
+
+    private func captureImage(forText: Bool) {
         guard canStartCapture() else { return }
 
         let tempFileURL = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent("snapboard_capture_\(UUID().uuidString).png")
@@ -120,8 +129,12 @@ final class CaptureService {
                    let image = NSImage(data: imageData) {
                     // Clean up temp file immediately (0 files on disk)
                     try? FileManager.default.removeItem(at: tempFileURL)
-                    logger.info("Capture loaded into memory. Opening Editor...")
-                    EditorWindowController.shared.show(image: image)
+                    if forText {
+                        await OCRService.shared.copyText(from: image)
+                    } else {
+                        logger.info("Capture loaded into memory. Opening Editor...")
+                        EditorWindowController.shared.show(image: image)
+                    }
                 } else {
                     try? FileManager.default.removeItem(at: tempFileURL)
                     logger.error("Failed to load captured image from memory.")

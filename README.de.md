@@ -89,6 +89,7 @@ Mitteilungen sind standardmäßig aus: Beim Start fragt Snapboard nicht nach die
 | :--- | :--- | :--- |
 | **`⌘ + ⇧ + 1`** | **Direkt-Capture** | Bereich markieren → **Sofort in die Zwischenablage** (0 Klicks) |
 | **`⌘ + ⇧ + 2`** | **Capture & Edit** | Bereich markieren → **Öffnet den Snapboard-Editor** |
+| **`⌘ + ⇧ + 6`** | **Text erkennen (OCR)** | Bereich markieren → **Klartext kopieren**, lokal erkannt |
 | `Leertaste` | Fenstermodus | Spezifisches Fenster während der Auswahl erfassen |
 | `ESC` | Abbrechen | Aufnahme beenden ohne Clipboard zu verändern |
 | `⌘ + C` / `Enter` | Export (im Editor) | Bearbeitetes Bild kopieren & Editor schließen |
@@ -99,11 +100,25 @@ Mitteilungen sind standardmäßig aus: Beim Start fragt Snapboard nicht nach die
 | :--- | :--- | :--- |
 | **`Ctrl + Shift + 1`** | **Direkt-Capture** | Bereich markieren → **Sofort in die Zwischenablage** (0 Klicks) |
 | **`Ctrl + Shift + 2`** | **Capture & Edit** | Bereich markieren → **Öffnet den Snapboard-Editor** |
+| **`Ctrl + Shift + 3`** | **Text erkennen (OCR)** | Bereich markieren → **Klartext kopieren**, lokal erkannt |
 | `ESC` | Abbrechen | Aufnahme abbrechen |
 | `Ctrl + C` | Export (im Editor) | Bearbeitetes Bild kopieren & Editor schließen |
 | `Ctrl + S` | Speichern als... | Optional als PNG-Datei exportieren |
 
 ---
+
+### Lokale Texterkennung (macOS & Windows)
+
+Mit dem OCR-Kürzel oder **Text erkennen** im Menü einen Bereich auswählen. Im Editor
+erkennt **Text kopieren** das gerenderte Bild einschließlich Anmerkungen und lässt den Editor offen.
+Zeilen, die eine verpixelte Fläche berühren, werden ausgelassen, auch wenn verpixelte Buchstaben
+noch lesbar sind. Der Text wird in Lesereihenfolge mit Zeilenumbrüchen kopiert, ohne Bild.
+Bei keinem erkannten Text oder Abbruch der Auswahl mit Esc bleibt die Zwischenablage unverändert.
+
+OCR läuft offline über macOS Vision bzw. Windows.Media.Ocr mit automatischer Sprachwahl.
+Windows benötigt ein OCR-Sprachpaket passend zu einer Benutzerprofil-Sprache; fehlt es,
+zeigt Snapboard einen Hinweis. Installation unter **Einstellungen → Zeit und Sprache → Sprache**.
+Ist das OCR-Kürzel nicht verfügbar, lässt sich die Aktion weiterhin über das Menü starten.
 
 ## 🛠️ Aus dem Quellcode bauen
 
